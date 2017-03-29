@@ -52,12 +52,12 @@ env: function(opts ,cb) {
        opts.clientSettings = {};
        //opts.clientSettings.loadDataFilters = config.integrationTypes[i].type.loadDataFilters;
        opts.clientSettings = config.integrationTypes[i].clientSettings;
-       if ( opts.clientSettings.hasLines == false ) {
+       if ( opts.clientSettings.hasLines != true ) {
          opts.clientSettings.lineValues = false;
        }
 	opts.clientSettings.displayHeaderValues = _.filter(opts.clientSettings.headerValues, { "display" : true });
 	opts.clientSettings.getHeaderValueFromMappedData = _.filter(opts.clientSettings.headerValues, [ "suppliedFromMappedData" , true ]);
-	if ( opts.clientSettings.hasLines = true ) {
+	if ( opts.clientSettings.hasLines == true ) {
 	  opts.clientSettings.displayLineValues = _.filter(opts.clientSettings.lineValues, { "display" : true });
         }
        opts.apiSettings = {};
@@ -91,7 +91,8 @@ env: function(opts ,cb) {
          }
        })
        // May not have lines ...
-       if ( opts.clientSettings.hasLines === true ) {
+       console.log(JSON.stringify('Has Lines' +  opts.clientSettings.hasLines));
+       if ( opts.clientSettings.hasLines == true ) {
          opts.clientSettings.lineValues.forEach(function(object) {
            if ( object.hasOwnProperty('map') ) {
              if ( object.map == true ) {
