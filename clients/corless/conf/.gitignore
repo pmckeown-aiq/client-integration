@@ -1,0 +1,3 @@
+# Ignore all files in the data directories - but not the folder
+*
+!.gitignore
