@@ -1,0 +1,32 @@
+|<script type="text/ng-template" id="mapDataPopup.html">
+|    <form name="MapDataPopUp">
+|    <div class="modal-header">
+|        <h3>Map Data {{ mapData.data.name }} for database {{ mapData.data.coID }} </h3>
+|    </div>
+|    <div class="modal-body">
+|      <ng-form name="mapDataForm">
+|        <div class="form-group">
+|          <div class="row">
+|            <label class="col-md-3" for="newSourceValue">New Source</label>
+|            <input class="col-md-3" type=text class="form-control" id="newSourceValue" ng-model="newSourceValue">
+|            <label class="col-md-3" for="newAiqValue">New AccountsIQ</label>
+|            <input class="col-md-3" type=text class="form-control" id="newAiqValue" ng-model="newAiqValue">
+|          </div>
+|        </div>
+|        <div class="form-group" ng-repeat="value in mapData.mapData.data">
+|          <div class="row">
+|            <label class="col-md-3" for="value.sourceValue">Source</label>
+|            <input class="col-md-3" type=text class="form-control" placeholder="{{ value.sourceValue }}" id="value.sourceValue" ng-model="value.sourceValue">
+|            <label class="col-md-3" for="value.aiqValue">AccountsIQ</label>
+|            <input class="col-md-3" type=text class="form-control" placeholder="{{ value.aiqValue }}" id="value.aiqValue" ng-model="value.aiqValue">
+|          </div>
+|        </div>
+|      </ng-form>
+|    </div>
+|    <div class="modal-footer">
+|        <button ng-json-export-excel data="mapData.mapData.data" report-fields="{'sourceValue': 'SourceValue', aiqValue: 'aiqValue'}" filename =" mapData.data.name " separator="," class="btn btn-primary">Export to CSV</button>
+|        <button class="btn btn-primary" ng-click="ok()">OK</button>
+|        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+|    </div>
+|    </form>
+|</script>

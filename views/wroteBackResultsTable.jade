@@ -1,0 +1,14 @@
+|<div ng-hide="!(wroteBackTransactions.length>0)">
+//|  <table class="table table-striped" ng-hide="wroteBackTransactions.length=0">
+|  <table class="table table-striped" export-csv="wroteBackCSV">
+|    <thead>
+|      <th>Write Back data</th>
+|    </thead>
+|      <tr ng-repeat="x in wroteBackTransactions"  ng-class="{danger:!x.message.status}" class="success">
+|              <td>{{ x.transactionRef }}</td>
+|              <td>{{ x.message.wroteBackID }}</td>
+|              <td>{{ x.message.success }}</td>
+|      </tr>
+|  </table>
+|  <a class="btn" title="Export Table" ng-click='wroteBackCSV.generate()' ng-href="{{ wroteBackCSV.link() }}" download="wroteBackData.csv"><span class="glyphicon glyphicon-download" style="font-size: 20px;"></span></a>
+|</div>

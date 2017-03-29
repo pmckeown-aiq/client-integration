@@ -1,0 +1,60 @@
+extends layout
+
+block content
+  // Include Pop Up Forms (load as scripts)
+  include transactionLinesPopUp
+  include accountIDPopUp
+  include mapDataPopUp
+  include serverErrorPopUp
+  include loadDataWaitPopUp
+  include processDataWaitPopUp
+  if (!user)
+    div(class='row')
+     a(href="/login") Login
+  else
+    div(class='row')
+     p You are currently logged in as #{user.displayName}
+     a(href="/logout") Logout
+     // The stages bar ..
+     include stepWizard
+
+     // Include first form to select the environment/integration type
+     include selectEnvironment
+     div(class='row', ng-controller='updateController' ng-show="loadDataReady")
+       h3(align="center") Processing {{ type }}  for {{ coID }} 
+       .well.clearfix(ng-show="showManageMap")
+         p(class='small' ng-show="objectsToMap.length>0") Manage data mapping between the source system and AccountsIQ company {{ coID }}. {{ objectsToMap.length }} {{ objectsToMap }}
+         p(class='small' ng-hide="objectsToMap.length>0") There is no mapped data for you to manage
+         ul(class='list-group')
+          li(class='list-group-item', ng-repeat='value in objectsToMap')
+            Maintain Mapping for {{ value.displayName }} ( {{value.name}} )
+            button(type='button', class='btn btn-xs indent', ng-click='openManageMapping(value)') Manage
+         button(type='button', class='btn btn-primary btn-sm', style="float: right;", ng-click='showManageMap=!showManageMap') Dismiss
+       include statusTable
+            // form  to handle dynamic filters
+           form(name="loadFileForm" ng-hide="feedTransactions.length>0")
+             li(class='list-group-item', ng-repeat='filter in loadDataFilters')
+               ul 
+                label(for="{{ filter.name }}: " ,class='control-label') {{ filter.label }}  
+                |<input type="{{ filter.type }}" name="{{ filter.name }}"  ng-model="filter[filter.name]" ng-required="{{ filter.required }}">
+             
+             button(type='button', class='btn btn-primary', ng-click='loadFileForm.$valid && loadData(loadFileForm) ; showLoadDataWait(feedTransactions.length)', ng-hide='feedTransactions.length>0') Next - load the data
+           .well.clearfix(ng-show="currentStage>3")
+            .col-md-12
+                   p(class='small' ng-show="hasHeader") Customers to be created in AccountsIQ company {{ coID }}. You can use the "Create Account" button to create them but it is highly recommended that you update the customer names and addresses before processing the invoices. The names and addresses, GL Code and Tax Codes (defaulted in - use the "Get Customer Defaults" to see what they are. But the settings will propogate to every created invoice (so get them correct before creating the invoices).
+ 
+                   include invalidDataTable 
+            .col-md-12
+               // Bring in the control table (used for record counts) 
+               include controlTable
+               // Two tables to store invalid and all feed transactions 
+               include feedTransactionTables
+               // progress bar for data update - replaced with Pop Up
+               // include processProgressBar
+               // New table to display results
+               include resultsTable              
+               include wroteBackResultsTable              
+            .col-md-6
+               //include accountDefaultsTable
+              button(type='button', class='btn btn-primary', ng-click='showfeedTransactions = !showfeedTransactions', ng-show="feedTransactions.length>0" ) Review data
+              button(type='button', class='btn btn-primary', ng-click='createTransactions(feedTransactions); showProcessDataWait(feedTransactions.length); showfeedTransactions = !showfeedTransactions', ng-show="feedTransactions.length>0 && !(createdTransactions.length > 0)" ) Start Processing

@@ -1,0 +1,16 @@
+div(class='row', ng-show="showLogInfo")
+  li(class='list-group-item', ng-repeat='message in status track by $index')
+    ul(class='label' ng-class="{'label-info': message.isError != true, 'label-danger': message.isError == true}") {{message.text}} {{ message.isError }}
+  .alert.alert-info(ng-class="{danger:newFileWarn}") Processing {{ newFile }} {{ newFileWarn }}- click "Load File" to update data or refresh browser to start again. 
+  button(type='button', class='btn btn-primary btn-sm', style="float: right;", ng-click='showLogInfo=!showLogInfo') Dismiss
+div(class='row')
+  | <table class="table table-striped" ng-hide="feedTransactions.length>0">
+  | <thead>
+  | <th>Refreshing data</th>
+  | </thead>
+  |	<tr ng-repeat="x in objectsToValidate">
+  |		<td>{{ x.displayName }}</td>
+  |		<td><span ng-class="x.success ? 'glyphicon glyphicon-ok' : 'glyphicon glyphicon-refresh'"></span>
+  |               </td>
+  |	</tr>
+  |</table>

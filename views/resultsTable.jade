@@ -1,0 +1,21 @@
+|<table class="table table-striped" export-csv="csv" ng-show="dataUpdateRunning">
+| <tbody>
+|  <tr ng-repeat="transaction in createdTransactions" ng-class="{danger:!transaction.status}" class="success"> 
+|   <td>{{transaction.transactionRef}}</td>
+|   <td>{{transaction.status}}</td>
+|   <td>{{transaction.errorCode}}</td>
+|   <td>{{transaction.message}}</td>
+|   <td>{{transaction.transactionID}}</td>
+|  </tr>
+|  <tr ng-repeat="x in wroteBackTransactions" ng-class="{danger:!x.status}" class="success">
+|   <td>{{ x.transactionRef }} : {{ x.xTransactionRef }}</td>
+|   <td>{{ x.status }}</td>
+|   <td>{{ x.errorCode }}</td>
+|   <td>{{ x.message }}</td>
+|   <td>{{ x.transactionID }}</td>
+|  </tr>
+|  <tr>
+|   <td><a class="btn" title="Export Table" ng-click='csv.generate()' ng-href="{{ csv.link() }}" download="integrationLog.csv"  ng-show="dataUpdateRunning"><span class="glyphicon glyphicon-download" ng-show="dataUpdateRunning" style="font-size: 20px;"></span></a></td>
+|  </tr>
+| </tbody>
+|</table>

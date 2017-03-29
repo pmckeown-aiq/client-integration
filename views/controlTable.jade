@@ -1,0 +1,22 @@
+table.table.table-striped(ng-show="feedTransactions.length>0")
+  thead
+    tr
+      th Control Totals (please check against invoice feed)
+    tr
+      td Feed Record Count
+      td {{ controlTotals.transactionFeedCount }}
+    tr
+      td No of Transactions
+      td {{ controlTotals.transactionCount }}
+    tr
+      td No of Lines
+      td {{ controlTotals.transactionLinesCount}}
+    tr
+      td No of Errors
+      td {{ controlTotals.feedErrorsCount }}
+    tr
+      td No of Lines in Error
+      td {{ controlTotals.feedErrorsLinesCount }}
+    tr
+      td Transactions Created
+      td {{ createdTransactionCount }}

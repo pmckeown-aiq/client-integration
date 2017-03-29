@@ -1,0 +1,720 @@
+  // Don"t commit this file to your public repos. This config is for first-run
+  //
+ exports.codeMaintenanceSettings = {
+  "CurrencyCode": { 
+  	"validateWith":"GetCurrencies",
+  	"invalidMessage":"Invalid/Missing Currency Code",
+        "batch": true,
+  	"abortRun":false
+  },
+  "StockItemID": { 
+  	"validateWith":"GetActiveStockItemList",
+  	"invalidMessage":"Invalid/Missing Item Code",
+        "batch": true,
+  	"abortRun":false
+  },
+  // AccountID - default is for sales
+        "AccountID": { 
+  	"validateWith":"GetActiveCustomerList",
+  	"templateWith":"GetNewCustomerFromDefaults",
+  	"createWith":"UpdateCustomer",
+        "batch": true,
+  	"invalidMessage":"Customer Code Missing",
+  	"abortRun":false
+  },
+  // Account can be called AccountID - or CustomerCode (so just replicate the data for AccountID
+        "CustomerCode": { 
+  	"validateWith":"GetActiveCustomerList",
+  	"templateWith":"GetNewCustomerFromDefaults",
+  	"createWith":"UpdateCustomer",
+        "batch": true,
+  	"invalidMessage":"Customer Code Missing",
+  	"abortRun":false
+  },
+  // And AccountID can be a SupplierAccountID (same name ... differnt thing!)
+  // AccountID - default is for sales
+        "PurchaseAccountID": { 
+  	"validateWith":"GetActiveSupplierList",
+  	"templateWith":"GetNewSupplierFromDefaults",
+  	"createWith":"UpdateSupplier",
+        "batch": true,
+  	"invalidMessage":"Supplier Code Missing",
+  	"abortRun":false
+  },
+        "DepartmentID": { 
+  	"validateWith":"GetDepartmentList",
+  	"invalidMessage":"Department Code Missing",
+          "batch": true,
+  	"abortRun":false
+  },
+        "TaxCode": { 
+  	"validateWith":"GetTaxCodeList",
+  	"invalidMessage":"Tax Code Missing",
+        "batch": true,
+  	"abortRun":false
+  },
+        "TaxRate": { 
+  	"validateWith":"GetTaxCodeList",
+   	"invalidMessage":"Tax Rate Could Not Be Mapped to Tax Code",
+        "batch": true,
+  	"abortRun":false
+  },
+        "GLAccountCode": { 
+  	"validateWith":"GetGLAccountList",
+  	"invalidMessage":"GL Account Code Missing",
+        "batch": true,
+  	"abortRun":false
+  }
+ }
+ exports.envs = 
+  [
+   {
+    "coID" : "epi7336",
+    "conn": { 
+    "url" : "https://hostacct.com/system/dashboard/integration/integration_1_1.asmx?WSDL",
+    "pKey" : "ZGfaC2nJm1awEx+i3Z+FzfOtAHlArZZxMJURtQgu28XDS51j8tsI3OonFnjF+XIqYUujfqn4kjCbo5buMGY1VWyUjYAqp/fc4Z4mMJKF4hF7qIGn1x5XY5oZ5dMYZc7G",
+    "uKey" : "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTa/RAe4stUu2KOAxHddr7qzPcUxSWaP6sgmKbItv8EWeWSOiLeSunf+gDo8IhGFrak5gAuSEBs+RvXTjMdw4dKxbqtQuYc0wjAA0O7BOG16lSM6NWQ7W49Ae1CAYNUPKEF"
+      },
+    "additionalEnvs":       
+      [ 
+        { "coID" : "epi2016", "identifiedBy": { "name":"EnvironmentIdentifier", "value": "EPI434" }, "uKey" : "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTa/RAe4stUu2KOAxHddr7qzPcUxSWaP6sgmKbItv8EWeVQcu2Ve5s3Iu38rx4hfeCuMECplnjuBkgysyvuOpvdaRTMqMM5pKvWROUVjqfAnBEdJmHFOkY6oxkDZYclrGJV" }
+      ]
+   }, 
+   {
+    "coID" : "vis5202",
+    "conn": { 
+    "url" : "https://hostacct.com/system/dashboard/integration/integration_1_1.asmx?WSDL",
+    "pKey" : "ZGfaC2nJm1awEx+i3Z+FzfOtAHlArZZxMJURtQgu28XDS51j8tsI3OonFnjF+XIqYUujfqn4kjCbo5buMGY1VWyUjYAqp/fc4Z4mMJKF4hF7qIGn1x5XY5oZ5dMYZc7G",
+    "uKey" : "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTaTwzgOVBwn351kDC65YekmjKq2ecbJcXWGQUveYWYLA7GLNZyWpI/5jC5kMvDc8iYKDtEO9NVwuMKpTJfIlORYeu07DH9JW91uVrEGzNQMuEqN9XCPuY4wzDlSVWMQW58"
+    },
+    "additionalEnvs":       
+      [ { "coID" : "amk5855", "identifiedBy": { "name":"EnvironmentIdentifier", "value": "AMK5855" }, "uKey" : "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTaIp6FtS+6b55KBBRH2nhxtAKuOv8G2keWer09HufdO6+X+eimxLWVOuVahUbYba3RjvjeVa5bng2k7FCq6RGuFepXt0OhKp6LR9MbHaj8bJnuIF64oH1KtrChj6GX3Q/r" }
+      ]
+  },
+  {
+    "coID": "cor1000",
+    "coDescription" : "Corless Development Environment",
+    "conn": { 
+    "url": "https://www.visorsoftware.com/system/dashboard/integration/integration_1_1.asmx?WSDL",
+    "pKey": "ZGfaC2nJm1awEx+i3Z+FzfOtAHlArZZxMJURtQgu28XDS51j8tsI3OonFnjF+XIqYUujfqn4kjCbo5buMGY1VWyUjYAqp/fc4Z4mMJKF4hF7qIGn1x5XY5oZ5dMYZc7G",
+    "uKey": "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTaEqGjIAdPP9P24K6J8MADf2yqbgxgstSbjLu0Ii7M12kiqdQWBcsIxgB3FZDQcw5BBqB2HKL3x4imNH513TgGIv7tEqamQU/eCuTvJssSCqS0H0JKWRFrVG62yK57BwSX"
+    }
+  },
+  {
+    "coID": "kef7800",
+    "coDescription" : "Kefron Old Test Environment",
+    "conn": { 
+    "url": "https://hostacct.com/system/dashboard/integration/integration_1_1.asmx?WSDL",
+    "pKey": "ZGfaC2nJm1awEx+i3Z+FzfOtAHlArZZxMJURtQgu28XDS51j8tsI3OonFnjF+XIqYUujfqn4kjCbo5buMGY1VWyUjYAqp/fc4Z4mMJKF4hF7qIGn1x5XY5oZ5dMYZc7G",
+    "uKey": "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTaIp6FtS+6b55KBBRH2nhxtOr0sxmw6rcGDFFPx8pNj6zkh/VTUO1T8X+JI9kHLoMUJki/24b0EitYTKD6jj8rPDx6LNgE0eX+vWB0AhT2koZmoIRBj3o77UnETSZ/WLUO"
+    }
+  },
+  {
+    "coID": "kef5964",
+    "coDescription" : "Kefron Main Test Environment",
+    "conn": { 
+    "url": "https://hostacct.com/system/dashboard/integration/integration_1_1.asmx?WSDL",
+    "pKey": "ZGfaC2nJm1awEx+i3Z+FzfOtAHlArZZxMJURtQgu28XDS51j8tsI3OonFnjF+XIqYUujfqn4kjCbo5buMGY1VWyUjYAqp/fc4Z4mMJKF4hF7qIGn1x5XY5oZ5dMYZc7G",
+    "uKey": "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTaIp6FtS+6b55KBBRH2nhxtIzwaWM8MVR79FpQjjZ9EuCYLHsa/eN1tBmNdxOxcHw1gCvL1otmBEQtWSTYBjCaMaNVmwXb82Bxq+oPc26RbJqxcMTS0xCPayuYnIRc1XqU"
+    }
+  },
+  {
+    "coID": "kef1342",
+    "coDescription" : "Kefron PRODUCTION Environment",
+    "conn": { 
+    "url": "https://hostacct.com/system/dashboard/integration/integration_1_1.asmx?WSDL",
+    "pKey": "ZGfaC2nJm1awEx+i3Z+FzfOtAHlArZZxMJURtQgu28XDS51j8tsI3OonFnjF+XIqYUujfqn4kjCbo5buMGY1VWyUjYAqp/fc4Z4mMJKF4hF7qIGn1x5XY5oZ5dMYZc7G",
+    "uKey": "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTaRQw1i8TxBd8FCoKPBkbCXEHm7/ldxExzE3lmUAq1KtPAjx7LER0uceyyYfwOXVQkMQe4Hj0K5Qj6rOnJJMpCAYyZHj+MX6v2qaT/Vzv1RI3pF+E0OSBRVl9rqx+CubrX"
+    }
+  },
+  {
+    "coID": "cor5776",
+    "coDescription" : "Corless Production Environment",
+    "conn": { 
+    "url": "https://www.visorsoftware.com/system/dashboard/integration/integration_1_1.asmx?WSDL",
+    "pKey": "ZGfaC2nJm1awEx+i3Z+FzfOtAHlArZZxMJURtQgu28XDS51j8tsI3OonFnjF+XIqYUujfqn4kjCbo5buMGY1VWyUjYAqp/fc4Z4mMJKF4hF7qIGn1x5XY5oZ5dMYZc7G",
+    "uKey": "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTa/Zrm6teydJcB+lDZmH1yMcCbG0KY2rMpeJOoDIs//xqo95h0IXO8cOkzOrJQTGA+vlp3CHtFDVTwrXtMVSK8UhdEU7jOCiHgNByCX14eKxtDft18AcZgQf1Fabr1/bUU"
+    }
+  },	  
+  {
+    "coID" : "axi1732",
+    "coDescription" : "Axios Development Environment",
+    "conn": { 
+    "url" : "https://hostacct.com/system/dashboard/integration/integration_1_1.asmx?WSDL",
+    "pKey" : "ZGfaC2nJm1awEx+i3Z+FzfOtAHlArZZxMJURtQgu28XDS51j8tsI3OonFnjF+XIqYUujfqn4kjCbo5buMGY1VWyUjYAqp/fc4Z4mMJKF4hF7qIGn1x5XY5oZ5dMYZc7G",
+    "uKey" : "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTaw5DylFdn2mNf5M1rXzKE1fx9Emav5lY89xYzeIouHuV8NbkaKxzKoX9rHyXXlD8ku12usUxn6BF275+tE+Xyvbo9kZX8F1NiylRCc2EfK+j6aoE1vzqIGZwz+Z8PsJlL"
+    },
+    "additionalEnvs":       
+      [ 
+        { "coID" : "axi1000", "identifiedBy": { "name":"EnvironmentIdentifier", "value": "AXI4318" }, "uKey" : "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTasCBInjdugv/t7tTuIo5KHYRZkz6KKxX412W9XAXtW06SzUzwatTj9Vw07C1XUXVkqeZ357trHHTzLqMz1stYI+FvkudCjCHSyaPwraM3hbPcvtLVlmARGMNf63gQg+oj" },
+        { "coID" : "axi1000", "identifiedBy": { "name":"EnvironmentIdentifier", "value": "AXI1717" }, "uKey" : "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTasCBInjdugv/t7tTuIo5KHYRZkz6KKxX412W9XAXtW06SzUzwatTj9Vw07C1XUXVkqeZ357trHHTzLqMz1stYI+FvkudCjCHSyaPwraM3hbPcvtLVlmARGMNf63gQg+oj" }
+      ]
+  },
+  {
+    "coID" : "axi1731",
+    "coDescription" : "Axios Production Environment",
+    "conn": { 
+    "url" : "https://hostacct.com/system/dashboard/integration/integration_1_1.asmx?WSDL",
+    "pKey" : "ZGfaC2nJm1awEx+i3Z+FzfOtAHlArZZxMJURtQgu28XDS51j8tsI3OonFnjF+XIqYUujfqn4kjCbo5buMGY1VWyUjYAqp/fc4Z4mMJKF4hF7qIGn1x5XY5oZ5dMYZc7G",
+    "uKey" : "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTaJ73eW4+zft5UX1gel6E551SvVr/u4z9U40cK7GIFwYDRILM65mxinK30teM6oFL6SiVZTn0RKbxbj2JWrBhridoz/tE3vLnCKKLq/BmzI5BFzlAiweOW1EP2s76Moigy"
+    },
+    "additionalEnvs":       
+      [ 
+        { "coID" : "axi4318", "identifiedBy": { "name":"EnvironmentIdentifier", "value": "AXI4318" }, "uKey" : "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTasCBInjdugv/t7tTuIo5KHWkpocU7Ml6vFt+FtSsvc4VjZtI+fLSqXu3LmRAKki+e/kH6lcHlwWB49lfwD38es3pyVtQQLLsO+yFWJTweafLOuKAFaBEmg5CdeqsD+O30" },
+        { "coID" : "axi1717", "identifiedBy": { "name":"EnvironmentIdentifier", "value": "AXI1717" }, "uKey" : "8KYbmseEdiDxCJU8+9VxsbgRjQFPkYDcJ9kAjMocYr4WqDFm3SJWmYTBUMqO5RTasCBInjdugv/t7tTuIo5KHWkpocU7Ml6vFt+FtSsvc4WYPsbb8aM/JPbFmUQhBr7aWDcZvAhSb6F4Ie6oB3ixuN20/tZeFtO4YQgGiIknM1h9UNyydQ7ZWp924DDxFTEa" }
+      ]
+  },
+ ];
+ exports.integrationTypes = 
+ [
+  {
+    type: { "clientName": "epic", "type": "BatchInvoices", "feedType": "csv", 
+      configuredEnvironments: [ "vis5202", "epi7336" ] 
+    },
+    loadFrom: "loadCsv",
+    additionalEnvAllowed: true,
+    additionalEnvIdentifier: true,
+    processScript: "./clients/epic/scripts/processData",
+    updateDataScript: "/shared/updateData",
+    loadDataScript: "/shared/loadData",
+    transactionType: "CreateBatchSalesInvoiceGetBackTransactionID",
+    transactionTemplate: "GetNewBatchSalesInvoice",
+    // we can create Credit Notes from the SaveInvoiceGetBackInvoiceID ... 
+    negativeTransactionType: {"allow":true, transactionType: "CreateBatchSalesCreditNoteGetBackTransactionID", transactionTemplate: "GetNewBatchSalesCreditNote", identifyBy: "NetAmount" },
+    hasLines: true,
+    "headerValues": [
+      { "name":"EnvironmentIdentifier", "supplied": true, "value":"invoiceHeader.Department", "display":true, "displayName": "Environment"},
+      { "name":"CustomerCode", "supplied": true, "value":"invoiceHeader.CustomerCode", "display":true, "displayName": "Customer Code", "validate": { "exists": true } },
+      { "name":"InvoiceDate", "supplied": true, "value":"invoiceHeader.Tran_Date.slice(0,10)", "display":true, "displayName": "Invoice Date" },
+      { "name":"ExternalReference", "supplied": true, "value":"invoiceHeader.ExtRef", "display":true, "displayName": "External Ref" },
+      { "name":"ExchangeRate", "supplied": false, "value":"tbc", "display":false, "displayName": "Exchange Rate" },
+      { "name": "isCorrect", "display":true, "displayName": "Message"},
+    ],
+    "lineValues": [
+      { "name":"EnvironmentIdentifier", "supplied": true, "value":"invoice.Department", "display":true, "displayName": "Environment"},
+     { "name": "GLAccountCode", "supplied": false, "display": true, "displayName": "GL Code", "default":true, "defaultValue": { "getFromValidation":true, "getFromObject": "CustomerCode", "getObjectName": 'DefaultGLAccountCode' }},
+      { "name":"TaxCode", "supplied": true, "value":"invoice.TaxCode", "display":true, "displayName": "Tax Code", "validate": {"exists":true}},
+      { "name":"Description", "supplied": true, "value":"invoice.Tran_Date.slice(0,10) + ' ' + invoice.SubCategory.slice(7,15).replace(/-+$/, '')", "display":true, "displayName": "Description" },
+      { "name":"DepartmentID", "supplied": true, "value":"invoice.SubCategory.slice(7,15).replace(/-+$/, '')", "display":true, "displayName": "Department Code", "validate": {"exists":true} },
+      { "name":"NetAmount", "supplied": true, "value":"invoice.Net_Line_Total.toFixed(2)", "display":true, "displayName": "Net Amount" },
+      { "name":"TaxRate", "supplied": true, "value":"invoice.VatRate", "display":true, "displayName": "VAT Rate" },
+      { "name":"TaxAmount", "supplied": true, "value":"invoice.Vat_Line_Total.toFixed(2)", "display":true, "displayName": "Vat Amount" },
+      { "name": "isCorrect", "display":true, "displayName": "Message"},
+    ]
+  },
+  {
+    type: { "clientName": "epic", "type": "SalesReceipts", "feedType": "csv" ,
+      configuredEnvironments: [ "vis5202", "epi7336" ] 
+    },
+    loadFrom: "loadCsv",
+    additionalEnvAllowed: true,
+    additionalEnvIdentifier: true,
+    processScript: "./clients/epic/scripts/processData",
+    updateDataScript: "/shared/updateData",
+    loadDataScript: "/shared/loadData",
+    transactionType: "SaveSalesReceiptGetBackTransactionID",
+    transactionTemplate: "CreateSalesReceipt",
+    // we can create Credit Notes from the SaveInvoiceGetBackInvoiceID ... 
+    negativeTransactionType: {"allow":false },
+    hasLines: false,
+    "headerValues": [
+      { "name":"EnvironmentIdentifier", "supplied": true, "value":"payment.Dept", "display":true, "displayName": "Environment"},
+      { "name":"CustomerCode", "supplied": true, "value":"payment.CustomerCode", "display":true, "displayName": "Customer Code", "validate": { "exists": true } },
+      { "name":"CheckReference", "supplied": true, "value":"payment.PaymentType", "display":true, "displayName": "Payment Ref" },
+      { "name":"PaymentAmount", "supplied": true, "value":"payment.amount", "display":true, "displayName": "Payment Amount" },
+      { "name":"BankAccountCode", "supplied": false, "value":"", "display":false, "displayName": "Payment Date" },
+      { "name":"LodgementNumber", "supplied": false, "value":"", "display":false, "displayName": "Payment Date" },
+      { "name":"PaymentDate", "supplied": true, "value":"payment.Date_Declared", "display":true, "displayName": "Payment Date" },
+      { "name":"ExchangeRate", "supplied": false, "value":"", "display":false, "displayName": "Payment Date" },
+      { "name":"BankExchangeRate", "supplied": false, "value":"", "display":false, "displayName": "Payment Date" },
+      { "name":"Description", "supplied": true, "value":"payment.ExtRef", "display":true, "displayName": "Description" },
+      { "name":"DepartmentID", "supplied": false, "value":"", "display":false, "displayName": "Description" },
+      { "name": "isCorrect", "display":true, "displayName": "Message"},
+    ]
+  },
+  {
+    type: { "clientName": "axios", "type": "AxiosHarvestInvoices", "displayName": "Axios Harvest Sales Invoices", "feedType": "api-harvest",
+    configuredEnvironments: [ "vis5202", "axi1732", "axi1731" ],
+      // filters name must be valid for the API that you are pushing them at
+      // so Harvest supports "to" and "from" in the API call to list invoices
+      loadDataFilters: [ 
+        { name: "from", type: "date", required: true, label: "Invoices From: " },
+        { name: "to", type: "date", required: true, label: "Invoices To: " }
+      ]
+    },
+    loadFrom: "harvestSalesInvoicesApi",
+    processScript: "./clients/axios/scripts/processData",
+    updateDataScript: "/shared/updateDataValidateExternalReference",
+    loadDataScript: "/shared/loadData",
+    transactionType: "SaveInvoiceGetBackInvoiceID",
+    transactionTemplate: "GetNewSalesInvoice",
+    // we can create Credit Notes from the SaveInvoiceGetBackInvoiceID ... 
+    negativeTransactionType: {"allow":true, transactionType: "SaveInvoiceGetBackInvoiceID", transactionTemplate: "GetNewSalesCreditNote", identifyBy: "NetAmount" },
+    apiFilters: [ { name: "status", loop: true, value:["sent", "paid" ] } ],
+    hasLines: true,
+    headerValues : [
+	{ name: "InvoiceID", supplied: "never", display: false},
+	{ name: "AccountID", mandatory: true, supplied: true, value: "client_id", display: true, displayName: "Customer Code", map:true, validate: {"exists":true, "ignoreCase":true, "ignoreCase":true, getFromApi:true }},
+	{ name: "AreaID", supplied: false, display: false},
+	{ name: "CurrencyCode", mandatory: true, supplied: true, display:true, displayName:"Currency", value: "currency.slice(-3)", validate: {"exists":true }},
+	{ name: "CurrrencyCode", mandatory: true, supplied: true, display:false, displayName:"Currency", value: "currency.slice(-3)" },
+	{ name: "CurrrencyCode", supplied: "never", display: false},
+	{ name: "AccountTaxCode", supplied: false, display: true, displayName: 'Ac Tax Code', default:true, defaultValue: { getFromValidation:true, getFromObject: "AccountID", getObjectName: 'DefaultTaxCode' }},
+	{ name: "PaymentMethodID", supplied: false, display: false},
+	{ name: "ShipmentViaID", supplied: false, display: false},
+	{ name: "InvoiceNumber", supplied: false, display: false},
+	{ name: "ExternalReference", mandatory: true, supplied: true, value:"number", display: true, displayName: "External Reference", validate: {"exists":false}},
+	{ name: "CreationDate", supplied: true, value: "issued_at", display: false},
+	{ name: "InvoiceDate", supplied: true, value: "issued_at", display: true, displayName: "Invoice Date"},
+	{ name: "ExternalApproverID", supplied: false, display: false},
+	{ name: "DeliveryDate", mandatory: true, supplied: true, value: "issued_at", display: false},
+	{ name: "Status", supplied: false, display: false},
+	{ name: "AccountName", supplied: false, display: false},
+	{ name: "AccountAddress1", supplied: false, display: false},
+	{ name: "AccountAddress2", supplied: false, display: false},
+	{ name: "City", supplied: false, display: false},
+	{ name: "County_State", supplied: false, display: false},
+	{ name: "Country", supplied: false, display: false},
+	{ name: "PostCode", supplied: false, display: false},
+	{ name: "DeliveryAccountName", supplied: false, display: false},
+	{ name: "DeliveryAccountAddress1", supplied: false, display: false},
+	{ name: "DeliveryAccountAddress2", supplied: false, display: false},
+	{ name: "DeliveryCity", supplied: false, display: false},
+	{ name: "DeliveryCounty_State", supplied: false, display: false},
+	{ name: "DeliveryCountry", supplied: false, display: false},
+	{ name: "DeliveryPostCode", supplied: false, display: false},
+	{ name: "Contact", supplied: false, display: false},
+	{ name: "AuthorUserID", supplied: false, display: false},
+	{ name: "Phone", supplied: false, display: false},
+	{ name: "Notes", supplied: true, value: "notes", display: true, displayName:"Notes"},
+	{ name: "DiscountRate", supplied: false, display: false},
+	{ name: "ForCollection", supplied: false, display: false},
+	{ name: "ExchangeRate", supplied: false, display: false},
+	{ name: "UseAccountTaxCode", supplied: false, default:true, defaultValue: { set:"true" } },
+	{ name: "OrderID", supplied: false, display: false},
+	{ name: "OrderNumber", supplied: true, value: "purchase_order", display: true, displayName:"Purchase Order"},
+	{ name: "DepartmentID", supplied: false, display: false},
+	{ name: "Hold", supplied: false, display: false},
+	{ name: "Ledger", supplied: false, display: false},
+	{ name: "RowVersionNumber", supplied: "never", display: false},
+	{ name: "IsPrinted", supplied: false, display: false},
+	{ name: "AccountBranchID", supplied: false, display: false},
+	{ name: "OrderDate", supplied: true, value: "issued_at", display: true, displayName: "Invoice Date"},
+	{ name: "ExcludeFromPrinting", supplied: false, display: false},
+	{ name: "Type", supplied: false, display: false},
+	{ name: "SalesRepresentativeID", supplied: false, display: false},
+	{ name: "LockUser", supplied: "never", display: false},
+	{ name: "NetAmount", mandatory: true, supplied: true, value: "amount", display: true, displayName: "Net Amount"},
+	{ name: "TaxAmount", mandatory: true, supplied: true, value: "tax_amount", display: false},
+	//{ name: "GrossAmount", supplied: true, value: "amount + tax_amount", display: false},
+	{ name: "BCNetAmount", supplied: false, display: false},
+	{ name: "BCTaxAmount", supplied: false, display: false},
+	//{ name: "BCGrossAmount", supplied: true, value: "amount + tax_amount", display: false},
+
+      { name: "isCorrect", display:true, displayName: "Message"},
+      { name: "lineCount", display:true, displayName: "No Lines"},
+    ],
+    lineValues : [
+      { name: "InvoiceItemID", supplied: false, display: false},
+      { name: "InvoiceID", supplied: false, display: false},
+      { name: "OrderItemID", supplied: false, display: false},
+      { name: "StockItemID", supplied: true, value:"kind", display: true, displayName: "Item Code", map:true, validate: {"exists":true, "ignoreCase":true, getFromApi:true} },
+      { name: "StockItemDescription", supplied: true, value:"description", display: true, displayName:"Line Description" },
+      { name: "InvoicedQuantity", supplied: true, value:"quantity", display: true, displayName: "Qty."},
+      { name: "DeliveredQuantity", supplied: false, display: false},
+      { name: "StockItemCost", supplied: false, display: false},
+      { name: "StockItemPrice", supplied: true, value:"unit_price", display: true, displayName: "Price" },
+      { name: "DiscountRate", supplied: false, default:true, defaultValue: { set:"0" }, display: false},
+      { name: "ActualPrice", supplied: false, display: false},
+      { name: "TaxCode", supplied: false, display: false},
+      { name: "TaxRate", supplied: false, display: false},
+      { name: "NetAmount", supplied: true, value:"amount", display: true, displayName: "Net Amount"},
+      { name: "TaxAmount", supplied: false, default:true, defaultValue: { set:"0" }, display: false },
+      { name: "GrossAmount", supplied: false, display: false},
+      { name: "LocationID", supplied: false, display: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'DefaultLocationID'  }},
+      { name: "SublocationID", supplied: false, display: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'DefaultSublocationID' }},
+      { name: "CreationDate", supplied: false, display: false},
+      { name: "Notes", supplied: true, value: "project.notes", display: true, displayName: "Project Notes"},
+      { name: "Notes2", supplied: false, display: false},
+      { name: "AdditionalCost", supplied: false, display: false},
+      { name: "GLAccountCode", supplied: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'DefaultSalesGLAccountCode' },  display: false},
+      { name: "OpeningStockGLAccountCode", supplied: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'OpeningStockGLAccountCode' }, display: true, displayName: 'open GL Account'},
+      { name: "DeliveryItemID", supplied: false, display: false},
+      { name: "DepartmentID", supplied: true, value:"project.code", display: true,  displayName: "Department" , validate: {"exists":true}},
+      { name: "RowVersionNumber", supplied: false, display: false},
+      { name: "isCorrect", display:true, displayName: "Message"},
+    ],
+  },
+   {
+    type: { "clientName": "axios", "type": "AxiosHarvestExpenses", "displayName": "Axios Harvest Expenses Purchase Invoices", "feedType": "api-harvest",
+    configuredEnvironments: [ "vis5202", "axi1732", "axi1731" ],
+      // filters name must be valid for the API that you are pushing them at
+      // so Harvest supports "to" and "from" in the API call to list invoices
+      loadDataFilters: [ 
+        { name: "from", type: "date", required: true, label: "Expenses From: " },
+        { name: "to", type: "date", required: true, label: "Expenses To: " }
+      ]
+    },
+    loadFrom: "harvestExpensesApi",
+    additionalEnvAllowed: true,
+    additionalEnvIdentifier: true,
+    processScript: "./clients/axios/scripts/processData",
+    //updateScript: "./shared/updateDataValidateExternalReference",
+    updateDataScript: "/shared/updateData",
+    loadDataScript: "/shared/loadData",
+    transactionType: "SaveInvoiceGetBackInvoiceID",
+    transactionTemplate: "GetNewPurchasesInvoice",
+    negativeTransactionType: {"allow":false},
+    writeBackRules: {"allowed":true, "script": "/shared/writeData",  "onLines":true, "writeBackFunction": "harvestExpensesApi", "apiFunction": "Expenses", "apiFieldName":"notes", "method":"update", "options": { "id":"WriteBackID", "value":"UPDATED_AIQ", "object": "line.StockItemDescription" } },
+    // we can create Credit Notes from the SaveInvoiceGetBackInvoiceID ... 
+    // negativeTransactionType: {"allow":false, transactionType: "SaveInvoiceGetBackInvoiceID", transactionTemplate: "GetNewSalesCreditNote", identifyBy: "NetAmount" },
+    //apiFilters: [ { name: "status", loop: true, value:["sent", "paid" ] } ],
+    hasLines: true,
+    headerValues : [
+        { "name":"EnvironmentIdentifier", "supplied": false, "suppliedFromMappedData": true, mappedObject:"PurchaseAccountID", mappedProperty:"Department", "display":true, "displayName": "Environment"},
+	{ name: "InvoiceID", supplied: "never", display: false},
+	{ name: "PurchaseAccountID", mandatory: true, supplied: true, value: "email", display: true, displayName: "Supplier Code", map:true, mapAdditionalProperty: true, mapAdditionalValues:"Department", validate: {"exists":true, "ignoreCase":true, getFromApi:true }},
+	{ name: "AreaID", supplied: false, display: false},
+	{ name: "CurrencyCode", mandatory: true, supplied: false, display:true, displayName:"Currency", default:true, defaultValue: { set:"USD" }, validate: {"exists":false }},
+	{ name: "CurrrencyCode", mandatory: true, supplied: false, display:true, displayName:"Currency2", default:true, defaultValue: { set:"USD" } },
+	{ name: "CurrrencyCode", supplied: "never", display: false},
+	{ name: "AccountTaxCode", supplied: false, display: true, displayName: 'Ac Tax Code', default:true, defaultValue: { getFromValidation:true, getFromObject: "PurchaseAccountID", getObjectName: 'DefaultTaxCode' }},
+	{ name: "PaymentMethodID", supplied: false, display: false},
+	{ name: "ShipmentViaID", supplied: false, display: false},
+	{ name: "InvoiceNumber", mandatory: true, supplied: false, default:true, display: true, displayName: "Invoice Number", defaultValue: { set:"ExpensesPeriod" }, validate: {"exists":false}},
+	{ name: "ExternalReference", mandatory: true, supplied: false, default:true, display: true, displayName: "External Reference", defaultValue: { set:"Expenses for Period" }, validate: {"exists":false}},
+	{ name: "CreationDate", supplied: false, default:true, defaultValue: { set:"setDateToToday" }, display: false},
+	{ name: "InvoiceDate", supplied: false, default:true, defaultValue: { set:"setDateToToday" }, display: true, displayName: "Invoice Date"},
+	{ name: "ExternalApproverID", supplied: false, display: false},
+	{ name: "DeliveryDate", mandatory: true, supplied: false, default:true, defaultValue: { set:"setDateToToday" }, display: true },
+	{ name: "Status", supplied: false, display: false},
+	{ name: "AccountName", supplied: false, display: false},
+	{ name: "AccountAddress1", supplied: false, display: false},
+	{ name: "AccountAddress2", supplied: false, display: false},
+	{ name: "City", supplied: false, display: false},
+	{ name: "County_State", supplied: false, display: false},
+	{ name: "Country", supplied: false, display: false},
+	{ name: "PostCode", supplied: false, display: false},
+	{ name: "DeliveryAccountName", supplied: false, display: false},
+	{ name: "DeliveryAccountAddress1", supplied: false, display: false},
+	{ name: "DeliveryAccountAddress2", supplied: false, display: false},
+	{ name: "DeliveryCity", supplied: false, display: false},
+	{ name: "DeliveryCounty_State", supplied: false, display: false},
+	{ name: "DeliveryCountry", supplied: false, display: false},
+	{ name: "DeliveryPostCode", supplied: false, display: false},
+	{ name: "Contact", supplied: false, display: false},
+	{ name: "AuthorUserID", supplied: false, display: false},
+	{ name: "Phone", supplied: false, display: false},
+	{ name: "Notes", supplied: true, value: "notes", display: true, displayName:"Notes"},
+	{ name: "DiscountRate", supplied: false, display: false},
+	{ name: "ForCollection", supplied: false, display: false},
+	{ name: "ExchangeRate", supplied: false, display: false},
+	{ name: "UseAccountTaxCode", supplied: false, default:true, defaultValue: { set:"true" } },
+	{ name: "OrderID", supplied: false, display: false},
+	{ name: "OrderNumber", supplied: true, value: "purchase_order", display: true, displayName:"Purchase Order"},
+	{ name: "DepartmentID", supplied: false, display: false},
+	{ name: "Hold", supplied: false, display: false},
+	{ name: "Ledger", supplied: false, display: false},
+	{ name: "RowVersionNumber", supplied: "never", display: false},
+	{ name: "IsPrinted", supplied: false, display: false},
+	{ name: "AccountBranchID", supplied: false, display: false},
+	{ name: "OrderDate", mandatory: true, supplied: false, default:true, defaultValue: { set:"setDateToToday" }, display: true, displayName: "Order Date" },
+	{ name: "ExcludeFromPrinting", supplied: false, display: false},
+	{ name: "Type", supplied: false, display: false},
+	{ name: "SalesRepresentativeID", supplied: false, display: false},
+	{ name: "LockUser", supplied: "never", display: false},
+	{ name: "NetAmount", mandatory: true, supplied: true, value: "amount", display: true, displayName: "Net Amount"},
+	{ name: "TaxAmount", mandatory: true, supplied: true, value: "tax_amount", display: false},
+	//{ name: "GrossAmount", supplied: true, value: "amount + tax_amount", display: false},
+	{ name: "BCNetAmount", supplied: false, display: false},
+	{ name: "BCTaxAmount", supplied: false, display: false},
+	//{ name: "BCGrossAmount", supplied: true, value: "amount + tax_amount", display: false},
+
+      { name: "isCorrect", display:true, displayName: "Message"},
+      { name: "lineCount", display:true, displayName: "No Lines"},
+    ],
+    lineValues : [
+      { name: "WriteBackID", supplied: true, display: true, displayName:"Expense ID", value:"id" },
+      { name: "InvoiceItemID", supplied: false, display: false},
+      { name: "InvoiceID", supplied: false, display: false},
+      { name: "OrderItemID", supplied: false, display: false},
+      { name: "StockItemID", supplied: true, value:"expenseCategory.name + ':' + line.billable", display: true, displayName: "Item Code", map:true, validate: {"exists":true, "ignoreCase":true, getFromApi:true} },
+      { name: "StockItemDescription", supplied: true, value:"notes", display: true, displayName:"Line Description" },
+      { name: "InvoicedQuantity", supplied: true, value:"units", display: true, displayName: "Qty."},
+      { name: "DeliveredQuantity", supplied: false, display: false},
+      { name: "StockItemCost", supplied: false, display: false},
+      { name: "StockItemPrice", supplied: true, value:"total_cost / line.units", display: true, displayName: "Price" },
+      { name: "DiscountRate", supplied: false, default:true, defaultValue: { set:"0" }, display: false},
+      { name: "ActualPrice", supplied: false, display: false},
+      { name: "TaxCode", supplied: false, display: true, displayName:"Tax Code", validate: {"exists":true }},
+      { name: "TaxRate", supplied: false, display: true, displayName:"Tax Rate", default:true, defaultValue: { getFromValidation:true, getFromObject: "TaxCode", getObjectName: 'Rate'  }},
+      { name: "NetAmount", supplied: true, value:"total_cost", display: true, displayName: "Net Amount"},
+      { name: "TaxAmount", supplied: false, display:true, displayName: "Tax Amount", calculate:true, calculateRule: "line.NetAmount * line.TaxRate" },
+      { name: "GrossAmount", supplied: false, display: false},
+      { name: "LocationID", supplied: false, display: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'DefaultLocationID'  }},
+      { name: "SublocationID", supplied: false, display: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'DefaultSublocationID' }},
+      { name: "CreationDate", supplied: false, display: false},
+      { name: "Notes", supplied: true, value: "spent_at", display: true, displayName: "Notes"},
+      { name: "Notes2", supplied: false, display: false},
+      { name: "AdditionalCost", supplied: false, display: false},
+      { name: "GLAccountCode", supplied: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'DefaultSalesGLAccountCode' },  display: false},
+      { name: "OpeningStockGLAccountCode", supplied: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'OpeningStockGLAccountCode' }, display: true, displayName: 'open GL Account'},
+      { name: "DeliveryItemID", supplied: false, display: false},
+      { name: "DepartmentID", supplied: true, value:"project.code", display: true,  displayName: "Department" , validate: {"exists":true}},
+      { name: "RowVersionNumber", supplied: false, display: false},
+      { name: "isCorrect", display:true, displayName: "Message"},
+    ],
+  },
+  {
+    type: { "clientName": "kefron", "type": "SaveInvoiceGetBackInvoiceID", "feedType": "csv" ,
+      configuredEnvironments: [ "vis5202", "kef7800", "kef5964" ]
+    },
+    loadFrom: "loadCsv",
+    // as we have no header data is converted to "field1", "field2" etc..
+    csvNoHeader: "true",
+    processScript: "./clients/kefron/scripts/processData",
+    updateDataScript: "/shared/updateData",
+    loadDataScript: "/shared/loadData",
+    asyncLimit: 3,
+    transactionType: "SaveInvoiceGetBackInvoiceID",
+    transactionTemplate: "GetNewSalesInvoice",
+    // we can create Credit Notes from the SaveInvoiceGetBackInvoiceID ... 
+    negativeTransactionType: {"allow":true, transactionType: "SaveInvoiceGetBackInvoiceID", transactionTemplate: "GetNewSalesCreditNote", identifyBy: "NetAmount" },
+    hasLines: true,
+    headerValues : [
+	{ name: "InvoiceID", supplied: "never", display: false},
+	{ name: "AccountID", mandatory: true, supplied: true, value: "", display: true, displayName: "Customer Code", validate: {"exists":true }},
+	{ name: "AreaID", supplied: false, display: false},
+	{ name: "CurrencyCode", mandatory: true, supplied: false, display:true, displayName:"Currency",  default:true, defaultValue: { set:"EUR" }, validate: {"exists":true }},
+	{ name: "CurrrencyCode", mandatory: true, supplied: false, display:false, displayName:"Currency", value: "" },
+	{ name: "AccountTaxCode", supplied: false, display: false, displayName: 'Ac Tax Code', default:false, defaultValue: { getFromValidation:true, getFromObject: "AccountID", getObjectName: 'DefaultTaxCode' }},
+	{ name: "PaymentMethodID", supplied: false, display: false},
+	{ name: "ShipmentViaID", supplied: false, display: false},
+	{ name: "InvoiceNumber", supplied: false, display: false},
+	{ name: "ExternalReference", mandatory: true, supplied: true, value:"", display: true, displayName: "External Reference" },
+	{ name: "CreationDate", supplied: true, value: "", display: false},
+	{ name: "InvoiceDate", supplied: true, value: "", display: true, displayName: "Invoice Date"},
+	{ name: "ExternalApproverID", supplied: false, display: false},
+	{ name: "DeliveryDate", mandatory: true, supplied: true, value: "", display: false},
+	{ name: "Status", supplied: false, display: false, default:true, defaultValue: { set:"Posted" }},
+	{ name: "AccountName", supplied: true, display: true, displayName:"Inv Name"},
+	{ name: "AccountAddress1", supplied: true, display: true, displayName:"Address1" },
+	{ name: "AccountAddress2", supplied: true, display: true, displayName:"Address2" },
+	{ name: "City", supplied: false, display: true, displayName:"City" },
+	{ name: "County_State", supplied: true, display: true, displayName:"County" },
+	{ name: "Country", supplied: false, display: false},
+	{ name: "PostCode", supplied: false, display: false},
+	{ name: "DeliveryAccountName", supplied: false, display: false},
+	{ name: "DeliveryAccountAddress1", supplied: false, display: false},
+	{ name: "DeliveryAccountAddress2", supplied: false, display: false},
+	{ name: "DeliveryCity", supplied: false, display: false},
+	{ name: "DeliveryCounty_State", supplied: false, display: false},
+	{ name: "DeliveryCountry", supplied: false, display: false},
+	{ name: "DeliveryPostCode", supplied: false, display: false},
+	{ name: "Contact", supplied: false, display: false},
+	{ name: "AuthorUserID", supplied: false, display: false},
+	{ name: "Phone", supplied: false, display: false},
+	{ name: "Notes", supplied: true, value: "", display: true, displayName:"Notes"},
+	{ name: "DiscountRate", supplied: false, display: false},
+	{ name: "ForCollection", supplied: false, display: false},
+	{ name: "ExchangeRate", supplied: false, display: false},
+	{ name: "UseAccountTaxCode", supplied: false, default:false, defaultValue: { set:"true" } },
+	{ name: "OrderID", supplied: false, display: false},
+	{ name: "OrderNumber", supplied: true, value: "", display: true, displayName:"Purchase Order"},
+	{ name: "DepartmentID", supplied: false, display: false},
+	{ name: "Hold", supplied: false, display: false},
+	{ name: "Ledger", supplied: false, display: false},
+	{ name: "RowVersionNumber", supplied: "never", display: false},
+	{ name: "IsPrinted", supplied: false, display: false},
+	{ name: "AccountBranchID", supplied: false, display: false},
+	{ name: "OrderDate", supplied: true, value: "", display: false, displayName: "Invoice Date"},
+	{ name: "ExcludeFromPrinting", supplied: false, display: false},
+	{ name: "Type", supplied: false, display: false},
+	{ name: "SalesRepresentativeID", supplied: false, display: false},
+	{ name: "LockUser", supplied: "never", display: false},
+	{ name: "NetAmount", mandatory: true, supplied: true, value: "", display: true, displayName: "Net Amount"},
+	{ name: "TaxAmount", mandatory: true, supplied: true, value: "", display: true, displayName: "Tax Amount"},
+	{ name: "GrossAmount", supplied: false, value: "", display: true, displayName:"Gross Amount"},
+	{ name: "BCNetAmount", supplied: false, display: false},
+	{ name: "BCTaxAmount", supplied: false, display: false},
+	//{ name: "BCGrossAmount", supplied: true, value: "amount + tax_amount", display: false},
+
+      { name: "isCorrect", display:true, displayName: "Message"},
+      { name: "lineCount", display:true, displayName: "No Lines"},
+    ],
+    lineValues : [
+      { name: "InvoiceItemID", supplied: false, display: false},
+      { name: "InvoiceID", supplied: false, display: false},
+      { name: "OrderItemID", supplied: false, display: false},
+      { name: "StockItemID", supplied: false, default:true, defaultValue: { set:"SALES" }, validate: { "exists":true }, display: true, displayName:"Product Code" },
+      //{ name: "StockItemID", supplied: true, value:"", display: true, displayName: "Item Code", validate: {"exists":true }},
+      { name: "StockItemDescription", supplied: true, value:"", display: true, displayName:"Line Description" },
+      { name: "InvoicedQuantity", supplied: true, value:"", display: true, displayName: "Qty."},
+      { name: "DeliveredQuantity", supplied: false, display: false},
+      { name: "StockItemCost", supplied: false, display: false},
+      { name: "StockItemPrice", supplied: true, value:"", display: true, displayName: "Price" },
+      { name: "DiscountRate", supplied: false, default:true, defaultValue: { set:"0" }, display: false},
+      { name: "ActualPrice", supplied: false, display: false},
+      { name: "TaxCode", supplied: true, display: true, displayName:"Tax Code", validate: {"exists":true }},
+      { name: "TaxRate", supplied: false, display: true, displayName:"Tax Rate", default:true, defaultValue: { getFromValidation:true, getFromObject: "TaxCode", getObjectName: 'Rate'  }},
+      //{ name: "TaxRate", supplied: false, display: true, displayName:"Tax Rate"},
+      { name: "NetAmount", supplied: true, value:"amount", display: true, displayName: "Net Amount"},
+      { name: "TaxAmount", supplied: false, display:true, displayName: "Tax Amount", calculate:true, calculateRule: "line.NetAmount * line.TaxRate" },
+      { name: "GrossAmount", supplied: false, display: true, displayName:"Gross Amount"},
+      { name: "LocationID", supplied: false, display: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'DefaultLocationID'  }},
+      { name: "SublocationID", supplied: false, display: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'DefaultSublocationID' }},
+      { name: "CreationDate", supplied: false, display: false},
+      { name: "Notes", supplied: true, value: "", display: true, displayName: "Line Notes"},
+      { name: "Notes2", supplied: false, display: false},
+      { name: "AdditionalCost", supplied: false, display: false},
+      { name: "GLAccountCode", supplied: true, default:true, display: true, displayName:"GL Code", validate:{ exists: true }},
+      { name: "OpeningStockGLAccountCode", supplied: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'OpeningStockGLAccountCode' }, display: true, displayName: 'open GL Account'},
+      { name: "DeliveryItemID", supplied: false, display: false},
+      { name: "DepartmentID", supplied: true, value:"", display: true,  displayName: "Department" , validate: {"exists":true}},
+      { name: "RowVersionNumber", supplied: false, display: false},
+      { name: "isCorrect", display:true, displayName: "Message"},
+    ],
+  },
+  {
+    type: { "clientName": "kefron", "type": "PayrollImport", "feedType": "csv" ,
+      configuredEnvironments: [ "vis5202", "kef7800", "kef5964" ]
+    },
+    loadFrom: "loadCsv",
+    // as we have no header data is converted to "field1", "field2" etc..
+    csvNoHeader: "true",
+    processScript: "./clients/kefron/scripts/processData",
+    updateDataScript: "/shared/updateData",
+    loadDataScript: "/shared/loadData",
+    asyncLimit: 3,
+    transactionType: "CreateGeneralJournal",
+    // we can create Credit Notes from the SaveInvoiceGetBackInvoiceID ... 
+    hasLines: true,
+    headerValues : [
+	  { name: "ExternalReference", mandatory: true, supplied: true, value:"", display: true, displayName: "External Reference" },
+	  { name: "TransactionDate", supplied: true, value: "", display: true, displayName: "Transaction Date"},
+      { name: "isCorrect", display:true, displayName: "Message"},
+      { name: "lineCount", display:true, displayName: "No Lines"},
+    ],
+    lineValues : [
+      { name: "GLAccountCode", supplied: true, default:true, display: true, displayName:"GL Code", validate:{ "exists": true }},
+      { name: "DepartmentID", supplied: true, value:"", display: true,  displayName: "Department" , validate: {"exists":true}},
+      { name: "Description", supplied: true, value: "", display: true, displayName: "Line Description"},
+      { name: "Amount", supplied: true, value: "", display: true, displayName: "Amount"},
+      { name: "RowVersionNumber", supplied: false, display: false},
+      { name: "isCorrect", display:true, displayName: "Message"},
+    ],
+  },
+  {
+    type: { "clientName": "corless", "type": "CorlessInvoices", "feedType": "csv" ,
+      configuredEnvironments: [ "vis5202", "cor1000", "cor5776" ]
+    },
+    loadFrom: "loadCsv",
+    processScript: "./clients/corless/scripts/processData",
+    updateDataScript: "/shared/updateData",
+    loadDataScript: "/shared/loadData",
+    transactionType: "SaveInvoiceGetBackInvoiceID",
+    transactionTemplate: "GetNewSalesInvoice",
+    negativeTransactionType: {"allow":false, transactionType: "None", transactionTemplate: "None", identifyBy: "None" },
+    hasLines: true,
+    headerValues : [
+      { name: "ExternalReference", supplied: true, value:"res.Reservationnumber", display: true, displayName: "External Reference"},
+      { name: "InvoiceDate", supplied: true, value:"formatDate(res.Reservationdate)", display: true, displayName: "Invoice Date"},
+      { name: "OrderDate", supplied: true, value:"formatDate(res.Startdate)", display: true, displayName: "Order Date"},
+      { name: "DeliveryDate", supplied: true, display: false },
+      { name: "CreationDate", supplied: true, display: false },
+      { name: "NetAmount", supplied: true, display: true, displayName: "Net Amount"},
+      { name: "GrossAmount", supplied: true, display: true, displayName: "Gross Amount"},
+      { name: "TaxAmount", supplied: true, display: true, displayName: "Tax Amount"},
+      { name: "lineCount", supplied: true, display: true, displayName: "No Lines"},
+      { name: "AccountID", supplied: true, display: true, displayName: "Customer Code", validate: {"exists":true }},
+    ],
+    lineValues : [
+      { name: "StockItemID", supplied: true, display: true, displayName: "Item Code", validate: {"exists":true }},
+      { name: "GLAccountCode", supplied: true, display: true, displayName: "GL Code", validate: {"exists":true }},
+      { name: "TaxCode", supplied: false, display: true, displayName: "Tax Code",  default:true, defaultValue: { getFromValidation:true, getFromObject: "TaxRate", getObjectName: 'Code' } },
+      { name: "TaxRate", supplied: true, display: true, displayName: "Tax Rate", validate: {"exists":true } },
+      { name: "DepartmentID", supplied: true, display: true, displayName: "Dept. Code", validate: {"exists":true }},
+      { name: "StockItemDescription", supplied: true, display: true, displayName: "Description"},
+      { name: "NetAmount", supplied: true, display: true, displayName: "Net Amount"},
+      { name: "TaxAmount", supplied: true, display: true, displayName: "Tax Amount"},
+      { name: "DiscountRate", supplied: true, display: true, displayName: "Discount Rate"},
+      { name: "GrossAmount", supplied: true, display: true, displayName: "Gross Amount"},
+      { name: "LocationID", supplied: false, display: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'DefaultLocationID'  }},
+      { name: "SublocationID", supplied: false, display: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'DefaultSublocationID' }},
+      { name: "OpeningStockGLAccountCode", supplied: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'OpeningStockGLAccountCode' }, display: false, displayName: 'open GL Account'},
+      { name: "isCorrect", supplied: true, display: true, displayName: "Message"},
+    ],
+  },
+  {
+    type: { "clientName": "corless", "type": "CorlessPayments", "feedType": "csv" ,
+      configuredEnvironments: [ "vis5202", "cor1000", "cor5776" ]
+    },
+    loadFrom: "loadCsv",
+    processScript: "./clients/corless/scripts/processData",
+    updateDataScript: "/shared/updateData",
+    loadDataScript: "/shared/loadData",
+    transactionType: "invoice",
+    hasLines: true,    
+    headerValues : [
+      { name: "ExternalReference", displayName: "External Reference"},
+      { name: "GLAccountCode", displayName: "Account Code"},
+      { name: "PaymentDate", displayName: "Payment Date"},
+      { name: "PaymentType", displayName: "Payment Type"},
+      { name: "PaymentAmount", displayName: "Payment Amount"},
+    ]
+  },
+  {
+    type: { "clientName": "corless", "type": "CorlessAdjustments", "feedType": "csv" ,
+      configuredEnvironments: [ "vis5202", "cor1000", "cor5776" ]
+    },
+    loadFrom: "loadCsv",
+    processScript: "./clients/corless/scripts/processData",
+    updateDataScript: "/shared/updateData",
+    loadDataScript: "/shared/loadData",
+    transactionType: "SaveInvoiceGetBackInvoiceID",
+    transactionTemplate: "GetNewSalesInvoice",
+    negativeTransactionType: {"allow":true, transactionType: "SaveInvoiceGetBackInvoiceID", transactionTemplate: "GetNewSalesCreditNote", identifyBy: "NetAmount" },
+    hasLines: true,	  
+    headerValues : [
+      { name: "ExternalReference", supplied: true, value:"res.Reservationnumber", display: true, displayName: "External Reference"},
+      { name: "InvoiceDate", supplied: true, value:"formatDate(res.Reservationdate)", display: true, displayName: "Invoice Date"},
+      { name: "OrderDate", supplied: true, value:"formatDate(res.Startdate)", display: true, displayName: "Order Date"},
+      { name: "DeliveryDate", supplied: true, value:"formatDate(res.Startdate)", display: true, displayName: "Order Date"},
+      { name: "CreationDate", supplied: true, value:"formatDate(res.Startdate)", display: true, displayName: "Order Date"},
+      { name: "NetAmount", supplied: true, display: true, displayName: "Net Amount"},
+      { name: "GrossAmount", supplied: true, display: true, displayName: "Gross Amount"},
+      { name: "TaxAmount", supplied: true, display: true, displayName: "Tax Amount"},
+      { name: "lineCount", supplied: true, display: true, displayName: "No Lines"},
+      { name: "AccountID", supplied: true, display: true, displayName: "Customer Code", validate: {"exists":true }},
+      { name: "isCorrect", display:true, displayName: "Message"},
+    ],
+    lineValues : [
+      //{ name: "TransactionType", displayName: "Transaction Type"},
+      { name: "StockItemID", supplied: true, display: true, displayName: "Item Code", validate: {"exists":true }},
+      { name: "GLAccountCode", supplied: true, display: true, displayName: "GL Code", validate: {"exists":true }},
+      { name: "TaxCode", supplied: false, display: true, displayName: "Tax Code",  default:true, defaultValue: { getFromValidation:true, getFromObject: "TaxRate", getObjectName: 'Code' } },
+      { name: "TaxRate", supplied: true, display: true, displayName: "Tax Rate", validate: {"exists":true } },
+      { name: "DepartmentID", supplied: true, display: true, displayName: "Dept. Code", validate: {"exists":true }},
+      { name: "StockItemDescription", supplied: true, display: true, displayName: "Description"},
+      { name: "NetAmount", supplied: true, display: true, displayName: "Net Amount"},
+      { name: "TaxAmount", supplied: true, display: true, displayName: "Tax Amount"},
+      { name: "DiscountRate", supplied: true, display: true, displayName: "Discount Rate"},
+      { name: "GrossAmount", supplied: true, display: true, displayName: "Gross Amount"},
+      { name: "LocationID", supplied: false, display: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'DefaultLocationID'  }},
+      { name: "SublocationID", supplied: false, display: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'DefaultSublocationID' }},
+      { name: "OpeningStockGLAccountCode", supplied: false, default:true, defaultValue: { getFromValidation:true, getFromObject: "StockItemID", getObjectName: 'OpeningStockGLAccountCode' }, display: false, displayName: 'open GL Account'},
+      { name: "isCorrect", supplied: true, display: true, displayName: "Message"},
+    ],
+  },
+ ];
+ exports.creds = {
+	 returnURL: "http://localhost:3000/auth/openid/return",
+ 	identityMetadata: "https://login.microsoftonline.com/common/.well-known/openid-configuration", // For using Microsoft you should never need to change this.
+        clientID: "e641159a-2a8a-4909-adfd-7e017a0cb617",
+        clientSecret: "F4HU7khLw5amoMnEm8NYMUuilfhhjxRaNWC4kWyO8gU=",
+ 	skipUserProfile: true, // for AzureAD should be set to true.
+ 	responseType: "id_token", // for login only flows use id_token. For accessing resources use `id_token code`
+ 	responseMode: "query", // For login only flows we should have token passed back to us in a POST
+ 	validateIssuer: false,
+ 	//scope: ["email", "profile"] // additional scopes you may wish to pass
+ };

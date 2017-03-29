@@ -1,0 +1,12 @@
+|<script type="text/ng-template" id="serverErrorPopUp.html">
+|    <div class="modal-header">
+|      <h2 ng-show="(serverError)" >Server has encountered an error. Please make a note of the message below:</h2>
+|    </div>
+|    <div ng-repeat="myError in serverError">
+|      {{ myError.error }}
+|      {{ myError.data }} 
+|    </div>
+|    <div class="modal-footer">
+|        <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+|    </div>
+|</script>

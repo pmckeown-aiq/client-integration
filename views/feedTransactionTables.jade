@@ -1,0 +1,66 @@
+div(ng-show="feedTransactions.length>0")
+  div(ng-show="feedErrors.length == 0 && feedTransactions.length>0")
+    h3() Great - no data validation errors.
+  div(ng-show="feedErrors.length > 0")
+    |<table class="table table-striped" export-csv="feedErrorsCSV">
+    |<thead><tr><th ng-repeat="column in displayHeaderValues" >{{column.displayName}}</th></tr></thead>
+    |<tbody>
+    |<tr ng-repeat-start="transaction in feedErrors" class="success" ng-class="{danger:transaction.isCorrect}"> 
+    |  <td ng-repeat="column in displayHeaderValues">{{transaction[column.name]}} </td>
+    |  <td ng-if="hasLines"><button type="button" ng-click="openTransactionLines(transaction)" class="btn btn-xs indent">View Imported Lines</button></td>
+    |</tr>
+    |<tr ng-repeat-end><tr ng-repeat-end> 
+    |</tbody></table>
+    |<a class="btn" title="Export Table" ng-click='feedErrorsCSV.generate()' ng-href="{{ feedErrorsCSV.link() }}" download="feedErrors.csv"><span class="glyphicon glyphicon-download" style="font-size: 20px;"></span></a>
+div(ng-show="showfeedTransactions")
+  div(ng-show="feedTransactions.length>0")
+    |<table class="table table-striped">
+    |<thead>
+    |  <tr>
+    |    <th ng-repeat="column in displayHeaderValues" >{{column.displayName}}</th>
+    |  </tr>
+    |  <tr>
+    |   <th colspan="2">
+    |     <div ng-show="feedTransactions.length > itemsPerPage">
+    |       <ul class="pager">
+    |         <li ng-class="prevPageDisabled()">
+    |           <a href ng-click="prevPage()">Prev</a>
+    |         </li>
+    |         <li ng-repeat="n in range()"
+    |           ng-class="{active: n == currentPage}" ng-click="setPage(n)">
+    |           <a href="#">{{n+1}}</a>
+    |         </li>
+    |         <li ng-class="nextPageDisabled()">
+    |           <a href ng-click="nextPage()">Next</a>
+    |         </li>
+    |       </ul>
+    |     </div>
+    |   </tn>
+    |  </tr>
+    |</thead>
+    |<tbody>
+    |<tr ng-repeat-start="transaction in feedTransactions | offset: currentPage*itemsPerPage | limitTo: itemsPerPage" class="success" ng-class="{danger:transaction.isCorrect}"> 
+    |  <td ng-repeat="column in displayHeaderValues">{{transaction[column.name]}} </td>
+    |  <td ng-if="hasLines"><button type="button" ng-click="openTransactionLines(transaction)" class="btn btn-xs indent">View Imported Lines</button></td>
+    |</tr>
+    |<tr ng-repeat-end><tr ng-repeat-end> 
+    |</tbody>
+    |<tfoot>
+    |   <td colspan="2">
+    |     <div ng-show="feedTransactions.length > itemsPerPage">
+    |       <ul class="pager">
+    |         <li ng-class="prevPageDisabled()">
+    |           <a href ng-click="prevPage()">Prev</a>
+    |         </li>
+    |         <li ng-repeat="n in range()"
+    |           ng-class="{active: n == currentPage}" ng-click="setPage(n)">
+    |           <a href="#">{{n+1}}</a>
+    |         </li>
+    |         <li ng-class="nextPageDisabled()">
+    |           <a href ng-click="nextPage()">Next</a>
+    |         </li>
+    |       </ul>
+    |     </div>
+    |   </td>
+    |</tfoot>
+    |</table>

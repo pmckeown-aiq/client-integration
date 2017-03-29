@@ -1,0 +1,14 @@
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.un~
+*.swp
+pids
+logs
+results
+
+npm-debug.log

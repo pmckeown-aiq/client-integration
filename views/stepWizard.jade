@@ -1,0 +1,21 @@
+div(class="stepwizard", ng-controller="stepWizard" )
+  div(class="stepwizard-row")
+    div(class="stepwizard-step")
+      button(type='button', class='btn btn-default btn-circle' ng-class="{true: 'active'}[currentStage == 1]") 1
+        p Connection 
+    div(class="stepwizard-step")
+      button(type='button', class='btn btn-default btn-circle' ng-class="{true: 'active'}[currentStage == 2]") 2
+        p Operation
+    div(class="stepwizard-step")
+      button(type='button', class='btn btn-default btn-circle'  ng-class="{true: 'active'}[currentStage == 3]") 3
+        p Load Data {{ currentStage }}
+    div(class="stepwizard-step")
+      button(type='button', class='btn btn-default btn-circle'  ng-class="{true: 'active'}[currentStage == 4]") 4
+        p Review
+    div(class="stepwizard-step")
+      button(type='button', class='btn btn-default btn-circle'  ng-class="{true: 'active'}[currentStage == 5]") 5
+        p Update Data
+    div(class="stepwizard-step")
+      button(type='button', class='btn btn-default btn-circle'  ng-class="{true: 'active'}[currentStage == 6]") 6
+        p Complete
+

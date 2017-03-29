@@ -1,0 +1,18 @@
+h2(ng-show="invalidData.length > 0") Invalid Data
+p(ng-show="invalidData.length > 0") Data records shown below have been identified as not being configured in your accountsIQ database {{ coID }}. Please review and create the records as required. You can ignore the errors but transactions that contain references to these values will fail. 
+|<div ng-show="invalidData.length > 0">
+|  <table class="table table-striped" ng-show="invalidData.length > 0" export-csv="invalidDataCSV">
+|  <tbody>
+|  <tr ng-repeat="invalidItem in invalidData" ng-class="danger" class="success"> 
+|    <td>{{invalidItem.objectType}}</td>
+|    <td>{{invalidItem.invalidMessage}}</td>
+|    <td>{{invalidItem.code}}</td>
+|    <td>{{invalidItem.apiValue}}</td>
+|    <td><button type='button' ng-show="invalidItem.getFromApi" class='btn indent', ng-click='getFromApi({ invalidItem })'> Get From Api {{ invalidItem.code }}</button></td>
+|    <td><button type='button' ng-show="invalidItem.canCreate" class='btn indent', ng-click='openAccountDetails(invalidItem)'> Configure {{ invalidItem.code }}</button></td>
+|    <td><button type='button' ng-show="invalidItem.canCreate && invalidItem.haveConfigured" class='btn indent', ng-click='createInvalidItem(invalidItem); remove(invalidData, $index)'> Create {{ invalidItem.code }}</button></td>
+|  </tr>
+|  </tbody></table>
+|  <a class="btn" title="Export Table" ng-click='invalidDataCSV.generate()' ng-href="{{ invalidDataCSV.link() }}" download="invalidDataCSV.csv"><span class="glyphicon glyphicon-download" style="font-size: 20px;"></span></a>
+|</div>
+button(type='button', class='btn btn-primary', ng-click='revalidate(feedTransactions)' ng-show="invalidData.length > 0") Revalidate Data

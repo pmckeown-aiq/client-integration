@@ -1,0 +1,38 @@
+html(ng-app="accountsIQIntegrationModule")
+  head
+    title Accounts IQ Integration
+    meta(name='viewport', content='width=device-width, initial-scale=0.6')
+    link(href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', rel='stylesheet', media='screen')
+    link(href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css', rel='stylesheet', media='screen')
+    link(rel='stylesheet', href='/css/main.css')
+  body
+   div(class='container')
+    div(class='row', ng-controller="navBar")
+     .col-md-4
+       a(href='www.accountsiq.com')
+       img(src='https://accountsiq.com/wp-content/uploads/2016/05/FINAL-LOGO-216x41.jpg')
+     .col-md-4
+       p(style="font-size: xx-large") Data Integration
+     .col-md-4
+       |<div class="btn-group" uib-dropdown is-open="status.isopen" ng-show="currentStage > 2">
+       |  <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
+       |    Menu <span class="caret"></span>
+       |  </button>
+       |  <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button">
+       |    <li role="menuitem"><a href="#" ng-click="loadManageMap()">Manage Data Map</a></li>
+       |    <li role="menuitem"><a href="#" ng-click="loadStatusTable()">Show Debug Log</a></li>
+       |    <li role="menuitem"><a href="#" ng-click="loadConfig()">View Configuration</a></li>
+       |  </ul>
+       |</div>
+    div(class='row')
+    block content
+  script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js")
+  script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-route.js")
+  script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-resource.js")
+  script(src='/socket.io/socket.io.js')
+  script(src='/file-upload/angular-file-upload.js')
+  script(src='/js/file-saver/FileSaver.min.js')
+  script(src='/js/ng-table-to-csv.js')
+  script(src='/js/json-export-excel.min.js')
+  script(src='/js/main.js')
+  script(src='/js/ui-bootstrap-tpls.js')

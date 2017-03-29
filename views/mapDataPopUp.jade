@@ -1,0 +1,42 @@
+|<script type="text/ng-template" id="mapDataPopup.html">
+|    <form name="MapDataPopUp">
+|    <div class="modal-header">
+|        <h3>Map Data {{ mapData.data.name }} for database {{ mapData.data.coID }} {{ mapData.data.mapAdditionalValues }} </h3>
+|    </div>
+|    <div class="modal-body">
+|      <ng-form name="mapDataForm">
+|        <div class="modal-header">
+|          <button ng-if="mapData.data.mapAdditionalValues" ng-json-export-excel data="mapData.mapData.data" report-fields="{'sourceValue': 'sourceValue', 'Department': 'Department', 'aiqValue': 'aiqValue'}" filename =" mapData.data.name " separator="," class="btn btn-primary">Export to CSV</button>
+|          <button ng-if="!mapData.data.mapAdditionalValues" ng-json-export-excel data="mapData.mapData.data" report-fields="{'sourceValue': 'sourceValue', 'aiqValue': 'aiqValue'}" filename =" mapData.data.name " separator="," class="btn btn-primary">Export to CSV</button>
+|          <button class="btn btn-primary" ng-click="ok()">OK</button>
+|          <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+|        </div>
+|        <div class="form-group">
+|          <div class="row">
+|            <span class="col-md-4">Source Value</span>
+|            <span class="col-md-4">{{ mapData.data.mapAdditionalValues }}</span>
+|            <span class="col-md-4">accountsIQ Value</span>
+|          </div>
+|          <div class="row">
+|            <input ng-class="{'col-md-4':mapData.data.mapAdditionalProperty, 'col-md-6': !mapData.data.mapAdditionalProperty}" type=text placeholder="Add new" id="newSourceValue" ng-model="newRecord.sourceValue">
+|            <span ng-if="mapData.data.mapAdditionalProperty">
+|              <input class="col-md-4" type=text  placeholder="Add new" id="newAdditionalProperty" ng-model="newRecord[mapData.data.mapAdditionalValues]">
+|            </span>
+|            <input ng-class="{'col-md-4':mapData.data.mapAdditionalProperty, 'col-md-6': !mapData.data.mapAdditionalProperty}" type=text placeholder="Add new" id="newAiqValue" ng-model="newRecord.aiqValue">
+|          </div>
+|        </div>
+|        <div class="form-group" ng-repeat="value in mapData.mapData.data | orderBy:'-'">
+|          <div class="row">
+|            <input ng-class="{'col-md-4':mapData.data.mapAdditionalProperty, 'col-md-6': !mapData.data.mapAdditionalProperty}" type=text placeholder="{{ value.sourceValue }}" id="value.sourceValue" ng-model="value.sourceValue">
+|            <span ng-if="mapData.data.mapAdditionalProperty">
+|              <input class="col-md-4" type=text placeholder="{{ value[mapData.data.mapAdditionalValues] }}" id="value[mapData.data.mapAdditionalValues]" ng-model="value[mapData.data.mapAdditionalValues]">
+|            </span>
+|            <input ng-class="{'col-md-4':mapData.data.mapAdditionalProperty, 'col-md-6': !mapData.data.mapAdditionalProperty}" type=text placeholder="{{ value.aiqValue }}" id="value.aiqValue" ng-model="value.aiqValue">
+|          </div>
+|        </div>
+|      </ng-form>
+|    </div>
+|    <div class="modal-footer">
+|    </div>
+|    </form>
+|</script>

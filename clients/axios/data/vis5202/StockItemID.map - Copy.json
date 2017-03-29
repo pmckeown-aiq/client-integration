@@ -1,0 +1,18 @@
+{"data":[
+	{"sourceValue":"XXYYXXZ:true","aiqValue":"EMP-MILEAGE"},
+	{"sourceValue":"Mileage:true","aiqValue":"EMP-MILEAGE"},
+	{"sourceValue":"Entertainment:true","aiqValue":"EMP-ENT"},
+	{"sourceValue":"Lodging:true","aiqValue":"EMP-ACC"},
+	{"sourceValue":"Meals:true","aiqValue":"EMP-SUST"},
+	{"sourceValue":"Mileage:true","aiqValue":"EMP-MILEAGE"},
+	{"sourceValue":"Other:true","aiqValue":"EMP-MIS"},
+	{"sourceValue":"Transportation:true","aiqValue":"EMP-TRAVEL"},
+	{"sourceValue":"Mileage:false","aiqValue":"EMP-MILEAGE"},
+	{"sourceValue":"Entertainment:false","aiqValue":"EMP-ENT"},
+	{"sourceValue":"Lodging:false","aiqValue":"EMP-ACC"},
+	{"sourceValue":"Meals:false","aiqValue":"EMP-SUST"},
+	{"sourceValue":"Mileage:false","aiqValue":"EMP-MILEAGE"},
+	{"sourceValue":"Other:false","aiqValue":"EMP-MIS"},
+	{"sourceValue":"Transportation:false","aiqValue":"EMP-TRAVEL"},
+	{"sourceValue":"XYZ","aiqValue":"FEE001"}
+]}

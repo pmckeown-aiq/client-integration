@@ -1,0 +1,21 @@
+div(class='row',ng-show="coIDs.length=0") 
+ p An error has occurred in reading the available company configurations. Please contact pmckeown@accountsiq.com
+div(class='row', ng-controller="getConfig" ng-hide="hideSelectEnvironment", ng-init='setCurrentStage(1)')
+ h3(ng-show="currentStage == 1") Step {{ currentStage }} - select the environment or database that you want to process data for:
+ form(name="setConfigForm")
+  ul(class='list-group' ng-hide="setConfigForm.coID")
+   li(class='list-group-item', ng-repeat='coID in coIDs')
+    {{ coID.coDescription }}
+    {{ coID.coID }}
+    input(type="radio" name="configureEnv" value="{{coID.coID}}" label="{{coID.coID}}" ng-required="true", ng-model="setConfigForm.coID", required, ng-change='setCurrentStage(2)')
+  h3(ng-show="currentStage == 2") Step {{ currentStage }} - select the type of integration that you want to run: {{ setConfigForm.coID }}
+  ul(class='list-group' ng-show="currentStage == 2")
+   li(class='list-group-item', ng-repeat='type in types | filter: setConfigForm.coID')
+     {{ type.type.displayName }} 
+     {{ type.type.type }} 
+     input(type="radio" name="configureType" value="{{ type.type }}" label="{{type.type}}" ng-required="true", ng-model="setConfigForm.type", required ng-click="setConfig();")
+  h3(ng-show="loadFile") Please upload the CSV file:
+  input(type="file" accept=".csv" name="file"  ng-show="loadFile" ng-model="filename" file-model="setConfigForm.myFile" ng-required="type.feedType = 'csv'")
+  // TODO put back in the ng-disabled
+  //input(type="button" class='btn btn-primary' value="submit" ng-click="setConfig(setConfigForm.valid); prepareLoadData();" ng-disabled="setConfigForm.$invalid")
+  input(type="button" class='btn btn-primary' value="submit" ng-click="setConfig(setConfigForm.valid); prepareLoadData(); hideSelectEnvironment = true;")
