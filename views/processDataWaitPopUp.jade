@@ -11,17 +11,5 @@
 |      <div ng-if="!writeBackRules.allowed">
 |        <button class="btn btn-primary" type="button" ng-hide="(createdTransactionCount != controlTotals.transactionCount" ng-click="ok()">OK</button>
 |      </div>
-|      <div ng-if="writeBackRules.allowed">
-|        <h3 ng-show="(wroteBackTransactionCount + controlTotals.feedErrorsLinesCount) != controlTotals.transactionLinesCount" >Writing back results to source system ... </h1>
-|        <h3 ng-hide="(wroteBackTransactionCount + controlTotals.feedErrorsLinesCount) != controlTotals.transactionLinesCount">Completed writing back results ...</h3>
-|        {{ wroteBackTransactionCount }} + {{ controlTotals.feedErrorsLinesCount }}
-|        {{ controlTotals.transactionLinesCount }}
-|      </div>
-|      <div class="progress progress-striped active" ng-if="writeBackRules.allowed">
-|        <uib-progressbar ng-show="wroteBackTransactionCount > 0" max="max" value="( ( (wroteBackTransactionCount + feedErrorsLinesCount ) / controlTotals.transactionLinesCount) * 100 )"><span style="color:white; white-space:nowrap;">{{ wroteBackTransactionCount }} + {{ feedErrorsLinesCount }} / {{ controlTotals.transactionLinesCount }}</span></uib-progressbar>
-|      </div>
-|      <div ng-if="writeBackRules.allowed">
-|        <button class="btn btn-primary" type="button" ng-hide="(createdTransactionCount + controlTotals.feedErrorsCount) != controlTotals.transactionCount" ng-click="ok()">OK</button>
-|      </div>
 |    </div>
 |</script>

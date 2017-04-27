@@ -71,9 +71,6 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
     var negativeTransactionCheck = true;
     var negativeTransactionIdentifier = opts.processRules.negativeTransactionType.identifyBy;
   }
-  if ( typeof opts.writeBackRules.allowed != 'undefined' ) {
-    var writeBack = require(appDir + opts.writeBackRules.script);
-  }
   var isValidCount = 0;
   var isWarnCount = 0;
   var isInValidCount = 0;

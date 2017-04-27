@@ -18,7 +18,8 @@ var safeEval = require('safe-eval');
 module.exports = writeData = function(opts) {
 };
 
-writeData.prototype.harvestExpensesApi = function(opts, transaction, callback) {
+writeData.prototype.harvestExpensesApi = function(opts, transaction) {
+return new Promise(function(resolve, reject) {
   console.log(JSON.stringify(transaction));
   console.log(JSON.stringify(appDir));
   var config = require(appDir + '/conf/harvest.json');
@@ -56,14 +57,15 @@ writeData.prototype.harvestExpensesApi = function(opts, transaction, callback) {
           } else {
             console.log('Got Back :' + JSON.stringify(cb));
 	  }
-	  callback({ "xTransactionRef": myHarvestID, "status":false, "errorCode": cb, "message": harvestOptions[opts.writeBackRules.apiFieldName]}, null);
+	  resolve({ "xTransactionRef": myHarvestID, "status":false, "errorCode": cb, "message": harvestOptions[opts.writeBackRules.apiFieldName]});
 	} else { 
 	  console.log('Update complete - no error'+  myHarvestID);
-	  callback(null, { "xTransactionRef": myHarvestID, "status":true, "message": harvestOptions[opts.writeBackRules.apiFieldName] });
+	  resolve({ "xTransactionRef": myHarvestID, "status":true, "message": harvestOptions[opts.writeBackRules.apiFieldName] });
 	}
       })
     })
   } else {
     console.log(v.WriteBackID);
   }
+})
 }
