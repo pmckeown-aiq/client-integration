@@ -17,9 +17,9 @@ var appLog = bunyan.createLogger({
 })
 
 // Helper files to check hard code values on lookup
-var aiqClient = require(appDir + '/helper/aiqClient.js');
+var aiqClient = require(appDir + '/resources/aiqClient.js');
 
-var env = require(appDir + '/helper/env.js');
+var env = require(appDir + '/resources/env.js');
 
 function Integration(opt) {
     this._feedTransactions = opt.feedTransaction;
@@ -51,7 +51,7 @@ process.on('message', function (options) {
 	// add the client name to the data passed to extractStaticData - needed for the directory structure to write file to
 	opts.clientName = options.data.clientName.replace(/"/g,"");
         	
-        var extractStaticData = require('./helper/extractStaticData.js');
+        var extractStaticData = require('./resources/extractStaticData.js');
         extractStaticData.extract(opts , function(result) {
           console.log('extracStaticData result ' + JSON.stringify(result));
           if ( result.success == true ) {
@@ -64,8 +64,8 @@ process.on('message', function (options) {
     }
     else if (options.op === 'loadMap') {
       //console.log('loadMap for '+ JSON.stringify(options));
-      // need helper script
-      var manageMap = require(appDir + '/helper/manageMap.js');
+      // need resources script
+      var manageMap = require(appDir + '/resources/manageMap.js');
       manageMap.loadMap(options, function(result) {
         //console.log('Call back loadMap' + JSON.stringify(options.data)); 
 	options.mapData = result;
@@ -75,8 +75,8 @@ process.on('message', function (options) {
     }
     else if (options.op === 'updateMap') {
       //console.log('updateMap for '+ JSON.stringify(options));
-      // need helper script
-      var manageMap = require(appDir + '/helper/manageMap.js');
+      // need resources script
+      var manageMap = require(appDir + '/resources/manageMap.js');
       manageMap.updateMap(options, function(err, result) {
 	if (err) {
           if ( err.constructor === Object ) {
@@ -109,6 +109,7 @@ process.on('message', function (options) {
         opts = opts.opts;
 	// strip quotes added by client
 	options.data.clientName = options.data.clientName.replace(/"/g,"");
+	opts.clientName = options.data.clientName.replace(/"/g,"");
 	options.data.coID = options.data.coID.replace(/"/g,"");
 //        // First we need to sort out what needs to be done to the data when it is loaded from the source 
 //        // the opts.clientSettings has two arrays  - headerValues and (if hasLines = true) lineValues.
@@ -248,18 +249,18 @@ process.on('message', function (options) {
 	    var processData = require(opts.processRules.processScript);
 	    this.processData = new processData(this);
             var feedTransactionArray = [];
-	    feedTransactionArray = this.processData[opts.type](feedTransactions, opts.clientSettings);
+	    feedTransactionArray = this.processData[opts.type](feedTransactions, opts);
 	    // NEVER NEVER SEND THE FULL OPTIONS !!!!!
 	    process.send({ "loadDataStatus": { message: " Completed processing transactions ... now validating the data and applying data maps please wait ..." }}); 
-            /* Load the helper files 
+            /* Load the resources files 
             1) Map Objects (CURRENTLY HAPPENS EXTERNALLY)
             2) Calculate values (tax amount from tax rates). Also needs to set the tax code if from AccountID as needs to be validated ... 
             3) Validate the objects (includes setting default values)
             */
-            var mapObject = require(appDir + '/helper/mapObject.js');
-            //var setDefaultValues = require(appDir + '/helper/setDefaultValues.js');
-            var calculateTax = require(appDir + '/helper/calculateTax.js');
-            var validateObject = require(appDir + '/helper/validateObject.js');
+            var mapObject = require(appDir + '/resources/mapObject.js');
+            //var setDefaultValues = require(appDir + '/resources/setDefaultValues.js');
+            var calculateTax = require(appDir + '/resources/calculateTax.js');
+            var validateObject = require(appDir + '/resources/validateObject.js');
             // Check if we have more than one database configured
             if ( typeof opts.additionalEnvs !== 'undefined' ) {
               console.log('We have a second database to upload to! ' + JSON.stringify(opts.additionalEnvs));
@@ -346,8 +347,8 @@ process.on('message', function (options) {
 		controlTotals.transactionCount = feedTransactionArray.length;
 		console.log('After all processing ' + JSON.stringify(feedTransactionArray[1]));
 	        feedErrors = _.filter(feedTransactionArray , function (v) {
-                  if ( typeof  v.isCorrect !== 'undefined' ) {
-                    return v.isCorrect.status === false ;
+                  if ( typeof  v.updateStatus !== 'undefined' ) {
+                    return v.updateStatus.status === false ;
                   }
                 });
 		controlTotals.feedErrorsCount = feedErrors.length;
@@ -374,12 +375,17 @@ process.on('message', function (options) {
       env.env({ coID: options.data.coID, type: options.data.type, get: 'connection' }, function(opts) {
 	var coID = options.data.coID.replace(/"/g,"");
 	console.log('coID is ' + coID);
+	console.log('coID is ' + JSON.stringify(options));
 	opts = opts.opts;
-	console.log(JSON.stringify(opts.connection));
+	console.log(JSON.stringify(opts));
         soap.createClient(opts.connection.url, (err, client) => {
          var aiq = new aiqClient(client, opts.connection.pKey, opts.connection.uKey, coID);
-
-         Q.all([aiq.GetNewCustomerFromDefaults()])
+         if ( options.data.object == 'AccountID' ) {
+           var myQOperation = Q.all([aiq.GetNewCustomerFromDefaults()])
+         } else if ( options.data.object == 'StockItemID' ) {
+           var myQOperation = Q.all([aiq.GetNewStockItemFromDefaults()])
+         }
+         myQOperation
             .then(([result]) => {
 	       console.log(' back in integration.js ' + JSON.stringify(result.Result));
 	       console.log(' back in integration.js ' + JSON.stringify(result.Result));
@@ -414,8 +420,8 @@ process.on('message', function (options) {
 	var theObject =  options.data.element;
 	var createObjectType =  theObject.objectType;
 	console.log('now create ' + createObjectType + ' with ' + JSON.stringify(theObject));
-        // bring in the helper file - createObject
-        var createObject = require('./helper/createObject.js');      
+        // bring in the resources file - createObject
+        var createObject = require('./resources/createObject.js');      
 	this.createObject = new createObject(this);
         this.createObject[createObjectType](opts, createObjectType, theObject, function(result){
 	  console.log('CAllback for createObject ' + createObjectType + ' gave result ' + JSON.stringify(result));
@@ -437,7 +443,7 @@ process.on('message', function (options) {
 	var theObject =  options.data.element;
         console.log('Get From API in Integration.js option = ' + JSON.stringify(options));
         console.log('Get From API in Integration.js' + JSON.stringify(theObject));
-        var getCustomerFromApi = require(appDir + '/helper/getCustomerFromApi.js');
+        var getCustomerFromApi = require(appDir + '/resources/getCustomerFromApi.js');
 	      console.log(JSON.stringify(opts.processRules));
         this.getCustomerFromApi = new getCustomerFromApi(this);
         this.getCustomerFromApi[opts.processRules.loadFrom]( theObject, opts, function(apiCustomer) {

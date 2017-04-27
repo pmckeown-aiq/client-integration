@@ -2,18 +2,21 @@ div(ng-show="feedTransactions.length>0")
   div(ng-show="feedErrors.length == 0 && feedTransactions.length>0")
     h3() Great - no data validation errors.
   div(ng-show="feedErrors.length > 0")
+    |<!-- Table for Transactions in Error On Processing Data -->
     |<table class="table table-striped" export-csv="feedErrorsCSV">
     |<thead><tr><th ng-repeat="column in displayHeaderValues" >{{column.displayName}}</th></tr></thead>
     |<tbody>
-    |<tr ng-repeat-start="transaction in feedErrors" class="success" ng-class="{danger:transaction.isCorrect}"> 
+    |<tr ng-repeat-start="transaction in feedErrors" class="success" ng-class="{danger:!transaction.updateStatus.status}"> 
     |  <td ng-repeat="column in displayHeaderValues">{{transaction[column.name]}} </td>
     |  <td ng-if="hasLines"><button type="button" ng-click="openTransactionLines(transaction)" class="btn btn-xs indent">View Imported Lines</button></td>
     |</tr>
     |<tr ng-repeat-end><tr ng-repeat-end> 
-    |</tbody></table>
+    |</tbody>
+    |</table>
     |<a class="btn" title="Export Table" ng-click='feedErrorsCSV.generate()' ng-href="{{ feedErrorsCSV.link() }}" download="feedErrors.csv"><span class="glyphicon glyphicon-download" style="font-size: 20px;"></span></a>
 div(ng-show="showfeedTransactions")
   div(ng-show="feedTransactions.length>0")
+    |<!-- Table for ALL TRANSACTIONS -->
     |<table class="table table-striped">
     |<thead>
     |  <tr>
@@ -39,7 +42,7 @@ div(ng-show="showfeedTransactions")
     |  </tr>
     |</thead>
     |<tbody>
-    |<tr ng-repeat-start="transaction in feedTransactions | offset: currentPage*itemsPerPage | limitTo: itemsPerPage" class="success" ng-class="{danger:transaction.isCorrect}"> 
+    |<tr ng-repeat-start="transaction in feedTransactions | offset: currentPage*itemsPerPage | limitTo: itemsPerPage" class="success" ng-class="{success: transaction.updateStatus.status === null, danger: transaction.updateStatus.status === false}"> 
     |  <td ng-repeat="column in displayHeaderValues">{{transaction[column.name]}} </td>
     |  <td ng-if="hasLines"><button type="button" ng-click="openTransactionLines(transaction)" class="btn btn-xs indent">View Imported Lines</button></td>
     |</tr>

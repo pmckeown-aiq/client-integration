@@ -201,7 +201,40 @@ app.controller('TransactionLinesPopUpController',function ($scope, $uibModalInst
   };
 });
 
+app.controller('UpdateStagesStatusPopUp',function ($scope, $uibModalInstance, transaction) {
+  $scope.transaction = transaction;
+  //console.log('In pop up controller ' + JSON.stringify(transaction))
+  // Close the pop up (save changes
+  $scope.ok = function () {
+    console.log('Closing form' + JSON.stringify($scope.transaction));
+    $uibModalInstance.close();
+  };
+  // Cancel
+  $scope.cancel = function () {
+    $uibModalInstance.dismiss('cancel');
+  };
+});
+
 app.controller('AccountIDPopUpController',function ($scope, $uibModalInstance, invalidItem) {
+  $scope.invalidItem = invalidItem;
+  //console.log('In pop up controller ' + JSON.stringify(invalidItem))
+  // Close the pop up (save changes
+  $scope.ok = function () {
+    console.log('Closing form' + JSON.stringify($scope.invalidItem));
+    // Allow the item to be created by setting haveConfigured to true ...
+    invalidItem.haveConfigured = true;
+    $uibModalInstance.close();
+  };
+  $scope.getDetails= function (object) {
+    $scope.getFromApi({invalidItem})
+  };
+  // Cancel
+  $scope.cancel = function () {
+    $uibModalInstance.dismiss('cancel');
+  };
+});
+
+app.controller('DepartmentIDPopUpController',function ($scope, $uibModalInstance, invalidItem) {
   $scope.invalidItem = invalidItem;
   //console.log('In pop up controller ' + JSON.stringify(invalidItem))
   // Close the pop up (save changes
@@ -215,6 +248,25 @@ app.controller('AccountIDPopUpController',function ($scope, $uibModalInstance, i
     console.log('Fetching from ' + JSON.stringify($scope.invalidItem));
     console.log('Fetching from ' + JSON.stringify(object.type));
     console.log('Fetching from ' + JSON.stringify(object.apiId));
+    $scope.getFromApi({invalidItem})
+  };
+  // Cancel
+  $scope.cancel = function () {
+    $uibModalInstance.dismiss('cancel');
+  };
+});
+
+app.controller('StockItemIDPopUpController',function ($scope, $uibModalInstance, invalidItem) {
+  $scope.invalidItem = invalidItem;
+  //console.log('In pop up controller ' + JSON.stringify(invalidItem))
+  // Close the pop up (save changes
+  $scope.ok = function () {
+    console.log('Closing form' + JSON.stringify($scope.invalidItem));
+    // Allow the item to be created by setting haveConfigured to true ...
+    invalidItem.haveConfigured = true;
+    $uibModalInstance.close();
+  };
+  $scope.getDetails= function (object) {
     $scope.getFromApi({invalidItem})
   };
   // Cancel
@@ -310,7 +362,6 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
 
     // Revalidate Data - when codes found to be missing, allow user to re-extract the static data and then re-validate ones in error
     $scope.revalidate = function () {
-        //socket.emit('createTransactions', { transactions : $scope.feedErrors, coID : $scope.coID, type : $scope.type });
         socket.emit('extractStaticData', { 'coID' : $scope.coID, 'clientName' : $scope.clientName, 'type' : $scope.type });
 	// try to hide the transaction table
 	//$scope.dataUpdateRunning = true;
@@ -398,6 +449,26 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
       };
 
       // Transaction Lines Pop Up form
+      $scope.openUpdateStagesStatusPopUp= function (transaction) {
+        var modalInstance = $uibModal.open({
+          templateUrl: 'updateDataStagesPopUp.html',
+	  scope: $scope,
+          controller: 'UpdateStagesStatusPopUp',
+	  size: 'lg',
+          resolve: {
+            transaction: function () {
+              //return $scope.items;
+	      return transaction;
+            }
+          }
+        });
+        modalInstance.result.then(function () {
+          //$scope.transaction = TransactionLinesPopUp.transaction;
+        }, function () {
+        });
+      }
+
+      // Transaction Lines Pop Up form
       $scope.openTransactionLines= function (transaction) {
         var modalInstance = $uibModal.open({
           templateUrl: 'TransactionLinesPopUp.html',
@@ -432,6 +503,48 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
 
         modalInstance.result.then(function () {
           $scope.AccountName = AccountIDPopUp.AccountName;
+        }, function () {
+              console.log('Modal dismissed at: ' + new Date());
+        });
+      };
+
+      // Invalid Department Pop Up Form
+      $scope.openDepartmentDetails= function (invalidItem, getDefaultsResult) {
+        var modalInstance = $uibModal.open({
+          templateUrl: 'DepartmentIDPopup.html',
+	  scope: $scope,
+          controller: 'DepartmentIDPopUpController',
+          resolve: {
+            invalidItem: function () {
+              //return $scope.items;
+	      return invalidItem;
+            }
+          }
+        });
+
+        modalInstance.result.then(function () {
+          $scope.DepartmentName = DepartmentIDPopUp.DepartmentName;
+        }, function () {
+              console.log('Modal dismissed at: ' + new Date());
+        });
+      };
+
+      // Invalid StockItem Pop Up Form
+      $scope.openStockItemDetails= function (invalidItem, getDefaultsResult) {
+        var modalInstance = $uibModal.open({
+          templateUrl: 'StockItemIDPopup.html',
+	  scope: $scope,
+          controller: 'StockItemIDPopUpController',
+          resolve: {
+            invalidItem: function () {
+              //return $scope.items;
+	      return invalidItem;
+            }
+          }
+        });
+
+        modalInstance.result.then(function () {
+          $scope.StockItemName = StockItemIDPopUp.DepartmentName;
         }, function () {
               console.log('Modal dismissed at: ' + new Date());
         });
@@ -475,6 +588,8 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
               console.log('Modal dismissed at: ' + new Date());
         });
       };
+
+ 
 
     $scope.start = function () {
         socket.emit('start');

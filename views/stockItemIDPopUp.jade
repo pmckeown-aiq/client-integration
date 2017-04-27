@@ -1,0 +1,27 @@
+|<script type="text/ng-template" id="StockItemIDPopup.html">
+|    <form name="StockItemIDPopUp">
+|    <div class="modal-header">
+|        <h3>New account {{ invalidItem.code }}</h3>
+|    </div>
+|    <div class="modal-body">
+|                <!-- Only for account code default the placeholder (the original code provided) -->
+|                StockItem Code: <input type=text class="form-control" placeholder="{{ invalidItem.code }}" ng-init="invalidItem.data.Code={{ invalidItem.code }}" value="{{ invalidItem.code }}" value="{{ invalidItem.code }}" ng-model="invalidItem.data.Code">
+|                Description: <input type=text class="form-control" placeholder="{{ invalidItem.data.Description }}" ng-model="invalidItem.data.Description">
+|                Sales Description: <input type=text class="form-control" placeholder="{{ invalidItem.data.SalesDescription }}" ng-model="invalidItem.data.SalesDescription">
+|                Item Group ID: <input type=text class="form-control" placeholder="{{ invalidItem.data.ItemGroupID }}" ng-model="invalidItem.data.ItemGroupID">
+|                Item Type ID: <input type=text class="form-control" placeholder="{{ invalidItem.data.ItemTypeID }}" ng-model="invalidItem.data.ItemTypeID">
+|                Item Sub Group ID: <input type=text class="form-control" placeholder="{{ invalidItem.data.ItemSubgroupID }}" ng-model="invalidItem.data.ItemTypeID">
+|                Item Sub Group ID: <input type=text class="form-control" placeholder="{{ invalidItem.data.ItemSubgroupID }}" ng-model="invalidItem.data.ItemTypeID">
+|                Control (GL) Account Code: <input type=text class="form-control" placeholder="{{ getDefaultsResult.ControlGLAccountCode }}" ng-model="invalidItem.data.ControlGLAccountCode">
+|                Credit Terms (ID): <input type=text class="form-control" placeholder="{{ getDefaultsResult.CreditTermID }}" ng-model="invalidItem.data.CreditTermID">
+|                GL Account Code: <input type=text class="form-control" placeholder="{{ getDefaultsResult.DefaultGLAccountCode }}" ng-model="invalidItem.data.DefaultGLAccountCode">
+|                Tax Code: <input type=text class="form-control" placeholder="{{ getDefaultsResult.DefaultTaxCode }}" ng-model="invalidItem.data.DefaultTaxCode">
+|    </div>
+|    <div class="modal-footer">
+|        <button class="btn btn-primary" ng-click="getDefaults('StockItemID')">Shown/Edit Default Settings</button>
+|        <button class="btn btn-primary" ng-show="invalidItem.getFromApi" ng-click="getDetails({ 'type':'getCustomer','apiId': invalidItem.code })">Fetch From API</button>
+|        <button class="btn btn-primary" ng-click="ok()">OK</button>
+|        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+|    </div>
+|    </form>
+|</script>

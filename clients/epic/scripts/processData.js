@@ -10,6 +10,7 @@ var safeEval = require('safe-eval')
 // Bespoke to customer - depends on the dates in the input data
 // Pass in a date in the format they use and return it as YYYY-MM-DD
 function formatDate(inputDate) {
+  console.log('formatDate ' + inputDate);
   //inputDate = '18/10/2016';
   dateParts = inputDate.split('/');
   res = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
@@ -28,7 +29,7 @@ processData.prototype.EpicInvoices = function(feedTransactions, opts ) {
   // The header for epic defined by the date and the ExtRef column 
   console.log(JSON.stringify(feedTransactions));
   needToPick = []; // array for the pick values to construct a header 
-  headerValues = _.filter(opts.headerValues, { "supplied" : true });
+  headerValues = _.filter(opts.clientSettings.headerValues, { "supplied" : true });
   headerValues.forEach(function(myValue) {
     console.log('Evaluate ' + myValue.name + ' ' + myValue.value);
     // strip out the second part as has a prefix 
@@ -56,7 +57,7 @@ processData.prototype.EpicInvoices = function(feedTransactions, opts ) {
      
 
     // conf file says which are headerValues - set them
-    headerValues = _.filter(opts.headerValues, { "supplied" : true });
+    headerValues = _.filter(opts.clientSettings.headerValues, { "supplied" : true });
     headerValues.forEach(function(myValue) {
       console.log('Evaluate ' + myValue.name + ' ' + myValue.value);
       myInvoice[myValue.name] = safeEval(myValue.value, {invoiceHeader: invoiceHeader})
@@ -71,7 +72,7 @@ processData.prototype.EpicInvoices = function(feedTransactions, opts ) {
     myInvoices.forEach(function(invoice) {
       // the conf file should say if it is a line value ...
       console.log('line is ' + JSON.stringify(invoice));
-      lineValue = _.filter(opts.lineValues, { "supplied" : true });
+      lineValue = _.filter(opts.clientSettings.lineValues, { "supplied" : true });
       lineValue.forEach(function(myValue) {
         console.log('Evaluate ' + myValue.name + ' ' + myValue.value);
         myLine[myValue.name] = safeEval(myValue.value, {invoice : invoice})
@@ -99,7 +100,7 @@ processData.prototype.SalesReceipts = function(feedTransactions, opts ) {
     aiqPayment = {};
     // conf file says which are headerValues - set them
     // No lines on payments
-    headerValues = _.filter(opts.headerValues, { "supplied" : true });
+    headerValues = _.filter(opts.clientSettings.headerValues, { "supplied" : true });
     headerValues.forEach(function(myValue) {
       console.log(JSON.stringify(myValue));
       aiqPayment[myValue.name] = safeEval('payment[\'' + myValue.value + '\']', {payment: payment})

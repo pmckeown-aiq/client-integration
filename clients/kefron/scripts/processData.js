@@ -6,6 +6,9 @@ var clone = require('clone');
 var fs = require("fs");
 // required to evaluate properties in the conf file (dynamically setting variables)
 var safeEval = require('safe-eval');
+// Kefron - Testing - attach as excel
+var json2xls = require('json2xls');
+
 module.exports = processData = function (feedTransactions, opts) {
 };
 
@@ -46,7 +49,7 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts ) {
   // format the arrays (Kefron comes with no headers ...
   var invoiceHeaders = unnamedHeaders.map(function(obj) {
     return {
-      AccountID: obj.field3,
+      CustomerCode: obj.field3,
       // this invoice number may be the ExternalReference (or may not be - as we bunch up by customer to create a single invoice
       ExternalReference: obj.field4,
       Notes: obj.field5, 
@@ -95,6 +98,21 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts ) {
     invoice.GrossAmount = (invoice.NetAmount*1) + (invoice.TaxAmount*1);
     invoice.GrossAmount = invoice.GrossAmount.toFixed(2);
     console.log('A single invoice: ' + JSON.stringify(invoice));
+    if (opts.processRules.attachDocument.required == true && opts.processRules.attachDocument.processData == true) {
+      var attachmentData = safeEval(opts.processRules.attachDocument.attachmentData, { invoice });
+      var attachmentFileName = safeEval(opts.processRules.attachDocument.attachmentFileName, { invoice });
+      console.log(JSON.stringify(attachmentData));
+      var attachment = json2xls(attachmentData);
+      console.log('Going to write a file ' + appDir + '/clients/' + opts.clientName + '/data/' + opts.coID + '/' + attachmentFileName + '.' + opts.processRules.attachDocument.attachmentType);
+      invoice.AttachDocument = appDir + '/clients/' + opts.clientName + '/data/' + opts.coID + '/' + attachmentFileName  + '.' + opts.processRules.attachDocument.attachmentType;
+      console.log('invoice attachment ' + invoice.AttachDocument);
+      fs.writeFile(appDir + '/clients/' + opts.clientName + '/data/' + opts.coID + '/' + attachmentFileName  + '.' + opts.processRules.attachDocument.attachmentType, attachment, 'binary', function (err) {
+        if (err) {
+          console.log('Error in writeFiles' + JSON.stringify(err));
+          throw new err;
+        }
+      });
+    }
     processedTransactions.push(invoice);
   });
   //console.log(JSON.stringify(processedTransactions));
@@ -111,8 +129,8 @@ processData.prototype.KDCScanningInvoices = function(feedTransactions, opts ) {
   // Count of invoice lines and invoices, sum of NetAmount, TaxAmount and GrossAmount
   // variables
   
-  mySuppliedHeaders = _.filter(opts.headerValues, { "supplied": true });
-  mySuppliedLines = _.filter(opts.lineValues, { "supplied": true });
+  mySuppliedHeaders = _.filter(opts.clientSettings.headerValues, { "supplied": true });
+  mySuppliedLines = _.filter(opts.clientSettings.lineValues, { "supplied": true });
   // 
   myUniqueReferences = _.chain(feedTransactions).map(function(item) { return item['Reference'] }).uniq().value();
   myUniqueReferences.forEach(function(ref) {
@@ -144,8 +162,8 @@ processData.prototype.LightSpeedInvoices = function(feedTransactions, opts ) {
   // Count of invoice lines and invoices, sum of NetAmount, TaxAmount and GrossAmount
   // variables
   
-  mySuppliedHeaders = _.filter(opts.headerValues, { "supplied": true });
-  mySuppliedLines = _.filter(opts.lineValues, { "supplied": true });
+  mySuppliedHeaders = _.filter(opts.clientSettings.headerValues, { "supplied": true });
+  mySuppliedLines = _.filter(opts.clientSettings.lineValues, { "supplied": true });
   // 
   myUniqueReferences = _.chain(feedTransactions).map(function(item) { return item['REFERENCE'] }).uniq().value();
   myUniqueReferences.forEach(function(ref) {

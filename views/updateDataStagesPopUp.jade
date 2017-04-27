@@ -1,0 +1,18 @@
+|<script type="text/ng-template" id="updateDataStagesPopUp.html">
+|  <div class="modal-body">
+|      <table class="a table table-striped borderless">
+|        <tr ng-repeat="status in transaction.updateStageStatus" ng-class="{'danger':!status.status}" class="success">
+|          <td>{{ status.stage }}</td>
+|          <td>{{ status.status }}</td>
+|          <td>{{ status.serverStatus }}</td>
+|          <td>{{ status.invoiceID }} {{ stage.transactionRef }}</td>
+|          <td>{{ status.message }}</td>
+|          <td>{{ status.error }}</td>
+|        </tr>
+|      </table>
+|  </div>
+|  <div class="modal-footer">
+|      <button class="btn btn-primary" ng-click="ok()">OK</button>
+|      <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+|  </div>
+|</script>

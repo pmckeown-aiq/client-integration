@@ -3,7 +3,7 @@
 |      <table class="a table table-striped borderless">
 |        <thead><tr><td ng-repeat="col in displayLineValues">{{col.displayName}}</td></tr></thead>
 |        <tbody>
-|          <tr ng-repeat-start='line in transaction.lines' ng-class="{danger:line.isCorrect}" ng-show="!transaction.isCorrect.status" ng-if="hasLines">
+|          <tr ng-repeat-start='line in transaction.lines' ng-class="{danger:line.updateStatus.status}" ng-show="!transaction.updateStatus.status" ng-if="hasLines">
 |          <td class="small" ng-repeat="col in displayLineValues">{{line[col.name]}} </td>
 |          </tr>
 |          <tr ng-repeat-end><tr ng-repeat-end >

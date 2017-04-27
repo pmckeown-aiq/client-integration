@@ -63,7 +63,7 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, cb) {
       // Also add Expected Tax (VAT) Amount at 20% VAT 
       // Dccode - the customer code - convert to uppercase ..
       if ( Price !== 0 ) {
-        arrayInvoice.push({'GLAccountCode' : res.GLCODE, 'ExternalReference' : res.Reservationnumber , 'InvoiceDate' : InvoiceDate , 'OrderDate' : OrderDate , 'AccountID' : res.Dccode.toUpperCase(), 'StockItemDescription':  res.Guestname + ':' + res.Productname + ':' + res.Bookingreference + ':' + res.Startdate + ':' + res.Enddate , 'DepartmentID' : res.Resortcode, 'StockItemPrice' : Price, 'StockItemID': res.Productcode.toUpperCase(), 'ParentID' : res.Parentid, 'ReservedResourceID' : res.Reservedresourceid  });
+        arrayInvoice.push({'GLAccountCode' : res.GLCODE, 'ExternalReference' : res.Reservationnumber , 'InvoiceDate' : InvoiceDate , 'OrderDate' : OrderDate , 'CustomerCode' : res.Dccode.toUpperCase(), 'StockItemDescription':  res.Guestname + ':' + res.Productname + ':' + res.Bookingreference + ':' + res.Startdate + ':' + res.Enddate , 'DepartmentID' : res.Resortcode, 'StockItemPrice' : Price, 'StockItemID': res.Productcode.toUpperCase(), 'ParentID' : res.Parentid, 'ReservedResourceID' : res.Reservedresourceid  });
       } 
       //console.log(JSON.stringify(arrayInvoice));
       // Create array invoices - to hold the value in the source data that
@@ -80,7 +80,7 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, cb) {
     // Loop through the unique invoice numbers to create individual invoices
     // invoice is an array of invoices
     // Need to filter it, but then create a "header" with information such as
-    // AccountID, ExternalReference, InvoiceDate 
+    // CustomerCode, ExternalReference, InvoiceDate 
     // and lines - which will be an array within an "invoice" with:
     // GlCode, ProductCode
     feedTransactionArray = new Array();
@@ -112,7 +112,7 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, cb) {
         //console.log('Create Invoice for ' + JSON.stringify(invoice));
         // Then remove the header items from the original! 
         // TODO - Must be a better way to do this! 
-        invLines.forEach(function(v){ delete v.ExternalReference, delete v.AccountID, delete v.UserId, delete v.InvoiceDate , delete v.OrderDate });
+        invLines.forEach(function(v){ delete v.ExternalReference, delete v.CustomerCode, delete v.UserId, delete v.InvoiceDate , delete v.OrderDate });
         // now we have a series of lines in an array ... 
         // some will have VAT amounts and some have net amounts
         // VAT amounts have "VAT" in the StockItemDescription
@@ -287,29 +287,29 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, cb) {
 	          v.TaxAmount = v.NetAmount * 0.2 ;
                   v.isWarning = { 'check': true, 'reason':'Accumulated VAT line found and simply set VAT to 20% of the Net Amount' }
 	        } else { // reject the invoice 
-                  v.isCorrect = { 'status': false, 'error':'Some missing VAT on extra items - have VAT amount ' + isMatchVATAccumulated[0].TaxAmount + ' but expected ' + totalTax.toFixed(2)/1 };
+                  v.updateStatus = { 'status': false, 'error':'Some missing VAT on extra items - have VAT amount ' + isMatchVATAccumulated[0].TaxAmount + ' but expected ' + totalTax.toFixed(2)/1 };
 	        }
 	      }
             } else if ( v.GLAccountCode == "4004" ) {
 	    // Now the nasty one! This is where the VAT is split between rates
 	    // Only occurs on Rent (so 4004 GL Cod e - if so can add that to message
               if ( vatLines.length === 1 ) { 
-                v.isCorrect = { 'status': false, 'error':'Split Rate VAT - Please enter the invoice manually. One VAT Amount for ' + vatLines[0].TaxAmount + ' found. If all 20% should have been ' + (v.NetAmount * 0.2) };
+                v.updateStatus = { 'status': false, 'error':'Split Rate VAT - Please enter the invoice manually. One VAT Amount for ' + vatLines[0].TaxAmount + ' found. If all 20% should have been ' + (v.NetAmount * 0.2) };
 	      } else {
-                v.isCorrect = { 'status': false, 'error':'Split Rate VAT - Please enter the invoice manually' };
+                v.updateStatus = { 'status': false, 'error':'Split Rate VAT - Please enter the invoice manually' };
 	      }
 	    } else {
-                v.isCorrect = { 'status': false, 'error':'No VAT Found' };
+                v.updateStatus = { 'status': false, 'error':'No VAT Found' };
             }
           } else {
             //console.log(' WE HAVE A SERIOUS ISSUE - MATCHED MORE THAN ONE LINE: ' + isMatch.length + ' LINES FOUND');
-            v.isCorrect = { 'status': false, 'error':'Multiple VAT Found' }
+            v.updateStatus = { 'status': false, 'error':'Multiple VAT Found' }
           }
           // END Check VAT - if got through that with no TaxAmount raise error
           if ( ! v.TaxAmount || v.TaxAmount == 0 || v.TaxAmount == '' ) {
             // and there is no error already! 
-            if ( ! v.isCorrect ) {
-	      v.isCorrect = { 'status': false, 'error':'No VAT Found' };
+            if ( ! v.updateStatus ) {
+	      v.updateStatus = { 'status': false, 'error':'No VAT Found' };
 	    }
           }
           // reduce the amounts to two decimals 
@@ -353,12 +353,12 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, cb) {
           invoice.GrossAmount += v.GrossAmount.toFixed(2)/1;
           invoice.TaxAmount += v.TaxAmount.toFixed(2)/1;
 	  // check to see if any lines are incorrect - if any staus is false	
-          if (v.hasOwnProperty('isCorrect')) {
-            invoice.isCorrect = { 'status' : false }
+          if (v.hasOwnProperty('updateStatus')) {
+            invoice.updateStatus = { 'status' : false }
           } 
           // Calculate the sum of the net and Tax and Gross Amoubts
         });
-        //console.log('LINES IN ERROR ' + JSON.stringify(invoice.isCorrect));
+        //console.log('LINES IN ERROR ' + JSON.stringify(invoice.updateStatus));
         invoice.lines = nonVatLines;
         // Round off the header values
         var tempNetAmount = (invoice.NetAmount * 1);	
@@ -375,7 +375,7 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, cb) {
         // note the number of lines
         invoice.lineCount = nonVatLines.length;
         if ( invoice.lineCount == 0 ) {
-          invoice.isCorrect = { 'status': false, 'error':'No lines recorded' };
+          invoice.updateStatus = { 'status': false, 'error':'No lines recorded' };
         }
         //console.log('Merged invoice :' + JSON.stringify(invoice));
         feedTransactionArray.push(invoice);
@@ -429,7 +429,7 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, cb) 
       // Dccode - the customer code - convert to uppercase ..
       if ( Price !== 0 ) {
 	// use a default product code
-        arrayInvoice.push({'TransactionType' : res.TransactionType, 'GLAccountCode' : res.GLCODE, 'ExternalReference' : res.ReservationNumber , 'InvoiceDate' : InvoiceDate , 'OrderDate' : OrderDate , 'AccountID' : res.DcCode.toUpperCase(), 'StockItemDescription':  res.GuestName + ':' + res.ProductName + ':' + res.BookingReferenc + ':' + res.StartDate + ':' + res.EndDate , 'DepartmentID' : res.ResortCode, 'StockItemPrice' : Price, 'StockItemID': res.ProductCode.toUpperCase() });
+        arrayInvoice.push({'TransactionType' : res.TransactionType, 'GLAccountCode' : res.GLCODE, 'ExternalReference' : res.ReservationNumber , 'InvoiceDate' : InvoiceDate , 'OrderDate' : OrderDate , 'CustomerCode' : res.DcCode.toUpperCase(), 'StockItemDescription':  res.GuestName + ':' + res.ProductName + ':' + res.BookingReferenc + ':' + res.StartDate + ':' + res.EndDate , 'DepartmentID' : res.ResortCode, 'StockItemPrice' : Price, 'StockItemID': res.ProductCode.toUpperCase() });
       } 
       //console.log(JSON.stringify(arrayInvoice));
       // Create array invoices - to hold the value in the source data that
@@ -445,7 +445,7 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, cb) 
     // Loop through the unique invoice numbers to create individual invoices
     // invoice is an array of invoices
     // Need to filter it, but then create a "header" with information such as
-    // AccountID, ExternalReference, InvoiceDate 
+    // CustomerCode, ExternalReference, InvoiceDate 
     // and lines - which will be an array within an "invoice" with:
     // GlCode, ProductCode
     feedTransactionArray = new Array();
@@ -475,7 +475,7 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, cb) 
         //console.log('Create Invoice for ' + JSON.stringify(invoice));
         // Then remove the header items from the original! 
         // TODO - Must be a better way to do this! 
-        invLines.forEach(function(v){ delete v.ExternalReference, delete v.AccountID, delete v.UserId, delete v.InvoiceDate , delete v.OrderDate });
+        invLines.forEach(function(v){ delete v.ExternalReference, delete v.CustomerCode, delete v.UserId, delete v.InvoiceDate , delete v.OrderDate });
         // now we have a series of lines in an array ... 
         // some will have VAT amounts and some have net amounts
         // VAT amounts have "VAT" in the StockItemDescription
@@ -647,34 +647,34 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, cb) 
 	          v.TaxAmount = v.NetAmount * 0.2 ;
                   v.isWarning = { 'check': true, 'reason':'Accumulated VAT line found and simply set VAT to 20% of the Net Amount' }
 	        } else { // reject the invoice 
-                  v.isCorrect = { 'status': false, 'error':'Some missing VAT on extra items - have VAT amount ' + isMatchVATAccumulated[0].TaxAmount + ' but expected ' + totalTax.toFixed(2)/1 };
+                  v.updateStatus = { 'status': false, 'error':'Some missing VAT on extra items - have VAT amount ' + isMatchVATAccumulated[0].TaxAmount + ' but expected ' + totalTax.toFixed(2)/1 };
 	        }
 	      }
             } else if ( v.GLAccountCode == "4004" ) {
 	    // Now the nasty one! This is where the VAT is split between rates
 	    // Only occurs on Rent (so 4004 GL Cod e - if so can add that to message
               if ( vatLines.length === 1 ) { 
-                v.isCorrect = { 'status': false, 'error':'Split Rate VAT - Please enter the invoice manually. One VAT Amount for ' + vatLines[0].TaxAmount + ' found. If all 20% should have been ' + (v.NetAmount * 0.2) };
+                v.updateStatus = { 'status': false, 'error':'Split Rate VAT - Please enter the invoice manually. One VAT Amount for ' + vatLines[0].TaxAmount + ' found. If all 20% should have been ' + (v.NetAmount * 0.2) };
 		 // Special case though for Adjustments - they may have more than one rent line, and a single VAT line. However we are looping through the invoice lines and for that check we need to loop the VAT lines. However the invoice lines get an error at this point - so her we flag bot the vat line and invline
 		 v.checkForMultipleRent = true;
 		 // And as only 1 VAT line ..
 		 vatLines[0].checkForMultipleRent = true;
 	      } else {
-                v.isCorrect = { 'status': false, 'error':'Split Rate VAT - Please enter the invoice manually' };
+                v.updateStatus = { 'status': false, 'error':'Split Rate VAT - Please enter the invoice manually' };
 	      }
 	    } else {
-                v.isCorrect = { 'status': false, 'error':'No VAT Found' };
+                v.updateStatus = { 'status': false, 'error':'No VAT Found' };
             }
           } else {
             //console.log(' WE HAVE A SERIOUS ISSUE - MATCHED MORE THAN ONE LINE: ' + isMatch.length + ' LINES FOUND');
-            v.isCorrect = { 'status': false, 'error':'Multiple VAT Found' }
+            v.updateStatus = { 'status': false, 'error':'Multiple VAT Found' }
           }
           // END Check VAT - if got through that with no TaxAmount raise error
 	  console.log('AFTER VAT CHECK ' + v.ExtRef + ' VATLINES IS ' + JSON.stringify(vatLines));
           if ( ! v.TaxAmount || v.TaxAmount == 0 || v.TaxAmount == '' ) {
             // and there is no error already! 
-            if ( ! v.isCorrect ) {
-	      v.isCorrect = { 'status': false, 'error':'No VAT Found' };
+            if ( ! v.updateStatus ) {
+	      v.updateStatus = { 'status': false, 'error':'No VAT Found' };
 	    }
           }
           // reduce the amounts to two decimals 
@@ -724,8 +724,8 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, cb) 
 	        line.TaxRate = 0.2;
 		line.TaxAmount = line.NetAmount * line.TaxRate;
 		line.GrossAmount = line.NetAmount + line.TaxAmount;
-                delete line.isCorrect ;
-                delete invoice.isCorrect;
+                delete line.updateStatus ;
+                delete invoice.updateStatus;
 	      }
 	    })
             console.log(JSON.stringify(invLines))	
@@ -754,12 +754,12 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, cb) 
 	  }
           invoice.TaxAmount += v.TaxAmount.toFixed(2)/1;
 	  // check to see if any lines are incorrect - if any staus is false	
-          if (v.hasOwnProperty('isCorrect')) {
-            delete invoice.isCorrect; 
+          if (v.hasOwnProperty('updateStatus')) {
+            delete invoice.updateStatus; 
           } 
           // Calculate the sum of the net and Tax and Gross Amoubts
         });
-        //console.log('LINES IN ERROR ' + JSON.stringify(invoice.isCorrect));
+        //console.log('LINES IN ERROR ' + JSON.stringify(invoice.updateStatus));
         invoice.lines = nonVatLines;
         // Round off the header values
         var tempNetAmount = (invoice.NetAmount * 1);	
@@ -776,22 +776,22 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, cb) 
         invoice.DeliveryDate = today.toISOString().slice(0,10);
 	console.log('JUST SET DATE ' +  invoice.DeliveryDate)
         if ( invoice.lineCount == 0 ) {
-          invoice.isCorrect = { 'status': false, 'error':'No lines recorded' };
+          invoice.updateStatus = { 'status': false, 'error':'No lines recorded' };
         } else { // we have lines
 	// AMMENDMENTS - change from invoices 
 	// If we have no VAT lines, and the NetAmount totals to zero then we are to drop the transaction (as it is not needed in AIQ as per client instruction - it is a change of booking with no charge so not required ...
           totalNetAmount = _.sumBy(invoice.lines, 'NetAmount');
           console.log('SUM NETAMOUNT IS ' + totalNetAmount + ' linecount ' +  invoice.lines.length)
 	  if ( invoice.lines.length !== 0 && totalNetAmount == 0) {
-            invoice.isCorrect = { 'status': false, 'error':'Invoice Totals to Zero' };
+            invoice.updateStatus = { 'status': false, 'error':'Invoice Totals to Zero' };
             console.log('DROP SUM NET AMOUNT  AND NOT VAT ON ' + invoice.ExtRef);
-	    invoice.isCorrect = { 'status': false, 'error': 'Not processing as no VAT and line amounts total 0' };
+	    invoice.updateStatus = { 'status': false, 'error': 'Not processing as no VAT and line amounts total 0' };
 	    invoice.lines.forEach(function(v) {
 	      // Adjustments - getting a lot with no tax amount so default to zero
 	      console.log(JSON.stringify(v));
 	      v.TaxAmount = 0;
 	      v.TaxRate = 0;
-              v.isCorrect = { 'status': false, 'error':'Invoice Totals to Zero' };
+              v.updateStatus = { 'status': false, 'error':'Invoice Totals to Zero' };
 	      console.log(JSON.stringify(v));
 	   });
           }

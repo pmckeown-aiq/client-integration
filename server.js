@@ -10,11 +10,6 @@ var io = require('socket.io').listen(server);
 var path = require('path');
 var fs = require('fs.extra');
 
-// Secure config file
-var SecureConf = require('secure-conf');
-var sconf      = new SecureConf();
-var ef         = "./conf/config.js.enc";
-var pw         = require("pw");
 // Express 3.4.0
 // File upload requirements
 // all environments
@@ -50,18 +45,6 @@ var bodyParser = require('body-parser');
 var passport = require('passport');
 var util = require('util');
 var bunyan = require('bunyan');
-var password = 'peter100';
-pw(function(password){
-          console.log(password);
-  sconf.decryptFile(ef, password, function(err, file, content) {
-      if (err) {
-          console.log('Unable to retrieve the configuration contents.');
-      } else {
-          var config = JSON.parse(content);
-          console.log(JSON.stringify(config));
-      }
-  });
-})
 var config = require('./conf/config')
 
 // Start QuickStart here
@@ -257,8 +240,8 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
     fileData.clientName = clientName;
     fileData.loadDataFilters = loadDataFilters;
     fileData.loadDataReady = true;
-    // Grab the client settings from the config file (via the env helper)
-    var env = require('./helper/env.js');
+    // Grab the client settings from the config file (via the env resources)
+    var env = require('./resources/env.js');
     env.env({ coID: coID, type: type, get: '' }, function(opts) {
         fileData.clientSettings = opts.opts.clientSettings;        
         fileData.objectsToMap = opts.opts.objectsToMap;        

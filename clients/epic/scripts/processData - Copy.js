@@ -44,7 +44,7 @@ processData.prototype.BatchInvoices = function(feedTransactions, opts ) {
       console.log('feedTransactions Invoice ' + JSON.stringify(invoice));
 
       // conf file says which are headerValues - set them
-      headerValues = _.filter(opts.headerValues, { "supplied" : true });
+      headerValues = _.filter(opts.clientSettings.headerValues, { "supplied" : true });
       headerValues.forEach(function(header) {
 	console.log(JSON.stringify(header));
 	myInvoice[header.name] = safeEval(header.value, {invoice: invoice})
@@ -55,7 +55,7 @@ processData.prototype.BatchInvoices = function(feedTransactions, opts ) {
       myInvoice.lines = [];
       myLine = {}; // empty the line that we are to construct
       // the conf file should say if it is a line value ...
-      lineValue = _.filter(opts.lineValues, { "supplied" : true });
+      lineValue = _.filter(opts.clientSettings.lineValues, { "supplied" : true });
       lineValue.forEach(function(myLineValue) {
         console.log('Evaluate ' + myLineValue.name + ' ' + myLineValue.value);
 	myLine[myLineValue.name] = safeEval(myLineValue.value, {invoice : invoice})

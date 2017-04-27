@@ -9,7 +9,11 @@ p(ng-show="invalidData.length > 0") Data records shown below have been identifie
 |    <td>{{invalidItem.code}}</td>
 |    <td>{{invalidItem.apiValue}}</td>
 |    <td><button type='button' ng-show="invalidItem.getFromApi" class='btn indent', ng-click='getFromApi({ invalidItem })'> Get From Api {{ invalidItem.code }}</button></td>
-|    <td><button type='button' ng-show="invalidItem.canCreate" class='btn indent', ng-click='openAccountDetails(invalidItem)'> Configure {{ invalidItem.code }}</button></td>
+|    <td>
+|      <button type='button' ng-show="invalidItem.canCreate && invalidItem.objectType=='AccountID'" class='btn indent', ng-click='openAccountDetails(invalidItem)'> Configure {{ invalidItem.code }}</button>
+|      <button type='button' ng-show="invalidItem.canCreate && invalidItem.objectType=='StockItemID'" class='btn indent', ng-click='openStockItemDetails(invalidItem)'> Configure {{ invalidItem.code }}</button>
+|      <button type='button' ng-show="invalidItem.canCreate && invalidItem.objectType=='DepartmentID'" class='btn indent', ng-click='openDepartmentDetails(invalidItem)'> Configure {{ invalidItem.code }}</button>
+|    </td>
 |    <td><button type='button' ng-show="invalidItem.canCreate && invalidItem.haveConfigured" class='btn indent', ng-click='createInvalidItem(invalidItem); remove(invalidData, $index)'> Create {{ invalidItem.code }}</button></td>
 |  </tr>
 |  </tbody></table>

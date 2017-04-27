@@ -27,7 +27,7 @@ processData.prototype.AxiosHarvestInvoices = function(feedTransactions, opts ) {
   feedTransactions.forEach(function(apiInvoice) {
     console.log('apiInvoice' + JSON.stringify(apiInvoice))
     myInvoice = {};
-    headerValues = _.filter(opts.headerValues, { "supplied" : true });
+    headerValues = _.filter(opts.clientSettings.headerValues, { "supplied" : true });
     headerValues.forEach(function(header) {
     console.log(JSON.stringify(header));
     if ( 'apiInvoice.' + header.value !== undefined ) {
@@ -35,7 +35,7 @@ processData.prototype.AxiosHarvestInvoices = function(feedTransactions, opts ) {
       }
     });
     // Then grab any with a supplied = false but have a default ...
-    headerDefaultedValues = _.filter(opts.headerValues, { "supplied" : false, "default" : true  });
+    headerDefaultedValues = _.filter(opts.clientSettings.headerValues, { "supplied" : false, "default" : true  });
     headerDefaultedValues.forEach(function(myHeaderValue) {
       console.log('SET A DEFAULT HEADER VALUE ' + JSON.stringify(myHeaderValue));
       myInvoice[myHeaderValue.name] = myHeaderValue.defaultValue.set 
@@ -49,14 +49,14 @@ processData.prototype.AxiosHarvestInvoices = function(feedTransactions, opts ) {
       myLine = {}; // empty the line that we are to construct
       console.log('API Invoice line ' + JSON.stringify(line));
       console.log('My Invoice line ' + JSON.stringify(myLine));
-      lineValue = _.filter(opts.lineValues, { "supplied" : true });
+      lineValue = _.filter(opts.clientSettings.lineValues, { "supplied" : true });
       lineValue.forEach(function(myLineValue) {
         console.log('Evaluate ' + myLineValue.name + ' ' + myLineValue.value);
         console.log([myLineValue]);
         console.log(JSON.stringify(line));
         myLine[myLineValue.name] = safeEval('line.' + myLineValue.value, {line : line})
       });
-      lineDefaultedValues = _.filter(opts.lineValues, { "supplied" : false, "default" : true  });
+      lineDefaultedValues = _.filter(opts.clientSettings.lineValues, { "supplied" : false, "default" : true  });
       lineDefaultedValues.forEach(function(myLineValue) {
         console.log('SET A DEFAULT LINE VALUE ' + JSON.stringify(myLineValue));
         myLine[myLineValue.name] = myLineValue.defaultValue.set ;
@@ -90,7 +90,7 @@ processData.prototype.AxiosHarvestExpenses = function(feedTransactions, opts ) {
   feedTransactions.forEach(function(apiInvoice) {
     console.log('apiInvoice' + JSON.stringify(apiInvoice))
     myInvoice = {};
-    headerValues = _.filter(opts.headerValues, { "supplied" : true });
+    headerValues = _.filter(opts.clientSettings.headerValues, { "supplied" : true });
     headerValues.forEach(function(header) {
       console.log(JSON.stringify(header));
       if ( 'apiInvoice.' + header.value !== undefined ) {
@@ -98,7 +98,7 @@ processData.prototype.AxiosHarvestExpenses = function(feedTransactions, opts ) {
       }
     });
     // Then grab any with a supplied = false but have a default ...
-    headerDefaultedValues = _.filter(opts.headerValues, { "supplied" : false, "default" : true  });
+    headerDefaultedValues = _.filter(opts.clientSettings.headerValues, { "supplied" : false, "default" : true  });
     headerDefaultedValues.forEach(function(myHeaderValue) {
       console.log('SET A DEFAULT HEADER VALUE ' + JSON.stringify(myHeaderValue));
       myInvoice[myHeaderValue.name] = myHeaderValue.defaultValue.set 
@@ -112,14 +112,14 @@ processData.prototype.AxiosHarvestExpenses = function(feedTransactions, opts ) {
       myLine = {}; // empty the line that we are to construct
       console.log('API Invoice line ' + JSON.stringify(line));
       console.log('My Invoice line ' + JSON.stringify(myLine));
-      lineValue = _.filter(opts.lineValues, { "supplied" : true });
+      lineValue = _.filter(opts.clientSettings.lineValues, { "supplied" : true });
       lineValue.forEach(function(myLineValue) {
         console.log('Evaluate ' + myLineValue.name + ' ' + myLineValue.value);
         console.log([myLineValue]);
         console.log(JSON.stringify(line));
         myLine[myLineValue.name] = safeEval('line.' + myLineValue.value, {line : line})
       });
-      lineDefaultedValues = _.filter(opts.lineValues, { "supplied" : false, "default" : true  });
+      lineDefaultedValues = _.filter(opts.clientSettings.lineValues, { "supplied" : false, "default" : true  });
       lineDefaultedValues.forEach(function(myLineValue) {
         console.log('SET A DEFAULT LINE VALUE ' + JSON.stringify(myLineValue));
         myLine[myLineValue.name] = myLineValue.defaultValue.set ;
