@@ -246,7 +246,7 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
         fileData.clientSettings = opts.opts.clientSettings;        
         fileData.objectsToMap = opts.opts.objectsToMap;        
         fileData.objectsToValidate = opts.opts.objectsToValidate;        
-        fileData.writeBackRules = opts.opts.writeBackRules;        
+        fileData.callbackRules = opts.opts.callbackRules;        
     })
     appLog.info('loadDataReady: ', fileData);
     console.log('emit to loadDataReady do we know what coID is ' + coID);

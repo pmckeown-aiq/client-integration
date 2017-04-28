@@ -40,8 +40,8 @@ updateData.prototype.SaveInvoiceGetBackInvoiceID = function(opts, cb) {
     var negativeTransactionCheck = true;
     var negativeTransactionIdentifier = opts.processRules.negativeTransactionType.identifyBy;
   }
-  if ( typeof opts.writeBackRules.allowed != 'undefined' ) {
-    var writeBack = require(appDir + opts.writeBackRules.script);
+  if ( typeof opts.callbackRules.allowed != 'undefined' ) {
+    var callback = require(appDir + opts.callbackRules.script);
   }
   var isValidCount = 0;
   var isWarnCount = 0;
@@ -276,13 +276,13 @@ updateData.prototype.SaveInvoiceGetBackInvoiceID = function(opts, cb) {
                        })
                     } 
                     process.send({ createdTransaction: {transactionRef : v.ExternalReference, status : true, message: 'transaction created'  }}); 
-		    console.log('writeBack?')
-	            if ( opts.writeBackRules) {
-	              if ( opts.writeBackRules.allowed == true ) {
-		        console.log('calling writeBack function ' + opts.writeBackRules.writeBackFunction)
-	                this.writeBack = new writeBack(this);
+		    console.log('callback?')
+	            if ( opts.callbackRules) {
+	              if ( opts.callbackRules.allowed == true ) {
+		        console.log('calling callback function ' + opts.callbackRules.callbackFunction)
+	                this.callback = new callback(this);
 	                try {
-		          this.writeBack[opts.writeBackRules.writeBackFunction](opts, v, function(err, wroteBack) {
+		          this.callback[opts.callbackRules.callbackFunction](opts, v, function(err, wroteBack) {
 		            if (err) { 
 			      console.log('Error returned ' + JSON.stringify(err))
                               process.send({ "error" : "error writing back data " , "data": err }); 
@@ -673,8 +673,8 @@ updateData.prototype.SaveSalesReceiptGetBackTransactionID = function(opts, cb) {
     var negativeTransactionCheck = true;
     var negativeTransactionIdentifier = opts.processRules.negativeTransactionType.identifyBy;
   }
-  if ( typeof opts.writeBackRules.allowed != 'undefined' ) {
-    var writeBack = require(appDir + opts.writeBackRules.script);
+  if ( typeof opts.callbackRules.allowed != 'undefined' ) {
+    var callback = require(appDir + opts.callbackRules.script);
   }
   var isValidCount = 0;
   var isWarnCount = 0;

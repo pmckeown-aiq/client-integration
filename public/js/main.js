@@ -368,8 +368,8 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
     };
 
     $scope.createTransactions = function () {
-      // strip off double quotes from writeBackRules
-      $scope.writeBackRules = JSON.parse($scope.writeBackRules)
+      // strip off double quotes from callbackRules
+      $scope.callbackRules = JSON.parse($scope.callbackRules)
       $scope.createdTransactionCount = 0;
       $scope.wroteBackTransactionCount = 0;
       socket.emit('createTransactions', { transactions : $scope.feedTransactions, coID : $scope.coID, type : $scope.type });
@@ -809,10 +809,10 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
         $scope.loadDataReady = JSON.stringify(data.loadDataReady);
 	$scope.setCurrentStage(3);
         $scope.clientSettings = JSON.stringify(data.clientSettings);
-	if ( data.writeBackRules !== 'undefined' ) {
-          $scope.writeBackRules = JSON.stringify(data.writeBackRules);
+	if ( data.callbackRules !== 'undefined' ) {
+          $scope.callbackRules = JSON.stringify(data.callbackRules);
         } else {
-          $scope.writeBackRules = {};
+          $scope.callbackRules = {};
 	}
 	if ( data.loadDataFilters !== 'undefined' ) {
           $scope.loadDataFilters = JSON.parse(data.loadDataFilters);

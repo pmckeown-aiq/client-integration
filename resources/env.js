@@ -43,10 +43,10 @@ env: function(opts ,cb) {
        opts.processRules = config.integrationTypes[i].processRules;
        opts.processRules.clientName = config.integrationTypes[i].clientName;
        // Write Back .. options to write data back to the third party system
-       opts.writeBackRules = {};
-       if ( typeof config.integrationTypes[i].writeBackRules !== 'undefined' ) {
-         opts.writeBackRules = config.integrationTypes[i].writeBackRules;
-         opts.writeBackRules.asyncLimit = config.integrationTypes[i].asyncLimit;
+       opts.callbackRules = {};
+       if ( typeof config.integrationTypes[i].callbackRules !== 'undefined' ) {
+         opts.callbackRules = config.integrationTypes[i].callbackRules;
+         opts.callbackRules.asyncLimit = config.integrationTypes[i].asyncLimit;
        }
        // array for storing values that need validation
        opts.clientSettings = {};

@@ -221,19 +221,19 @@ process.on('message', function (options) {
 	    throw err;
           };
 	  // first - need to drop transactions that should be excluded as they contain the marker to say previously updated to accountsIQ
-          if (typeof opts.writeBackRules.options != 'undefined' ) {
-            isAlreadyWriteBack = new RegExp(opts.writeBackRules.options.value);
-	    if (opts.writeBackRules.onLines == true) {
+          if (typeof opts.callbackRules.options != 'undefined' ) {
+            isAlreadyCalledback = new RegExp(opts.callbackRules.options.value);
+	    if (opts.callbackRules.onLines == true) {
 	      console.log('in remove');
 	      _.forEach(feedTransactions, function(trans) {
 	          _.remove(trans.lines, function(line) {
-		      console.log('in remove 3 ' + JSON.stringify(line[opts.writeBackRules.apiFieldName]));
-                      //return line[opts.writeBackRules.apiFieldName] == opts.writeBackRules.options.value ;
-                      return isAlreadyWriteBack.test(line[opts.writeBackRules.apiFieldName]);
+		      console.log('in remove 3 ' + JSON.stringify(line[opts.callbackRules.apiFieldName]));
+                      //return line[opts.callbackRules.apiFieldName] == opts.callbackRules.options.value ;
+                      return isAlreadyCalledback.test(line[opts.callbackRules.apiFieldName]);
                   });
               });
             } else {
-	      // TO DO - writeBack on headers! 
+	      // TO DO - callback on headers! 
 	    }
           }
           if ( typeof controlTotals === 'undefined' ) {

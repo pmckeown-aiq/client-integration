@@ -32,7 +32,7 @@ module.exports = updateData = function(opts) {
   var PostInvoiceGetBackTransactionID = require(appDir + '/resources/PostInvoiceGetBackTransactionID');
   var AllocateTransactions = require(appDir + '/resources/AllocateTransactions');
   var AttachDocument = require(appDir + '/resources/AttachDocument');
-  var writeBack = require(appDir + '/resources/writeBack');
+  var callback = require(appDir + '/resources/callback');
 
   this.prepareUpdate = new prepareUpdate(this);
   this.GetCustomer = new GetCustomer(this);
@@ -46,7 +46,7 @@ module.exports = updateData = function(opts) {
   this.PostInvoiceGetBackTransactionID = new PostInvoiceGetBackTransactionID(this);
   this.AllocateTransactions = new AllocateTransactions(this);
   this.AttachDocument = new AttachDocument(this);
-  this.writeBack = new writeBack(this);
+  this.callback = new callback(this);
  
   return this;
 };
@@ -202,17 +202,22 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
             return this.AttachDocument(v) 
           })
 	   .then(function(v) { // v.Status tells us what an invoice should end up as (v.Status tells us where it is so far - i.e. Created)
-	       console.log('call writeback ?' + JSON.stringify(v));
-               return this.writeBack(v,opts) // pass both the transaction and the "opts" 
+	       console.log('call callback ?' + JSON.stringify(v));
+               return this.callback(v,opts) // pass both the transaction and the "opts" 
           })
-           .then(function() {
+           .then(function(v) {
              console.log('COMPLETED UPDATE' + JSON.stringify(v));
-             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "updateStatus": {"status": true, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
+             // At the moment callback does not reject the promise on a single error in callback to extrenal system - so it may have set "updateStatus" ... so check
+             if ( typeof v.updateStatus !== undefined ) {
+               process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": v.updateStatus.status, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
+             } else { // a resource had set updateStatus 
+               process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": true, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
+             }
              next();
 	  })
            .catch(err => {
              console.log('Error: ', JSON.stringify(err));
-             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "updateStaus": {"status": false, "message": "Error in updating transaction" }, "updateStageStatus": v.updateStageStatus }});
+             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStaus": {"status": false, "message": "Error in updating transaction" }, "updateStageStatus": v.updateStageStatus }});
              console.log(err)
              next();
           });
@@ -563,8 +568,8 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
     var negativeTransactionCheck = true;
     var negativeTransactionIdentifier = opts.processRules.negativeTransactionType.identifyBy;
   }
-  if ( typeof opts.writeBackRules.allowed != 'undefined' ) {
-    var writeBack = require(appDir + opts.writeBackRules.script);
+  if ( typeof opts.callbackRules.allowed != 'undefined' ) {
+    var callback = require(appDir + opts.callbackRules.script);
   }
   var isValidCount = 0;
   var isWarnCount = 0;
@@ -683,7 +688,7 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
             return this.AttachDocument(v) // pass both the inviuce and the result of saveInvoice
           })
            .then(function(v) { // v.Status tells us what an invoice should end up as (v.Status tells us where it is so far - i.e. Created)
-               console.log('call writeback ?' + JSON.stringify(v));
+               console.log('call callback ?' + JSON.stringify(v));
           })
            .then(function() {
              console.log('COMPLETED UPDATE' + JSON.stringify(v));
