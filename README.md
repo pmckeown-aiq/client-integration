@@ -3,10 +3,9 @@
 # AccountsIQ Integration Server
 
 ## Installation
-
 Clone from Git
-
-`$ git clone https://github.com/pmckeown-aiq/aiq-integration`
+NEED TO TURN OF 2 FACTOR SECURITY
+`$ git clone https://github.com/accountsIQ/integration-out.git`
 
 `$ cd aiq-integration`
 

@@ -8,13 +8,12 @@ var Invoices = function(api) {
 };
 
 Invoices.prototype.list = function(options, cb) {
-  console.log('Invoices.list ' + JSON.stringify(options));
   options = options === undefined ? {} : options;
   var self = this;
   var url = '/invoices';
 
   var invoices = [];
-  var all = true;
+  var all = false
 
   if (options.all || options.page === undefined) {
     all = options.all || true;
@@ -23,15 +22,12 @@ Invoices.prototype.list = function(options, cb) {
   }
 
   function fetch_invoices(data, callback, options) {
-    console.log('fetch_invoices ' + JSON.stringify(options));
 
     self.client.get(url, options, function(err, new_invoices) {
       if (err) {
-	console.log('fetch invoices error ' + err)
         return callback(err);
       }
 
-      console.log('fetch invoices error ' + JSON.stringify(data))
       data.push.apply(data, new_invoices);
 
       if (all && new_invoices.length === 50) {
@@ -46,13 +42,6 @@ Invoices.prototype.list = function(options, cb) {
 
   return fetch_invoices(invoices, cb, options);
 };
-
-//Invoices.prototype.list = function (options, cb) {
-//    options = options === undefined ? {} : options;
-//    console.log("Options in Harvest Lib" + JSON.stringify(options));
-//    var url = '/invoices';
-//    this.client.get(url, options, cb);
-//};
 
 Invoices.prototype.get = function(options, cb) {
   if (isUndefined(options, 'id')) {

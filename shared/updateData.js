@@ -191,7 +191,7 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
           })
           .then(function(v) {
             console.log('call SaveInvoiceGetBackInvoiceID' + JSON.stringify(v));
-            return  this.SaveInvoiceGetBackInvoiceID(v)
+            return this.SaveInvoiceGetBackInvoiceID(v)
           })
 	   .then(function(v) {
             console.log('call PostInvoiceGetBackTransactionID' + JSON.stringify(v));
@@ -202,8 +202,8 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
             return this.AttachDocument(v) 
           })
 	   .then(function(v) { // v.Status tells us what an invoice should end up as (v.Status tells us where it is so far - i.e. Created)
-	       console.log('call callback ?' + JSON.stringify(v));
-               return this.callback(v,opts) // pass both the transaction and the "opts" 
+	     console.log('call callback ?' + JSON.stringify(v));
+             return this.callback(v,opts) // pass both the transaction and the "opts" 
           })
            .then(function(v) {
              console.log('COMPLETED UPDATE' + JSON.stringify(v));

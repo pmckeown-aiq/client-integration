@@ -1,12 +1,10 @@
 'use strict';
-var path = require('path');
-var appDir = path.dirname(require.main.filename);
 
 var restler = require('restler'),
   qs = require('qs'),
   util = require('util'),
-  isUndefined = require(appDir + '/harvest/mixins').isUndefined,
-  Throttle = require(appDir + '/harvest/throttle.js');
+  isUndefined = require('./mixins').isUndefined,
+  Throttle = require('./throttle.js');
 
 var Harvest = function(options) {
   var self = this;
@@ -167,22 +165,22 @@ var Harvest = function(options) {
     };
   }
 
-  var Account = require(appDir + '/harvest/lib/account');
-  var TimeTracking = require(appDir + '/harvest/lib/time-tracking');
-  var Clients = require(appDir + '/harvest/lib/clients');
-  var ClientContacts = require(appDir + '/harvest/lib/client-contacts');
-  var Projects = require(appDir + '/harvest/lib/projects');
-  var Tasks = require(appDir + '/harvest/lib/tasks');
-  var People = require(appDir + '/harvest/lib/people');
-  var ExpenseCategories = require(appDir + '/harvest/lib/expense-categories');
-  var Expenses = require(appDir + '/harvest/lib/expenses');
-  var UserAssignment = require(appDir + '/harvest/lib/user-assignment');
-  var TaskAssignment = require(appDir + '/harvest/lib/task-assignment');
-  var Reports = require(appDir + '/harvest/lib/reports');
-  var Invoices = require(appDir + '/harvest/lib/invoices');
-  var InvoiceMessages = require(appDir + '/harvest/lib/invoice-messages');
-  var InvoicePayments = require(appDir + '/harvest/lib/invoice-payments');
-  var InvoiceCategories = require(appDir + '/harvest/lib/invoice-categories');
+  var Account = require('./lib/account');
+  var TimeTracking = require('./lib/time-tracking');
+  var Clients = require('./lib/clients');
+  var ClientContacts = require('./lib/client-contacts');
+  var Projects = require('./lib/projects');
+  var Tasks = require('./lib/tasks');
+  var People = require('./lib/people');
+  var ExpenseCategories = require('./lib/expense-categories');
+  var Expenses = require('./lib/expenses');
+  var UserAssignment = require('./lib/user-assignment');
+  var TaskAssignment = require('./lib/task-assignment');
+  var Reports = require('./lib/reports');
+  var Invoices = require('./lib/invoices');
+  var InvoiceMessages = require('./lib/invoice-messages');
+  var InvoicePayments = require('./lib/invoice-payments');
+  var InvoiceCategories = require('./lib/invoice-categories');
 
   this.Account = new Account(this);
   this.TimeTracking = new TimeTracking(this);

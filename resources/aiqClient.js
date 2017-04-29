@@ -104,7 +104,6 @@ aiqClient.prototype.login = function(forceRefresh) {
 aiqClient.prototype.genericCall = function(name, returnType) {
         return function () {
 	    console.log('genericCall running with ' + JSON.stringify(name));
-	    console.log('genericCall running with ' + JSON.stringify(this.login));
             var res = Q.defer();
             var args = arguments.length ? (arguments[0] || {}) : {};
             this.login()

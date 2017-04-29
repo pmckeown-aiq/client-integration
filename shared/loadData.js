@@ -116,7 +116,7 @@ loadData.prototype.harvestSalesInvoicesApi = function(opts, filters, cb) {
   console.log('harvestOptions is ' + JSON.stringify(loopHarvestOptions));
   console.log('harvestOptions is ' + JSON.stringify(harvestOptions));
   // Get the harvest configuration
-  var Harvest = require(appDir + '/harvest.js'),
+  var Harvest = require(appDir + '/harvest.sales/'),
       harvest = new Harvest({
           subdomain: config.harvest.subdomain,
           email: config.harvest.email,
@@ -348,7 +348,7 @@ loadData.prototype.harvestExpensesApi = function(opts, filters, cb) {
   // OK - so we could know have either a single harvestOptions entry or an array of harvestOptions in loopHarvestOptions
   console.log('harvestOptions is ' + JSON.stringify(loopHarvestOptions));
   // Get the harvest configuration
-  var Harvest = require(appDir + '/harvest.js'),
+  var Harvest = require(appDir + '/harvest.purchases/'),
     harvest = new Harvest({
       subdomain: config.harvest.subdomain,
       email: config.harvest.email,
@@ -471,6 +471,7 @@ loadData.prototype.harvestExpensesApi = function(opts, filters, cb) {
 	      processedLines += person.lines.length;
               console.log('FEED TRANSACTIONS:' + JSON.stringify(feedTransactions.length));
               console.log('Processed Line Count: ' + processedLines);
+              console.log(JSON.stringify(feedTransactions[0]));
               if(expectedLines === processedLines) {
                 cb(null, feedTransactions);
               }

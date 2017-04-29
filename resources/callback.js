@@ -15,15 +15,17 @@ function base64_encode(file) {
 var _ = require('lodash');
 
 module.exports = callback = function(v, opts) {
+  var self = this;
+  console.log('in callback 1');
   return new Promise(function(resolve, reject) {
     if ( opts.callbackRules) {
       if ( opts.callbackRules.allowed == true ) {
         console.log('calling callback function ' + opts.callbackRules.callbackFunction)
         var appDir = path.dirname(require.main.filename);
-        var callback = require(appDir + '/resources/' + opts.callbackRules.script);
-        this.callback = new callback(this);
+        var callbackScript = require(appDir + '/resources/' + opts.callbackRules.script);
+        self.callbackScript = new callbackScript(self);
         //this.callback[opts.callbackRules.callbackFunction](opts, v, function(err, wroteBack) {
-        Promise.all([this.callback[opts.callbackRules.callbackFunction](opts, v)])
+        Promise.all([self.callbackScript[opts.callbackRules.callbackFunction](opts, v)])
 	  .then((result) => {
 	    console.log('Result in callback ' + JSON.stringify(result));
             if ( result[0].status === false ) {
@@ -47,14 +49,18 @@ module.exports = callback = function(v, opts) {
             resolve(v);
           })
       } else {
+          console.log('No callback 1');
           updateStageStatus = { "stage" : "CallBack", "status": true, "serverStatus" : "N/A", "error" : "N/A", "message" : "Call Back Not Required: " };
           v.updateStageStatus.push(updateStageStatus);
-          reject(v);
+          //reject(v);
+          resolve(v);
       }
     } else {
+        console.log('No callback 2');
         updateStageStatus = { "stage" : "CallBack", "status": true, "serverStatus" : "N/A", "error" : "N/A", "message" : "Call Back Rules Not Defined: " };
         v.updateStageStatus.push(updateStageStatus);
-        reject(v);
+        //reject(v);
+        resolve(v);
     }
   });
 }
