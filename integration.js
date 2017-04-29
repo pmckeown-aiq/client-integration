@@ -232,6 +232,10 @@ process.on('message', function (options) {
                       return isAlreadyCalledback.test(line[opts.callbackRules.apiFieldName]);
                   });
               });
+              // We may have removed all of the lines (as they are already marked as processed ... if so remove the transaction
+	      _.remove(feedTransactions, function(trans) {
+                      return trans.lines.length == 0;
+              });
             } else {
 	      // TO DO - callback on headers! 
 	    }
