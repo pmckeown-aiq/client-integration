@@ -619,16 +619,11 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
         socket.emit('viewLines', element);
     };
 
-    socket.on('fatalError', function (data) {
-	console.log('fatalError ' + JSON.stringify(data));
-        $scope.status.push({ text: data.message });
-    });
-
     socket.on('error', function (data) {
+	console.log('Error: ' + JSON.stringify(data));
         $scope.serverError.push(data);
 	console.log('Error: ' + JSON.stringify($scope.serverError));
 	console.log('Error: ' + JSON.stringify($scope.serverError.length));
-	console.log('Error: ' + JSON.stringify(data));
     });
 
     socket.on('status', function (data) {
@@ -715,15 +710,15 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
 	$scope.createdTransactionCount++;
     });
 
+    socket.on('createdObject', function (data) {
+	console.log('createdObject ' + JSON.stringify(data));
+        $scope.status.push({ text: 'Created ' + data.createdObject.type + ' ' + data.createdObject.code + ' with status: ' +  data.createdObject.status });
+        //$scope.createdTransactions.push( data.createdTransaction );
+    });
+
     socket.on('wroteBack', function (data) {
         $scope.wroteBackTransactions.push(data.wroteBack);
 	$scope.wroteBackTransactionCount++;
-    });
-
-    socket.on('createdObject', function (data) {
-	console.log('Server says it has created object ' + JSON.stringify(data));
-        //$scope.createdObject.push({ data });
-        $scope.status.push({ text: 'Created ' + data.createdObject.type + ' ' + data.createdObject.code + ' with status: ' +  data.createdObject.status });
     });
 
     socket.on('feedTransactions', function (data) {

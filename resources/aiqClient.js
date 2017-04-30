@@ -41,6 +41,7 @@ function aiqClient(soapClient, partnerKey, userKey, companyId) {
             AllocateTransactions: 'N/A',
             CreateBatchSalesInvoiceGetBackTransactionID: 'N/A',
             CreateSalesReceipt: 'N/A',
+            CreateDepartment: 'N/A',
             GetDepartmentList: 'Department',
             GetGLAccountList: 'ArrayOfString',
             GetCreditTermList: 'CreditTerm',

@@ -1,11 +1,11 @@
 |<script type="text/ng-template" id="processDataWaitPopUp.html">
 |    <div class="modal-header">
-|      <h1 ng-show="(createdTransactionCount != controlTotals.transactionCount" >Processing ... </h1>
-|      <h3 ng-hide="(createdTransactionCount != controlTotals.transactionCount" >Completed update to accountsIQ ...</h3>
+|      <h1 ng-show="(createdTransactionCount + controlTotals.feedErrorsCount) != controlTotals.transactionCount" >Processing ... </h1>
+|      <h3 ng-hide="(createdTransactionCount + controlTotals.feedErrorsCount) != controlTotals.transactionCount" >Completed update to accountsIQ ...</h3>
 |    </div>
 |    <div class="modal-body">
 |      <div class="progress progress-striped active">
-|        <uib-progressbar ng-show="createdTransactionCount > 0" max="max" value="( ( createdTransactionCount / controlTotals.transactionCount) * 100 )"><span style="color:white; white-space:nowrap;">{{ createdTransactionCount }} / {{ controlTotals.transactionCount }}</span></uib-progressbar>
+|        <uib-progressbar ng-show="createdTransactionCount > 0" max="max" value="( ( (createdTransactionCount + controlTotals.feedErrorsCount) / controlTotals.transactionCount) * 100 )"><span style="color:white; white-space:nowrap;">{{ createdTransactionCount }} / {{ controlTotals.transactionCount }}</span></uib-progressbar>
 |        <!--<uib-progressbar ng-show="createdTransactionCount > 0" max="max" value="( ( (createdTransactionCount + controlTotals.feedErrorsCount) / controlTotals.transactionCount) * 100 )"><span style="color:white; white-space:nowrap;">{{ createdTransactionCount }} + {{ controlTotals.feedErrorsCount }} / {{ controlTotals.transactionCount }}</span></uib-progressbar> -->
 |      </div>
 |      <div ng-if="!writeBackRules.allowed">

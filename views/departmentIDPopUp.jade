@@ -5,23 +5,19 @@
 |    </div>
 |    <div class="modal-body">
 |                <!-- Only for Department code default the placeholder (the original code provided) -->
-|                Department Code: <input type=text class="form-control" placeholder="{{ invalidItem.code }}" ng-init="invalidItem.data.Code={{ invalidItem.code }}" value="{{ invalidItem.code }}" value="{{ invalidItem.code }}" ng-model="invalidItem.data.Code">
-|                Department Name: <input type=text class="form-control" placeholder="{{ invalidItem.data.Name }}" ng-model="invalidItem.data.Name">
-|                Address 1: <input type=text class="form-control" placeholder="{{ invalidItem.data.Address1 }}" ng-model="invalidItem.data.Address1">
-|                Address 2: <input type=text class="form-control" placeholder="{{ invalidItem.data.Address2 }}" ng-model="invalidItem.data.Address2">
-|                City: <input type=text class="form-control" placeholder="{{ invalidItem.data.City }}" ng-model="invalidItem.data.City">
-|                County: <input type=text class="form-control" placeholder="{{ invalidItem.data.County_State }}" ng-model="invalidItem.data.County_State">
-|                Post Code: <input type=text class="form-control" placeholder="{{ invalidItem.data.PostCode }}" ng-model="invalidItem.data.PostCode">
-|                Country: <input type=text class="form-control" placeholder="{{ invalidItem.data.Country }}" ng-model="invalidItem.data.Country">
-|                CurrencyCode: <input type=text class="form-control" placeholder="{{ invalidItem.data.CurrencyCode ? CurrencyCode : getDefaultsResult.CurrencyCode }}" ng-model="invalidItem.data.CurrencyCode">
-|                Bank Account Code: <input type=text class="form-control" placeholder="{{ getDefaultsResult.BankAccountCode }}" ng-model="invalidItem.data.BankAccountCode">
-|                Control (GL) Account Code: <input type=text class="form-control" placeholder="{{ getDefaultsResult.ControlGLAccountCode }}" ng-model="invalidItem.data.ControlGLAccountCode">
-|                Credit Terms (ID): <input type=text class="form-control" placeholder="{{ getDefaultsResult.CreditTermID }}" ng-model="invalidItem.data.CreditTermID">
-|                GL Account Code: <input type=text class="form-control" placeholder="{{ getDefaultsResult.DefaultGLAccountCode }}" ng-model="invalidItem.data.DefaultGLAccountCode">
-|                Tax Code: <input type=text class="form-control" placeholder="{{ getDefaultsResult.DefaultTaxCode }}" ng-model="invalidItem.data.DefaultTaxCode">
+|                <!-- Department Code: <input type=text class="form-control" placeholder="{{ invalidItem.code }}" ng-init="invalidItem.data.code={{ invalidItem.code }}" value="{{ invalidItem.code }}" value="{{ invalidItem.code }}" ng-model="invalidItem.data.code"> -->
+|                Department Code: <input type=text class="form-control" placeholder="{{ invalidItem.code }}" value="{{ invalidItem.code }}" value="{{ invalidItem.code }}" ng-model="invalidItem.data.code">
+|                Description: <input type=text class="form-control" placeholder="{{ invalidItem.data.description }}" ng-model="invalidItem.data.description">
+|                Analysis Code 1: <input type=text class="form-control" placeholder="{{ invalidItem.data.analysisCode1 }}" ng-model="invalidItem.data.analysisCode1">
+|                Analysis Code 2: <input type=text class="form-control" placeholder="{{ invalidItem.data.analysisCode2 }}" ng-model="invalidItem.data.analysisCode2">
+|                Analysis Code 3: <input type=text class="form-control" placeholder="{{ invalidItem.data.analysisCode3 }}" ng-model="invalidItem.data.analysisCode3">
+|                Analysis Code 4: <input type=text class="form-control" placeholder="{{ invalidItem.data.analysisCode4 }}" ng-model="invalidItem.data.analysisCode4">
+|                Analysis Code 5: <input type=text class="form-control" placeholder="{{ invalidItem.data.analysisCode5 }}" ng-model="invalidItem.data.analysisCode5">
+|                Analysis Code 6: <input type=text class="form-control" placeholder="{{ invalidItem.data.analysisCode6 }}" ng-model="invalidItem.data.analysisCode6">
 |    </div>
 |    <div class="modal-footer">
-|        <button class="btn btn-primary" ng-click="getDefaults('DepartmentID')">Shown/Edit Default Settings</button>
+|        <!-- NO DEFAULTS AVAILABLE FOR DEPARTMENTS SO COMMENT OUT BUTTON -->
+|        <!-- <button class="btn btn-primary" ng-click="getDefaults('DepartmentID')">Shown/Edit Default Settings</button> -->
 |        <button class="btn btn-primary" ng-show="invalidItem.getFromApi" ng-click="getDetails({ 'type':'getCustomer','apiId': invalidItem.code })">Fetch From API</button>
 |        <button class="btn btn-primary" ng-click="ok()">OK</button>
 |        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>

@@ -421,21 +421,22 @@ process.on('message', function (options) {
 	console.log('coID is ' + coID);
 	opts = opts.opts;
 	console.log('createInvalidItem receivd ' + JSON.stringify(options));
-	var theObject =  options.data.element;
-	var createObjectType =  theObject.objectType;
-	console.log('now create ' + createObjectType + ' with ' + JSON.stringify(theObject));
+        objectType = options.data.element.objectType;
         // bring in the resources file - createObject
         var createObject = require('./resources/createObject.js');      
 	this.createObject = new createObject(this);
-        this.createObject[createObjectType](opts, createObjectType, theObject, function(result){
-	  console.log('CAllback for createObject ' + createObjectType + ' gave result ' + JSON.stringify(result));
+        this.createObject[objectType](opts, options.data.element, function(result){
+	  console.log('CAllback for createObject gave result ' + JSON.stringify(result));
 	  // Now update the map file for the object if needed 
 	  
 	  // AccountID : check if the "code" (from api usually!) matches the data.Code
-          if ( createObjectType == "AccountID" && theObject.code !== theObject.data.Code ) { 
-	    console.log('API code is ' + theObject.code + ' but created ' + createObjectType + ' with Code ' + theObject.data.Code + ' so need to map ...')
+          if ( objectType == "CustomerCode" && options.element.code !== options.element.data.Code ) { 
+	    console.log('API code is ' + options.element.code + ' but created ' + objectType + ' with Code ' + options.element.data.Code + ' so need to map ...')
 	  }
           process.send({ createdObject: result });
+          if ( result.status == "Failure" ) { // we have an error
+            process.send({ "error" : "error in createObject. We had a failure." , "data": JSON.stringify(result)});
+          }
 	})
        });
     }

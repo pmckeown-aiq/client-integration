@@ -192,15 +192,20 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
     console.log('feedType is ' + feedType)
     if ( feedType == 'csv' ) {
       console.log('process a csv feedType');
-      var tempPath = req.files.file.path;
-      var fileName = req.files.file.name;
+      if ( typeof req.files.file !== 'undefined' ) {
+        var tempPath = req.files.file.path;
+        var fileName = req.files.file.name;
+      } else {
+        io.sockets.emit({ "error": "uploadFileFailed", "data": "no file name found" });
+        throw ('No fle name from file upload');
+      }
       var target_path = './public/data/' + fileName;
       //target_path = target_path +  uniqueNumber.generate();
       // move the file from the temporary location to the intended location
       fs.move(tempPath, target_path, function (err) {
         if (err) {
           //throw err;
-	  io.sockets.emit('uploadFileFailed', { "fileExists": true, "fileName": fileName });
+          io.sockets.emit({ "error": "uploadFileFailed", "data": err });
         } 
       });
     } else {
@@ -279,13 +284,13 @@ var fork = require('child_process').fork;
 var cp = fork('integration');
 cp.on('error', function(err) {
   console.log('Oh no, the errors: ' + err);
-  io.sockets.emit("fatalError", err);
+  io.sockets.emit({ "error": "fatalError", "data": err });
   cp.kill();
   cp = fork('integration');
 });
 cp.on('exit', function(code, signal) {
   console.log('Child Process Exited: ' + code + signal);
-  io.sockets.emit("fatalError", code + signal);
+  io.sockets.emit({ "error": "fatalError", "data": code + signal });
   cp.kill();
   cp = fork('integration');
 });
@@ -317,7 +322,8 @@ cp.on('message', function (message) {
       io.sockets.emit('controlTotals', message );
     } else if (message.salesInvoiceDefaults) {
       io.sockets.emit('salesInvoiceDefaults', message );
-    //} else if (message.createdCustomer) {
+    } else if (message.createdObject) {
+      io.sockets.emit('createdObject', message );
     } else if (message.getDefaultsResult) {
       io.sockets.emit('getDefaultsResult', message );
     } else if (message.extractStaticData) {

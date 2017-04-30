@@ -27,7 +27,7 @@ console.log('codeMaintenanceSettings are ' + JSON.stringify(codeMaintenanceSetti
 module.exports = createObject = function(opts) {
 };
 
-createObject.prototype.CustomerCode = function(opts, objectType, object, cb) {
+createObject.prototype.CustomerCode = function(opts, object, cb) {
   //console.log('createObject opts ' + JSON.stringify(opts));
   //console.log('objectType is ' + JSON.stringify(objectType));
   //console.log('object is ' + JSON.stringify(object));
@@ -76,22 +76,23 @@ createObject.prototype.CustomerCode = function(opts, objectType, object, cb) {
   })
 }
 
-createObject.prototype.DepartmentID = function(opts, objectType, object, cb) {
+createObject.prototype.DepartmentID = function(opts, object, cb) {
   //console.log('createObject opts ' + JSON.stringify(opts));
   //console.log('objectType is ' + JSON.stringify(objectType));
-  //console.log('object is ' + JSON.stringify(object));
+  console.log('object is ' + JSON.stringify(object));
+  // Add the "code" (called "id" in the SOAP action) into the object.data
+  object.data.id = object.code;
   soap.createClient(opts.connection.url, (err, client) => {
     var aiq = new aiqClient(client, opts.connection.pKey, opts.connection.uKey, opts.coID);
     // Create the account
     Q.all([aiq.CreateDepartment(object.data)])
-      .then(([r2]) => {
-        console.log('got back from CreateDepartment ' + JSON.stringify(r.Code) + ' result ' + JSON.stringify(r2));
-        cb({ "code": object.code, "objectType": objectType, "status": r2.Status });
+      .then(([r]) => {
+        console.log('got back from CreateDepartment ' + JSON.stringify(r.Code) + ' result ' + JSON.stringify(r));
+        cb({ "code": object.code, "objectType": objectType, "status": r.Status });
       })
       .fail(err => {
-        console.log('Error: in createAccount :', errors[err.error])
+        console.log('Error: in createAccount :' + JSON.stringify(err));
         cb({ "code": object.code, "objectType": objectType, "status": false });
-        console.log(err)
       })
       .done();
   })
