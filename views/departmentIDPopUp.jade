@@ -4,9 +4,7 @@
 |        <h3>New Department {{ invalidItem.code }}</h3>
 |    </div>
 |    <div class="modal-body">
-|                <!-- Only for Department code default the placeholder (the original code provided) -->
-|                <!-- Department Code: <input type=text class="form-control" placeholder="{{ invalidItem.code }}" ng-init="invalidItem.data.code={{ invalidItem.code }}" value="{{ invalidItem.code }}" value="{{ invalidItem.code }}" ng-model="invalidItem.data.code"> -->
-|                Department Code: <input type=text class="form-control" placeholder="{{ invalidItem.code }}" value="{{ invalidItem.code }}" value="{{ invalidItem.code }}" ng-model="invalidItem.data.code">
+|                Department Code: <input type=text class="form-control" placeholder="{{ invalidItem.code }}" ng-init="invalidItem.data.code" value="{{ invalidItem.code }}" ng-model="invalidItem.data.code">
 |                Description: <input type=text class="form-control" placeholder="{{ invalidItem.data.description }}" ng-model="invalidItem.data.description">
 |                Analysis Code 1: <input type=text class="form-control" placeholder="{{ invalidItem.data.analysisCode1 }}" ng-model="invalidItem.data.analysisCode1">
 |                Analysis Code 2: <input type=text class="form-control" placeholder="{{ invalidItem.data.analysisCode2 }}" ng-model="invalidItem.data.analysisCode2">
