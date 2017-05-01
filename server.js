@@ -5,7 +5,6 @@ var express = require('express');
 var fs = require('fs.extra');
 
 var app = express();
-var io = require('socket.io').listen(server);
 
 // HTTPS Section 
 /* 
@@ -20,11 +19,14 @@ var server = https.createServer(
   },
   app
 )
+// END HTTPS Section 
 */
 // HTTP Section 
 var server = require('http').createServer(app);
+// END HTTP Section 
 
 
+var io = require('socket.io').listen(server);
 // File upload requirements
 // all environments
 var path = require('path');
