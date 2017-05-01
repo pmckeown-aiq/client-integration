@@ -120,11 +120,11 @@ app.controller('getConfig',  ['$scope', '$fileUpload', '$http', 'manageStages', 
     $scope.loadDataReady=false;
     $scope.loadFile=false;
     var file = $scope.setConfigForm.myFile;
-    var coID =  $scope.setConfigForm.coID;
+    var coID =  $scope.setConfigForm.coID.replace(/"/g,"");
     // Actually bound to a string that is a JSON object (value of input)
     var formType =  JSON.parse($scope.setConfigForm.type);
-    var type =  formType.type
-    var clientName =  formType.clientName
+    var type =  formType.type.replace(/"/g,"")
+    var clientName =  formType.clientName.replace(/"/g,"")
     var feedType =  formType.feedType
     // If the feed is an api - ready for loadData
     if (feedType == 'api' ) {
@@ -140,12 +140,12 @@ app.controller('getConfig',  ['$scope', '$fileUpload', '$http', 'manageStages', 
    $scope.prepareLoadData = function(prepareLoadData) {
     $scope.newFile='';
     var file = $scope.setConfigForm.myFile;
-    var coID =  $scope.setConfigForm.coID;
+    var coID =  $scope.setConfigForm.coID.replace(/"/g,"");
     // Actually bound to a string that is a JSON object (value of input)
     var formType =  JSON.parse($scope.setConfigForm.type);
-    var type =  formType.type
-    var clientName =  formType.clientName
-    var feedType =  formType.feedType
+    var type =  formType.type.replace(/"/g,"")
+    var clientName =  formType.clientName.replace(/"/g,"")
+    var feedType =  formType.feedType.replace(/"/g,"")
     var loadDataFilters =  formType.loadDataFilters
     var objectsToValidate =  formType.objectsToValidate
     var uploadUrl = "/upload";
@@ -797,8 +797,8 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
         $scope.newFile = JSON.stringify(data.file);
         $scope.newFileWarn = JSON.stringify(data.warn);
         $scope.logFileName = JSON.stringify(data.logFileName);
-        $scope.coID = JSON.stringify(data.coID);
-        $scope.type = JSON.stringify(data.type);
+        $scope.coID = JSON.stringify(data.coID).replace(/"/g,"");
+        $scope.type = JSON.stringify(data.type).replace(/"/g,"");
         $scope.clientName = JSON.stringify(data.clientName);
         $scope.feedType = JSON.stringify(data.feedType);
         $scope.loadDataReady = JSON.stringify(data.loadDataReady);
