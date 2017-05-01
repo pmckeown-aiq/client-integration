@@ -5,7 +5,7 @@
 ## Installation
 Clone from Git
 NEED TO TURN OF 2 FACTOR SECURITY
-`$ git clone https://github.com/accountsIQ/integration-out.git`
+`$ git clone https://pmckeown-aiq@github.com/accountsIQ/integration-out.git`
 
 `$ cd aiq-integration`
 
