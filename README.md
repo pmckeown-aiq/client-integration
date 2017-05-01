@@ -7,7 +7,7 @@ Clone from Git
 NEED TO TURN OF 2 FACTOR SECURITY
 `$ git clone https://pmckeown-aiq@github.com/accountsIQ/integration-out.git`
 
-`$ cd aiq-integration`
+`$ cd integration-out`
 
 `$ npm install`
 
@@ -15,6 +15,7 @@ NEED TO TURN OF 2 FACTOR SECURITY
 
 (have tried to fix in git but may need to make additional directories for file uploads!) 	
 `$ mkdir -p "./public/data/tmp"`
+`$ mkdir -p "./public/logs/"`
 
 ## Authenication via Windows Azure Active Directory
 Create an app in Azure Active Directory for OAUTH2 authentication

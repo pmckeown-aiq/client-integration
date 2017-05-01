@@ -8,13 +8,11 @@ var app = express();
 var io = require('socket.io').listen(server);
 
 // HTTPS Section 
+/* 
 var https = require('https')
 var ports = process.env.NODE_ENV === 'production'
   ? [80, 443]
   : [3442, 3443]
-
-var app = express()
-
 var server = https.createServer(
   {
     key: fs.readFileSync('./tls/key.pem'),
@@ -22,6 +20,7 @@ var server = https.createServer(
   },
   app
 )
+*/
 // HTTP Section 
 var server = require('http').createServer(app);
 
