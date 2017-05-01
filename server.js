@@ -2,13 +2,33 @@
 
 var jade = require('jade');
 var express = require('express');
+var fs = require('fs.extra');
+
 var app = express();
-var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
+
+// HTTPS Section 
+var https = require('https')
+var ports = process.env.NODE_ENV === 'production'
+  ? [80, 443]
+  : [3442, 3443]
+
+var app = express()
+
+var server = https.createServer(
+  {
+    key: fs.readFileSync('./tls/key.pem'),
+    cert: fs.readFileSync('./tls/cert.pem')
+  },
+  app
+)
+// HTTP Section 
+var server = require('http').createServer(app);
+
+
 // File upload requirements
 // all environments
 var path = require('path');
-var fs = require('fs.extra');
 
 // Express 3.4.0
 // File upload requirements
@@ -461,7 +481,7 @@ app.post('/auth/openid/return',
 app.get('/logout', function(req, res){
 req.session.destroy(function (err) {
     req.logOut();
-    res.redirect('https://login.microsoftonline.com/common/oauth2/logout?post_logout_redirect_uri=http://localhost:3000');
+    res.redirect(config.creds.redirectURL);
   });
 
 });
