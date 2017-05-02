@@ -384,26 +384,27 @@ process.on('message', function (options) {
 	console.log(JSON.stringify(opts));
         soap.createClient(opts.connection.url, (err, client) => {
          var aiq = new aiqClient(client, opts.connection.pKey, opts.connection.uKey, coID);
-         if ( options.data.object == 'AccountID' ) {
+         if ( options.data.object == 'CustomerCode' ) {
            var myQOperation = Q.all([aiq.GetNewCustomerFromDefaults()])
+         } else if ( options.data.object == 'SupplierCode' ) {
+           var myQOperation = Q.all([aiq.GetNewSupplierFromDefaults()])
          } else if ( options.data.object == 'StockItemID' ) {
            var myQOperation = Q.all([aiq.GetNewStockItemFromDefaults()])
          }
          myQOperation
             .then(([result]) => {
-	       console.log(' back in integration.js ' + JSON.stringify(result.Result));
+	       console.log(' back in integration.js ' + JSON.stringify(result));
 	       console.log(' back in integration.js ' + JSON.stringify(result.Result));
                // remove all the blanks
                for(var p in result.Result)
                   if( result.Result[p] === '' )
                      delete result.Result[p]
 	       //var myNewCustomer = result;
-	       result.Result.Name = 'Created by Import';
                process.send({ getDefaultsResult: result.Result });
             })
             .fail(err => {
-               console.log('Error:', errors[err.error])
-               console.log('Error:', errors[err.error])
+               process.send({ "error" : "error in getting defaults for " + JSON.stringify(myQOperation), "data": JSON.stringify(err)});
+               console.log('Error:' + JSON.stringify(err));
                console.log(err)
             })
             .done();

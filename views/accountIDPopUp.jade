@@ -21,7 +21,7 @@
 |                Tax Code: <input type=text class="form-control" placeholder="{{ getDefaultsResult.DefaultTaxCode }}" ng-model="invalidItem.data.DefaultTaxCode">
 |    </div>
 |    <div class="modal-footer">
-|        <button class="btn btn-primary" ng-click="getDefaults('AccountID')">Shown/Edit Default Settings</button>
+|        <button class="btn btn-primary" ng-click="getDefaults('CustomerCode')">Shown/Edit Default Settings</button>
 |        <button class="btn btn-primary" ng-show="invalidItem.getFromApi" ng-click="getDetails({ 'type':'getCustomer','apiId': invalidItem.code })">Fetch From API</button>
 |        <button class="btn btn-primary" ng-click="ok()">OK</button>
 |        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>

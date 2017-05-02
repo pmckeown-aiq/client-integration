@@ -31,7 +31,7 @@ getCustomerFromApi.prototype.harvestSalesInvoicesApi = function(invalidItem, opt
   invalidItem = invalidItem.invalidItem;
   console.log('getCustomerFromApi has code ' + JSON.stringify(invalidItem));
   // Get the harvest configuration
-  var Harvest = require(appDir + '/harvest.js'),
+  var Harvest = require(appDir + '/harvest.sales/'),
       harvest = new Harvest({
           subdomain: config.harvest.subdomain,
           email: config.harvest.email,
