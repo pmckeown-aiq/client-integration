@@ -52,16 +52,14 @@ process.on('message', function (options) {
 	opts.clientName = options.data.clientName.replace(/"/g,"");
         	
         var extractStaticData = require('./resources/extractStaticData.js');
-        var cloneStaticData = require('./resources/cloneStaticData.js');
-        cloneStaticData.clone(opts , function(result) {
-          console.log('cloneStaticData result ' + JSON.stringify(result));
+        extractStaticData.extract(opts , function(result) {
+          console.log('extracStaticData result ' + JSON.stringify(result));
           if ( result.success == true ) {
             process.send({ extractStaticData: result });
 	  } else {
             process.send({ "error" : "error in extractStaticData  " , "data": result }); 
 	  }
 	});
-	      oops;
       })
     }
     else if (options.op === 'loadMap') {
@@ -386,26 +384,27 @@ process.on('message', function (options) {
 	console.log(JSON.stringify(opts));
         soap.createClient(opts.connection.url, (err, client) => {
          var aiq = new aiqClient(client, opts.connection.pKey, opts.connection.uKey, coID);
-         if ( options.data.object == 'AccountID' ) {
+         if ( options.data.object == 'CustomerCode' ) {
            var myQOperation = Q.all([aiq.GetNewCustomerFromDefaults()])
+         } else if ( options.data.object == 'SupplierCode' ) {
+           var myQOperation = Q.all([aiq.GetNewSupplierFromDefaults()])
          } else if ( options.data.object == 'StockItemID' ) {
            var myQOperation = Q.all([aiq.GetNewStockItemFromDefaults()])
          }
          myQOperation
             .then(([result]) => {
-	       console.log(' back in integration.js ' + JSON.stringify(result.Result));
+	       console.log(' back in integration.js ' + JSON.stringify(result));
 	       console.log(' back in integration.js ' + JSON.stringify(result.Result));
                // remove all the blanks
                for(var p in result.Result)
                   if( result.Result[p] === '' )
                      delete result.Result[p]
 	       //var myNewCustomer = result;
-	       result.Result.Name = 'Created by Import';
                process.send({ getDefaultsResult: result.Result });
             })
             .fail(err => {
-               console.log('Error:', errors[err.error])
-               console.log('Error:', errors[err.error])
+               process.send({ "error" : "error in getting defaults for " + JSON.stringify(myQOperation), "data": JSON.stringify(err)});
+               console.log('Error:' + JSON.stringify(err));
                console.log(err)
             })
             .done();
@@ -450,11 +449,11 @@ process.on('message', function (options) {
 	var theObject =  options.data.element;
         console.log('Get From API in Integration.js option = ' + JSON.stringify(options));
         console.log('Get From API in Integration.js' + JSON.stringify(theObject));
-        var getCustomerFromApi = require(appDir + '/resources/getCustomerFromApi.js');
+        var GetCustomerFromApi = require(appDir + '/resources/GetCustomerFromApi.js');
 	      console.log(JSON.stringify(opts.processRules));
-        this.getCustomerFromApi = new getCustomerFromApi(this);
-        this.getCustomerFromApi[opts.processRules.loadFrom]( theObject, opts, function(apiCustomer) {
-          console.log('Got back getCustomerFromApi ' + JSON.stringify(apiCustomer));
+        this.GetCustomerFromApi = new GetCustomerFromApi(this);
+        this.GetCustomerFromApi[opts.processRules.loadFrom]( theObject, opts, function(apiCustomer) {
+          console.log('Got back GetCustomerFromApi ' + JSON.stringify(apiCustomer));
 	  theObject.details = apiCustomer
           process.send({ 'fetchedFromApi' : theObject });
         }) 

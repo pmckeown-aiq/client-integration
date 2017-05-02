@@ -52,8 +52,9 @@ process.on('message', function (options) {
 	opts.clientName = options.data.clientName.replace(/"/g,"");
         	
         var extractStaticData = require('./resources/extractStaticData.js');
-        extractStaticData.extract(opts , function(result) {
-          console.log('extracStaticData result ' + JSON.stringify(result));
+        var cloneStaticData = require('./resources/cloneStaticData.js');
+        cloneStaticData.clone(opts , function(result) {
+          console.log('cloneStaticData result ' + JSON.stringify(result));
           if ( result.success == true ) {
             process.send({ extractStaticData: result });
 	  } else {
@@ -448,11 +449,11 @@ process.on('message', function (options) {
 	var theObject =  options.data.element;
         console.log('Get From API in Integration.js option = ' + JSON.stringify(options));
         console.log('Get From API in Integration.js' + JSON.stringify(theObject));
-        var getCustomerFromApi = require(appDir + '/resources/getCustomerFromApi.js');
+        var GetCustomerFromApi = require(appDir + '/resources/GetCustomerFromApi.js');
 	      console.log(JSON.stringify(opts.processRules));
-        this.getCustomerFromApi = new getCustomerFromApi(this);
-        this.getCustomerFromApi[opts.processRules.loadFrom]( theObject, opts, function(apiCustomer) {
-          console.log('Got back getCustomerFromApi ' + JSON.stringify(apiCustomer));
+        this.GetCustomerFromApi = new GetCustomerFromApi(this);
+        this.GetCustomerFromApi[opts.processRules.loadFrom]( theObject, opts, function(apiCustomer) {
+          console.log('Got back GetCustomerFromApi ' + JSON.stringify(apiCustomer));
 	  theObject.details = apiCustomer
           process.send({ 'fetchedFromApi' : theObject });
         }) 

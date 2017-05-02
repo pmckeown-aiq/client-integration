@@ -449,11 +449,11 @@ process.on('message', function (options) {
 	var theObject =  options.data.element;
         console.log('Get From API in Integration.js option = ' + JSON.stringify(options));
         console.log('Get From API in Integration.js' + JSON.stringify(theObject));
-        var getCustomerFromApi = require(appDir + '/resources/getCustomerFromApi.js');
+        var GetCustomerFromApi = require(appDir + '/resources/GetCustomerFromApi.js');
 	      console.log(JSON.stringify(opts.processRules));
-        this.getCustomerFromApi = new getCustomerFromApi(this);
-        this.getCustomerFromApi[opts.processRules.loadFrom]( theObject, opts, function(apiCustomer) {
-          console.log('Got back getCustomerFromApi ' + JSON.stringify(apiCustomer));
+        this.GetCustomerFromApi = new GetCustomerFromApi(this);
+        this.GetCustomerFromApi[opts.processRules.loadFrom]( theObject, opts, function(apiCustomer) {
+          console.log('Got back GetCustomerFromApi ' + JSON.stringify(apiCustomer));
 	  theObject.details = apiCustomer
           process.send({ 'fetchedFromApi' : theObject });
         }) 
