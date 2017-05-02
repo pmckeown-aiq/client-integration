@@ -409,6 +409,9 @@ loadData.prototype.harvestExpensesApi = function(opts, filters, cb) {
           function(cb) {
             // Go Grab the expenses
     	    console.log('Get Expenses for ' +  person.id);
+            // use the harvestOptions.to date as the invoice date
+	    person.invoice_date = harvestOptions.to;
+    	    console.log('Set Expenses Invoice Date for ' +  person.id + ' as ' + person.invoice_date);
             // expensesByUser needs the user_id added to the options (they should be date ranges ...) 
             harvestOptions.user_id = person.id;
             Reports.expensesByUser(harvestOptions, function(err,expenses) {
