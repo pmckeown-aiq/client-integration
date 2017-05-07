@@ -49,17 +49,11 @@ module.exports = callback = function(v, opts) {
             resolve(v);
           })
       } else {
-          console.log('No callback 1');
-          updateStageStatus = { "stage" : "CallBack", "status": true, "serverStatus" : "N/A", "error" : "N/A", "message" : "Call Back Not Required: " };
-          v.updateStageStatus.push(updateStageStatus);
-          //reject(v);
+          console.log('No callback 1 - record nothing');
           resolve(v);
       }
     } else {
-        console.log('No callback 2');
-        updateStageStatus = { "stage" : "CallBack", "status": true, "serverStatus" : "N/A", "error" : "N/A", "message" : "Call Back Rules Not Defined: " };
-        v.updateStageStatus.push(updateStageStatus);
-        //reject(v);
+        console.log('No callback 2 - record nothing');
         resolve(v);
     }
   });

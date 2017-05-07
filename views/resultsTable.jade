@@ -1,12 +1,12 @@
 |<table class="table table-striped" export-csv="csv" ng-show="dataUpdateRunning">
 | <tbody>
-|  <tr ng-repeat="transaction in createdTransactions" ng-class="{danger:!transaction.updateStatus.status}" class="success"> 
+|  <tr ng-repeat="transaction in createdTransactions" ng-class="transaction.updateStatus.status" class="success"> 
 |   <td>{{transaction.transactionRef}}</td>
 |   <td>{{transaction.EnvironmentIdentifier}}</td>
 |   <td>{{ transaction.invoiceID }} {{ transaction.transactionRef }}</td>
 |   <td>{{transaction.updateStatus.status}}</td>
 |   <td>{{transaction.updateStatus.message}}</td>
-|   <td>{{transaction}}</td>
+|   <td>{{transaction.transactionID}}</td>
 |   <td ng-if="transaction.updateStageStatus"><button type="button" ng-click="openUpdateStagesStatusPopUp(transaction)" class="btn btn-xs indent">View Detail</button></td>
 |  </tr>
 |  <tr ng-repeat="x in wroteBackTransactions" ng-class="{danger:!x.status}" class="success">

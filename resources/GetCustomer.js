@@ -16,15 +16,11 @@ var _ = require('lodash');
 module.exports = GetCustomer = function(v) {
     // GetCustomer - based on a invoice with CustomerCode - get AccountID
     return new Promise(function(resolve, reject) {
-    console.log('in GetCustomer' + JSON.stringify(v));
     Promise.all([aiq.GetCustomer({ customerCode: v.CustomerCode })])
       .then((result) => {
-        console.log('Resolve GetCustomer' + JSON.stringify(result[0])); 
         if ( result[0].Status == "Success" ) {
           if (result[0].Result) {
-            console.log('Check Result - ' + JSON.stringify(result[0].Result));
             if (result[0].Result.AccountID) {
-              console.log('GetCustomer returned:' + JSON.stringify(result[0].Result.AccountID));
               // fetch out the transaction ID's
               v.AccountID = result[0].Result.AccountID ;
               updateStageStatus = { "stage" : "GetCustomer", "status": true, "serverStatus" : result[0].Status, "error" : result[0].ErrorMessage, "message" : "Fetched AccountID for Customer Code " + v.CustomerCode};

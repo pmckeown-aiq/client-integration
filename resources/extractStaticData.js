@@ -56,7 +56,6 @@ module.exports = {
            extractEnvs.push({ "url": opts.connection.url, "clientName": clientName, "coID": opts.coID, "pKey": opts.connection.pKey, "uKey": opts.connection.uKey });	
        // Check if we have more than one database configured
        if ( typeof opts.additionalEnvs !== 'undefined' ) {
-         console.log('We have a second database to extract from! ' + JSON.stringify(opts.additionalEnvs));
 	 // additional environments are stored in an array
 	 opts.additionalEnvs.forEach(function(additionalEnv) {
 	   // push the additional environment into the extractEnvs array ...
@@ -64,16 +63,12 @@ module.exports = {
            extractEnvs.push({ "url": opts.connection.url, "clientName": clientName, "coID": additionalEnv.coID, "pKey": opts.connection.pKey, "uKey": additionalEnv.uKey });	
          })
        }
-       console.log('Extract for environments ' + JSON.stringify(extractEnvs.length));
        // Now run through each extractEnvs (may be just one!) 
        extractEnvs.forEach(function(extractEnv) {
          soap.createClient(extractEnv.url, (err, client) => {
-         console.log('Running load static data ' + validateWith + ' env ' + extractEnv.coID );
-         //console.log('Running load static data ' + clientName );
          var aiq = new aiqClient(client, extractEnv.pKey, extractEnv.uKey, extractEnv.coID);
          Q.all([aiq[validateWith] ()])
             .then((result) => {
-              console.log('RESULT load static data ' + validateWith + ' env ' + extractEnv.coID );
               var filename = validateWith + '.extract.json';
               var file = path.join(appDir + '/clients/' + extractEnv.clientName + '/data/' + extractEnv.coID + '/' + filename);
               fs.writeFileSync(file, JSON.stringify(result));

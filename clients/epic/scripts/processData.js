@@ -2,7 +2,6 @@ var path = require('path');
 var appDir = path.dirname(require.main.filename);
 console.log('App Dir is ' + appDir);
 var _ = require('lodash');
-var clone = require('clone');
 var fs = require("fs");
 // required to evaluate properties in the conf file (dynamically setting variables)
 var safeEval = require('safe-eval')

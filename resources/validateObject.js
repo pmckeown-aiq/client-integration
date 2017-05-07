@@ -81,12 +81,10 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
     // loop through the transactions ...
     feedTransactionArray.forEach(function(transaction) {
       // first identify if we have multiple companies - we check for validateObjects.
-      console.log('RUNNING FOR ENVIRONMENTS ' + JSON.stringify(validateObjects.additionalEnvs));
       if ( typeof validateObjects.additionalEnvs !== 'undefined' ) {
         // check for the object in the transactiona array that defines which coID this transaction belongs to
         coIDIdentifier = validateObjects.additionalEnvs[0].identifiedBy.name;
 	myEnvironmentIdentifierValue = transaction[coIDIdentifier];
-	console.log('I AM FOR ENVIRONMENT ' + myEnvironmentIdentifierValue);
 	myCoIDObject = _.filter(coIDs, { value: myEnvironmentIdentifierValue });
 	// We should only have one match ...
 	if ( myCoIDObject.length === 1 ) {
@@ -154,7 +152,7 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
 	    
 	    }
 	    // Flag the transaction as incorrect
-	    transaction.updateStatus = { 'status': false, 'error': result.invalidMessage };
+	    transaction.updateStatus = { 'status': "danger", 'error': result.invalidMessage };
             // add the result to the array for the client
 	    invalidData.push(result);
 	  } else {
@@ -201,17 +199,14 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
           validate.doValidation(validateWith,line[validateObject.name], clientName, coID, validateObject.name, function(err, result){
             if (err) {
               if ( err.constructor === Object ) {
-                console.log('Error returned from validateObject.doValidation object error type ' + JSON.stringify(err))
                 process.send({ "error" : "error in validateObject.doValidation  " , "data": JSON.stringify(err)});
               } else {
-                console.log('Error returned from validateObject.doValidation ' + err)
                 process.send({ "error" : "error in validateObject.doValidation  " , "data": err });
               }
               throw err;
             }
 	    // if code does not exist
 	    if (result.exists == false) { 
-	      console.log('WE ARE MISSING ' + validateObject.name + ' on ' + JSON.stringify(line));
               if ( thisObject.hasOwnProperty('createWith') ) {
                 // then the object is creatable from the integration app
                 result.canCreate = true;
@@ -229,9 +224,9 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
               // flag to say if the invalid item can be retrieved from api
               result.getFromApi = getFromApi;
   	      // Flag the transaction as incorrect
-  	      line.updateStatus = { 'status': false, 'error': result.invalidMessage };
+  	      line.updateStatus = { 'status': "danger", 'error': result.invalidMessage };
   	      // but also flag the transaction as incorrect ...
-	      transaction.updateStatus = { 'status': false, 'error': result.invalidMessage };
+	      transaction.updateStatus = { 'status': "danger", 'error': result.invalidMessage };
               // add the result to the array for the client
   	      invalidData.push(result);
             } else {
@@ -251,6 +246,5 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
   // return the feedTransactionArray along with the invalidData array ...
   // first though make the invalidData array a unique array (no need to repeat the message!)
   invalidData = _.uniqBy(invalidData,'code');
-  console.log('Extract Static Data OK');
   return cb(null, feedTransactionArray, invalidData);
 }

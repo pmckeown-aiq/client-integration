@@ -5,7 +5,6 @@ var path = require('path');
 
 module.exports = {
   doValidation: function(myName, myCodeToCheck, clientName, coID, objectName, cb) {
-	  console.log('TAX CODE VALIDATION FOR COID ' + coID );
     var filename = myName + '.extract.json'
     var appDir = path.dirname(require.main.filename);
     var file = path.join(appDir + '/clients/' + clientName + '/data/' + coID + '/' + filename);
@@ -31,7 +30,6 @@ module.exports = {
       if (myCode.length === 1) {
         return cb(null, { "code": myCodeToCheck, "exists": true, "data": myCode[0] });
       } else {
- console.log('NOT FOUND TAX CODE ' + JSON.stringify(myCode) + ' ' + myCodeToCheck + ' in ' + file );
         return cb(null, { "code": myCodeToCheck, "exists": false });
       }
     }

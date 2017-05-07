@@ -10,7 +10,6 @@ module.exports = {
     if (fs.existsSync(file)) {
       var theseCodes = JSON.parse(fs.readFileSync(file, 'utf8'))
     }
-    console.log('VALIDATE CUSTOMER CODE ' + myCodeToCheck + ' in ' + file );
     var myCode = _.filter(theseCodes[0].Result.Customer, { Code : myCodeToCheck});
     theseCodes = null; // clear the data loaded from file
     if (myCode.length === 1) {

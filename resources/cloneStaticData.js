@@ -17,8 +17,22 @@ var appLog = bunyan.createLogger({
   }]
 })
 
+async function createDepartment(v, slave) {
+  var obj = await new Promise ((resolve, reject) => {
+    console.log('Cloning static data ' + v.id + ' env ' + slave.url );
+    soap.createClient(slave.url, (err, client) => {
+      var aiq = new aiqClient(client, slave.pKey, slave.uKey, slave.coID);
+      aiq['CreateDepartment'](v, (err, result) => {
+	console.log('resolve with ' + JSON.stringify(result));
+        resolve(result)
+      })
+    });
+  });
+  return obj;
+}
+
 module.exports = {
-   clone: function(opts, cb) {
+   clone: async function(opts, cb) {
      var config = require(appDir + '/conf/config.js');
      var clientName = opts.clientName;
      // Read the "codeMaintenanceSettings" in the configuration file - this maps what to use when validating/creating objects (and gives them a name)
@@ -47,6 +61,8 @@ module.exports = {
      }
      objectsToValidate.forEach(function(objectToValidate) {
        var thisObject = codeMaintenanceSettings[objectToValidate];
+      console.log("thisObject is " + JSON.stringify(thisObject))
+      if (thisObject.validateWith == "GetDepartmentList") {
        var validateWith = thisObject.validateWith;
        process.send({"extract": objectToValidate ,"success":false})
        // We may actually need to extract data from multiple environments 
@@ -84,7 +100,7 @@ module.exports = {
            throw ("No master data to clone from");
        }
          var slaveData = require(appDir + '/clients/' + clientName + '/data/' + slave.coID + '/GetDepartmentList.extract.json');
-	 console.log('masterData : ' + masterData[0].Result.Department.length);
+	 console.log('masterData1 : ' + masterData[0].Result.Department.length);
 	 console.log('slaveData : ' + slave.coID + ';'  + slaveData[0].Result.Department.length);
          if ( typeof slaveData[0].Result !== 'undefined' ) {
            if ( typeof slaveData[0].Result.Department === 'undefined' ) {
@@ -106,23 +122,21 @@ module.exports = {
          });
          console.log('After remove masterData is ' + masterData[0].Result.Department.length);
          masterData[0].Result.Department.forEach(function(record) {
-           soap.createClient(slave.url, (err, client) => {
-           console.log('Cloning static data ' + record.DepartmentID + ' env ' + slave.coID );
-           //console.log('Running load static data ' + clientName );
-           var aiq = new aiqClient(client, slave.pKey, slave.uKey, slave.coID);
-           Q.all([aiq['CreateDepartment'](record)])
-              .then((result) => {
-                console.log('RESULT update slave ' + record.DepartmentID + ' env ' + slave.coID );
-              })
-              .fail(err => {
-                 console.log('FAIL update static data ' + record.DepartmentID + ' env ' + slave.coID );
-                 console.log(JSON.stringify(err));
-                 //var isSuccess = { 'extract' : objectToValidate , 'coID': extractEnv.coID, 'success' : false , 'error': err}; 
-              })
-              .done();
-             }) // SOAP create client
+           if (record.DepartmentID !== "ABB01" ) {
+	     v = {};
+	     v.id = record.DepartmentID;
+	     v.description = record.Description;
+	     v.analysisCode1 = record.AnalysisCode1;
+	     v.analysisCode2 = record.AnalysisCode2;
+	     v.analysisCode3 = record.AnalysisCode3;
+	     v.analysisCode4 = record.AnalysisCode4;
+	     v.analysisCode5 = record.AnalysisCode5;
+	     v.analysisCode6 = record.AnalysisCode6;
+             createDepartment(v, slave); 
+	   }
          }) // end loop record in masterData[0].Result
        }) // end loop for extractEnvs
+     } // end if thisObject == DepartmentID
     })
   }
 }

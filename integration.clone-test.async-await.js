@@ -52,8 +52,9 @@ process.on('message', function (options) {
 	opts.clientName = options.data.clientName.replace(/"/g,"");
         	
         var extractStaticData = require('./resources/extractStaticData.js');
-        extractStaticData.extract(opts , function(result) {
-          console.log('extracStaticData result ' + JSON.stringify(result));
+        var cloneStaticData = require('./resources/cloneStaticData.js');
+        cloneStaticData.clone(opts , function(result) {
+          console.log('cloneStaticData result ' + JSON.stringify(result));
           if ( result.success == true ) {
             process.send({ extractStaticData: result });
 	  } else {
@@ -350,9 +351,11 @@ process.on('message', function (options) {
 		console.log('After all processing ' + JSON.stringify(feedTransactionArray.length));
 		controlTotals.transactionCount = feedTransactionArray.length;
 		console.log('After all processing ' + JSON.stringify(feedTransactionArray[1]));
-                pete = _.uniqBy(_.map(feedTransactionArray, 'updateStatus.status'));
-                console.log('statuss are ' + JSON.stringify(pete));
-	        feedErrors = _.filter(feedTransactionArray, 'updateStatus.status' );
+	        feedErrors = _.filter(feedTransactionArray , function (v) {
+                  if ( typeof  v.updateStatus !== 'undefined' ) {
+                    return v.updateStatus.status === false ;
+                  }
+                });
 		controlTotals.feedErrorsCount = feedErrors.length;
                 // count the lines on the transactions (useful but also necessary when writing back on lines updates back to 3rd Party API
 	        controlTotals.feedErrorsLinesCount =  _.flatMap(feedErrors, 'lines').length;
@@ -382,27 +385,26 @@ process.on('message', function (options) {
 	console.log(JSON.stringify(opts));
         soap.createClient(opts.connection.url, (err, client) => {
          var aiq = new aiqClient(client, opts.connection.pKey, opts.connection.uKey, coID);
-         if ( options.data.object == 'CustomerCode' ) {
+         if ( options.data.object == 'AccountID' ) {
            var myQOperation = Q.all([aiq.GetNewCustomerFromDefaults()])
-         } else if ( options.data.object == 'SupplierCode' ) {
-           var myQOperation = Q.all([aiq.GetNewSupplierFromDefaults()])
          } else if ( options.data.object == 'StockItemID' ) {
            var myQOperation = Q.all([aiq.GetNewStockItemFromDefaults()])
          }
          myQOperation
             .then(([result]) => {
-	       console.log(' back in integration.js ' + JSON.stringify(result));
+	       console.log(' back in integration.js ' + JSON.stringify(result.Result));
 	       console.log(' back in integration.js ' + JSON.stringify(result.Result));
                // remove all the blanks
                for(var p in result.Result)
                   if( result.Result[p] === '' )
                      delete result.Result[p]
 	       //var myNewCustomer = result;
+	       result.Result.Name = 'Created by Import';
                process.send({ getDefaultsResult: result.Result });
             })
             .fail(err => {
-               process.send({ "error" : "error in getting defaults for " + JSON.stringify(myQOperation), "data": JSON.stringify(err)});
-               console.log('Error:' + JSON.stringify(err));
+               console.log('Error:', errors[err.error])
+               console.log('Error:', errors[err.error])
                console.log(err)
             })
             .done();

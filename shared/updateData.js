@@ -208,7 +208,7 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
            .then(function(v) {
              console.log('COMPLETED UPDATE' + JSON.stringify(v));
              // At the moment callback does not reject the promise on a single error in callback to extrenal system - so it may have set "updateStatus" ... so check
-             if ( typeof v.updateStatus !== undefined ) {
+             if ( typeof v.updateStatus !== 'undefined' ) {
                process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": v.updateStatus.status, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
              } else { // a resource had set updateStatus 
                process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": true, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});

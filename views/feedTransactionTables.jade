@@ -6,8 +6,9 @@ div(ng-show="feedTransactions.length>0")
     |<table class="table table-striped" export-csv="feedErrorsCSV">
     |<thead><tr><th ng-repeat="column in displayHeaderValues" >{{column.displayName}}</th></tr></thead>
     |<tbody>
-    |<tr ng-repeat-start="transaction in feedErrors" class="success" ng-class="{danger:!transaction.updateStatus.status}"> 
+    |<tr ng-repeat-start="transaction in feedErrors" class="success" ng-class="transaction.updateStatus.status"> 
     |  <td ng-repeat="column in displayHeaderValues">{{transaction[column.name]}} </td>
+    |  <td>{{transaction.updateStatus.error}}</td>
     |  <td ng-if="hasLines"><button type="button" ng-click="openTransactionLines(transaction)" class="btn btn-xs indent">View Imported Lines</button></td>
     |</tr>
     |<tr ng-repeat-end><tr ng-repeat-end> 
@@ -42,8 +43,9 @@ div(ng-show="showfeedTransactions")
     |  </tr>
     |</thead>
     |<tbody>
-    |<tr ng-repeat-start="transaction in feedTransactions | offset: currentPage*itemsPerPage | limitTo: itemsPerPage" class="success" ng-class="{success: transaction.updateStatus.status === null, danger: transaction.updateStatus.status === false}"> 
+    |<tr ng-repeat-start="transaction in feedTransactions | offset: currentPage*itemsPerPage | limitTo: itemsPerPage" class="success" ng-class="transaction.updateStatus.status"> 
     |  <td ng-repeat="column in displayHeaderValues">{{transaction[column.name]}} </td>
+    |  <td>{{transaction.updateStatus.error}}</td>
     |  <td ng-if="hasLines"><button type="button" ng-click="openTransactionLines(transaction)" class="btn btn-xs indent">View Imported Lines</button></td>
     |</tr>
     |<tr ng-repeat-end><tr ng-repeat-end> 
