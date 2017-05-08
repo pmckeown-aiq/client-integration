@@ -9,7 +9,7 @@ var safeEval = require('safe-eval');
 // Kefron - Testing - attach as excel
 var json2xls = require('json2xls');
 
-module.exports = processData = function (feedTransactions, opts) {
+module.exports = processData = function (feedTransactions, opts, options) {
 };
 
 // Bespoke to customer - depends on the dates in the input data
@@ -24,8 +24,8 @@ function formatDate(inputDate) {
   return res;
 }
 
-processData.prototype.RSSQLInvoices = function(feedTransactions, opts ) {
-  console.log('Running Process Data for Kefron ' + JSON.stringify(opts) );
+processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options ) {
+  console.log('Running Process Data for Kefron ' + JSON.stringify(options) );
   // Array to return from processData
   processedTransactions = [];
   // Sanity Check Variables
@@ -121,7 +121,7 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts ) {
   return processedTransactions;
 }
 
-processData.prototype.KDCScanningInvoices = function(feedTransactions, opts ) {
+processData.prototype.KDCScanningInvoices = function(feedTransactions, opts, options ) {
   console.log('Running Process Data for Kefron ' + JSON.stringify(opts) );
   // Array to return from processData
   processedTransactions = [];
@@ -154,7 +154,7 @@ processData.prototype.KDCScanningInvoices = function(feedTransactions, opts ) {
   return processedTransactions;
 }
 
-processData.prototype.LightSpeedInvoices = function(feedTransactions, opts ) {
+processData.prototype.LightSpeedInvoices = function(feedTransactions, opts, options ) {
   console.log('Running Process Data for Kefron ' + JSON.stringify(opts) );
   // Array to return from processData
   processedTransactions = [];
@@ -187,17 +187,16 @@ processData.prototype.LightSpeedInvoices = function(feedTransactions, opts ) {
   return processedTransactions;
 }
 
-processData.prototype.PayrollImport = function(feedTransactions, opts ) {
+processData.prototype.PayrollImport = function(feedTransactions, opts, options ) {
   console.log('Running Process Data for Kefron ' + JSON.stringify(opts) );
+  console.log('Running Process Data for Kefron ' + JSON.stringify(options) );
   // Array to return from processData
   processedTransactions = [];
 
   // format the arrays (Kefron comes with no headers ...
   var transactions = feedTransactions.map(function(obj) {
     return {
-      InternalReference: obj.field4,
-      ExternalReference: obj.field5,
-      TransactionDate: obj.field4.substr(6,4) + '-' + obj.field4.substr(3,2) + '-' + obj.field4.substr(0,2),
+      //InternalReference: obj.field4,
       DepartmentID: obj.field16.substr(0,3) + '-' + obj.field16.substr(3,3),
       GLAccountCode: obj.field18,
       Description: obj.field20,
@@ -205,29 +204,18 @@ processData.prototype.PayrollImport = function(feedTransactions, opts ) {
     }
   })
   // The file will load as one single journal - so there is not really a header
-  // Column 5 gives us the External Reference so want to get a list of "unique references
-  myUniqueReferences = _.chain(transactions)
-    .uniqBy('ExternalReference','TransactionDate')
-    .map('ExternalReference','TransactionDate')
-    .value()
-  console.log(JSON.stringify(myUniqueReferences));
-  myUniqueReferences.forEach(function(ExtRef) {
-    myJournal = {};
-    myJournal.ExternalReference = ExtRef.replace(/Unposted Accounts : /g, '');
-    myLines = _.filter(transactions, { ExternalReference : ExtRef });
-    myJournal.TransactionDate = myLines[0].TransactionDate;
-    myJournal.InternalReference = myLines[0].InternalReference;
-    // Array for lines
-    myJournal.lines = [];
-    myLines.forEach(function(v){ 
-      delete v.InternalReference;
-      delete v.ExternalReference;
-      delete v.TransactionDate;
-      delete v.$$hashKey;
-      myJournal.lines.push(v); 
-    });	  
-    console.log(JSON.stringify(myJournal));
-    processedTransactions.push(myJournal);
-  }); // end the loop through headers
+  myJournal = {};
+  myJournal.ExternalReference = options.data.type + ':' + options.data.file.substr(0,4) + '-' + options.data.file.substr(4,2) + '-' + options.data.file.substr(6,2)
+      // The journal date comes from the file name! 
+  myJournal.TransactionDate = options.data.file.substr(0,4) + '-' + options.data.file.substr(4,2) + '-' + options.data.file.substr(6,2)
+  //myJournal.InternalReference = myLines[0].InternalReference;
+  // Array for lines
+  myJournal.lines = [];
+  transactions.forEach(function(v){ 
+    delete v.$$hashKey;
+    myJournal.lines.push(v); 
+  });	  
+  console.log(JSON.stringify(myJournal));
+  processedTransactions.push(myJournal);
   return processedTransactions;
 }

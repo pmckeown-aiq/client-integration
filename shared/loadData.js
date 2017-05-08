@@ -25,7 +25,7 @@ module.exports = loadData = function(opts) {
 loadData.prototype.loadCsv = function(opts, filters, cb) {
   console.log('loadCsv has opts ' + JSON.stringify(opts));
   var logFile = opts.data.logFileName 
-  var csvFile = opts.data.fileName;
+  var csvFile = opts.data.file;
   // remove double qoute from JSON
   csvFile = csvFile.replace(/"/g,"");	
   logFile = logFile.replace(/"/g,"");	
@@ -56,12 +56,9 @@ loadData.prototype.harvestSalesInvoicesApi = function(opts, filters, cb) {
   //console.log('harvestApi in loadData has opts ' + JSON.stringify(opts));
   console.log('harvestApi in loadData has filters ' + JSON.stringify(filters));
   var logFile = opts.data.logFileName 
-  var csvFile = opts.data.fileName;
   // remove double qoute from JSON
-  csvFile = csvFile.replace(/"/g,"");	
   logFile = logFile.replace(/"/g,"");	
   // Log entry
-  appLog.info('processCsvFile:', csvFile);
   var config = require(appDir + '/conf/harvest.json')
   console.log(JSON.stringify(config));
   console.log('FILTERS WILL BE ' + JSON.stringify(filters));
@@ -289,12 +286,9 @@ loadData.prototype.harvestSalesInvoicesApi = function(opts, filters, cb) {
 
 loadData.prototype.harvestExpensesApi = function(opts, filters, cb) {
   var logFile = opts.data.logFileName 
-  var csvFile = opts.data.fileName;
   // remove double qoute from JSON
-  csvFile = csvFile.replace(/"/g,"");	
   logFile = logFile.replace(/"/g,"");	
   // Log entry
-  appLog.info('processCsvFile:', csvFile);
   var config = require( appDir + '/conf/harvest.json')
   console.log(JSON.stringify(config));
   console.log('FILTERS WILL BE ' + JSON.stringify(filters));

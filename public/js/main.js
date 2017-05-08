@@ -138,7 +138,7 @@ app.controller('getConfig',  ['$scope', '$fileUpload', '$http', 'manageStages', 
    }; 
 
    $scope.prepareLoadData = function(prepareLoadData) {
-    $scope.newFile='';
+    $scope.file='';
     var file = $scope.setConfigForm.myFile;
     var coID =  $scope.setConfigForm.coID.replace(/"/g,"");
     // Actually bound to a string that is a JSON object (value of input)
@@ -357,7 +357,7 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
 	// if feedtype == Harvest and type is date then it expects YYYYMMDD - form will have it as YYYY-MM-DD
 	var clientName = $scope.clientName.replace(/"/g,""); // replace quotes if there!
 	var feedType = $scope.feedType.replace(/"/g,""); // replace quotes if there!
-        socket.emit('loadData', { 'fileName' : $scope.newFile , 'logFileName' : $scope.logFileName , 'coID' : $scope.coID , 'type' : $scope.type , 'clientName': $scope.clientName, 'feedType' : $scope.feedType, 'loadDataFilters': $scope.loadDataFilters});
+        socket.emit('loadData', { 'file' : $scope.file , 'logFileName' : $scope.logFileName , 'coID' : $scope.coID , 'type' : $scope.type , 'clientName': $scope.clientName, 'feedType' : $scope.feedType, 'loadDataFilters': $scope.loadDataFilters});
     };
 
     // Revalidate Data - when codes found to be missing, allow user to re-extract the static data and then re-validate ones in error
@@ -794,13 +794,13 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
 
     socket.on('loadDataReady', function (data) {
 	console.log('Processing ' + JSON.stringify(data));
-        $scope.newFile = JSON.stringify(data.file);
-        $scope.newFileWarn = JSON.stringify(data.warn);
+        $scope.file = JSON.stringify(data.file).replace(/"/g,"");
+        $scope.warning = JSON.stringify(data.warn).replace(/"/g,"");
         $scope.logFileName = JSON.stringify(data.logFileName);
         $scope.coID = JSON.stringify(data.coID).replace(/"/g,"");
         $scope.type = JSON.stringify(data.type).replace(/"/g,"");
         $scope.clientName = JSON.stringify(data.clientName);
-        $scope.feedType = JSON.stringify(data.feedType);
+        $scope.feedType = JSON.stringify(data.feedType).replace(/"/g,"");
         $scope.loadDataReady = JSON.stringify(data.loadDataReady);
 	$scope.setCurrentStage(3);
         $scope.clientSettings = JSON.stringify(data.clientSettings);

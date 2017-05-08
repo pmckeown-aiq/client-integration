@@ -25,6 +25,8 @@ block content
      include selectEnvironment
      div(class='row', ng-controller='updateController' ng-show="loadDataReady")
        h3(align="center") Processing {{ type }} for {{ coID }} 
+       h4(align="center", ng-if="feedType == 'csv'") File Name {{ file }} 
+       h4(align="center", ng-if="warning") Warn {{ warning }} 
        .well.clearfix(ng-show="showManageMap")
          p(class='small' ng-show="objectsToMap.length>0") Manage data mapping between the source system and AccountsIQ company {{ coID }}. {{ objectsToMap.length }} {{ objectsToMap }}
          p(class='small' ng-hide="objectsToMap.length>0") There is no mapped data for you to manage

@@ -111,6 +111,7 @@ process.on('message', function (options) {
 	options.data.clientName = options.data.clientName.replace(/"/g,"");
 	opts.clientName = options.data.clientName.replace(/"/g,"");
 	options.data.coID = options.data.coID.replace(/"/g,"");
+	options.data.file= options.data.file.replace(/"/g,"");
 //        // First we need to sort out what needs to be done to the data when it is loaded from the source 
 //        // the opts.clientSettings has two arrays  - headerValues and (if hasLines = true) lineValues.
 //	// these have all possible fields but not all of them will be supplied
@@ -253,7 +254,7 @@ process.on('message', function (options) {
 	    var processData = require(opts.processRules.processScript);
 	    this.processData = new processData(this);
             var feedTransactionArray = [];
-	    feedTransactionArray = this.processData[opts.type](feedTransactions, opts);
+	    feedTransactionArray = this.processData[opts.type](feedTransactions, opts, options);
 	    // NEVER NEVER SEND THE FULL OPTIONS !!!!!
 	    process.send({ "loadDataStatus": { message: " Completed processing transactions ... now validating the data and applying data maps please wait ..." }}); 
             /* Load the resources files 
