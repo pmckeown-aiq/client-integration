@@ -1,5 +1,5 @@
 // fs required for attaching documents
-var fs = require('fs');
+var fs = require('fs-extra');
 
 module.exports = prepareUpdate = function(v) {
   // GetSupplier - based on a invoice with SupplierCode - get AccountID

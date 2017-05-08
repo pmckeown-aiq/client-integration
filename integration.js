@@ -1,7 +1,7 @@
 'use-strict';
 var Q = require('q');
 var soap = require('soap');
-var fs = require('fs');
+var fs = require('fs-extra');
 var path = require('path');
 var appDir = path.dirname(require.main.filename);
 var _ = require('lodash');

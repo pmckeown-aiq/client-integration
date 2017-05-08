@@ -1,5 +1,5 @@
 // fs required for attaching documents
-var fs = require('fs');
+var fs = require('fs-extra');
 var path = require('path');
 
 // fs required for attaching documents

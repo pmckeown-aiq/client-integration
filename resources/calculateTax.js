@@ -1,6 +1,6 @@
 var path = require('path');
 var _ = require('lodash');
-var fs = require("fs");
+var fs = require("fs-extra");
 
 module.exports = calculateTax = function(opts, feedTransactionArray, cb) {
   // Needed to read rules for getting tax codes from accountID

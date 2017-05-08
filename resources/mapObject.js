@@ -1,6 +1,6 @@
 var path = require('path');
 var _ = require('lodash');
-var fs = require("fs");
+var fs = require("fs-extra");
 
 function findAndReplace(arr, find, replace) {
   let i;

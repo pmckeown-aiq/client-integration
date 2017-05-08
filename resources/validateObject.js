@@ -1,7 +1,7 @@
 'use-strict';
 var path = require('path');
 var _ = require('lodash');
-var fs = require("fs");
+var fs = require("fs-extra");
 
 // On occasion will need to default current date - so set it up as a variable
 var date = new Date();

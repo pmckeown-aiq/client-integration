@@ -1,5 +1,5 @@
 var util = require('util');
-var fs = require('fs');
+var fs = require('fs-extra');
 var path = require('path');
 var _ = require('lodash');
 // For the log file

@@ -1,5 +1,5 @@
 // fs required for attaching documents
-var fs = require('fs');
+var fs = require('fs-extra');
 
 // fs required for attaching documents
 // function to encode file data to base64 encoded string

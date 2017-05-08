@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var fs = require("fs");
+var fs = require("fs-extra");
 var path = require('path');
 // Needed to match GL Codes Only (using _.contains)
 var includes = require('lodash.includes');

@@ -2,7 +2,7 @@
 
 var jade = require('jade');
 var express = require('express');
-var fs = require('fs.extra');
+var fs = require('fs-extra');
 
 var app = express();
 
@@ -223,11 +223,12 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
       var target_path = './public/data/' + fileName;
       //target_path = target_path +  uniqueNumber.generate();
       // move the file from the temporary location to the intended location
-      fs.move(tempPath, target_path, function (err) {
+      fs.move(tempPath, target_path, { overwrite: true }, function (err) {
         if (err) {
           //throw err;
           io.sockets.emit({ "error": "uploadFileFailed", "data": err });
         } 
+        console.log
       });
     } else {
       // ToDo - come up with a decent name for an api log append name

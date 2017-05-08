@@ -1,5 +1,5 @@
 // fs required for attaching documents
-var fs = require('fs');
+var fs = require('fs-extra');
 
 module.exports = SaveSalesReceiptGetBackTransactionID = function(v) {
     return new Promise(function(resolve, reject) {

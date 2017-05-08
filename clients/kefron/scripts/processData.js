@@ -3,7 +3,7 @@ var appDir = path.dirname(require.main.filename);
 console.log('App Dir is ' + appDir);
 var _ = require('lodash');
 var clone = require('clone');
-var fs = require("fs");
+var fs = require("fs-extra");
 // required to evaluate properties in the conf file (dynamically setting variables)
 var safeEval = require('safe-eval');
 // Kefron - Testing - attach as excel

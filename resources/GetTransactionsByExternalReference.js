@@ -1,5 +1,5 @@
 // fs required for attaching documents
-var fs = require('fs');
+var fs = require('fs-extra');
 
 // required for GetTransactionsByExternalReference
 var _ = require('lodash');

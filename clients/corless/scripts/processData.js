@@ -3,7 +3,7 @@ var appDir = path.dirname(require.main.filename);
 console.log('App Dir is ' + appDir);
 var _ = require('lodash');
 var clone = require('clone');
-var fs = require("fs");
+var fs = require("fs-extra");
 var safeEval = require('safe-eval');
 // Bespoke to customer - depends on the dates in the input data
 // Pass in a date in the format they use and return it as YYYY-MM-DD
