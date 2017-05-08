@@ -19,7 +19,7 @@ function formatDate(inputDate) {
 module.exports = processData = function (feedTransactions) {
 };
 
-processData.prototype.CorlessInvoices = function(feedTransactions, opts, cb) {
+processData.prototype.CorlessInvoices = function(feedTransactions, opts, options, cb) {
   console.log('Running Process Data');
   // Arrays to store data
   var feedTransactionArray = [];
@@ -354,7 +354,7 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, cb) {
   }) // end loop through unique external ref's
   return feedTransactionArray;
 },
-processData.prototype.CorlessAdjustments = function(feedTransactions, opts, cb) {
+processData.prototype.CorlessAdjustments = function(feedTransactions, opts, options, cb) {
   console.log('Running Process Data');
   // Arrays to store data
   var feedTransactionArray = [];
@@ -674,7 +674,7 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, cb) 
   return feedTransactionArray;
 }
 /*
-processData.prototype.CorlessAdjustments = function(feedTransactions, opts, cb) {
+processData.prototype.CorlessAdjustments = function(feedTransactions, opts, options, cb) {
     console.log('Running Process Data');
     // Arrays to store data
     var arrayInvoice = [];

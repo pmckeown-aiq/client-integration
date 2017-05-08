@@ -16,11 +16,11 @@ function formatDate(inputDate) {
   return res;
 }
 
-module.exports = processData = function (feedTransactions, opts) {
+module.exports = processData = function (feedTransactions, opts, options) {
 };
 
 
-processData.prototype.EpicInvoices = function(feedTransactions, opts ) {
+processData.prototype.EpicInvoices = function(feedTransactions, opts, options ) {
   console.log('Running Process Data for Epic ' + JSON.stringify(opts) );
   // Array to return from processData
   processedTransactions = [];
@@ -90,7 +90,7 @@ processData.prototype.EpicInvoices = function(feedTransactions, opts ) {
   return processedTransactions;
 }
 
-processData.prototype.SalesReceipts = function(feedTransactions, opts ) {
+processData.prototype.SalesReceipts = function(feedTransactions, opts, options ) {
   console.log('Running Process Data for Epic ' + JSON.stringify(opts) );
   // Array to return from processData
   processedTransactions = [];

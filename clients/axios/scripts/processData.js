@@ -6,10 +6,10 @@ var clone = require('clone');
 var fs = require("fs-extra");
 // required to evaluate properties in the conf file (dynamically setting variables)
 var safeEval = require('safe-eval')
-module.exports = processData = function (feedTransactions, opts) {
+module.exports = processData = function (feedTransactions, opts, options) {
 };
 
-processData.prototype.AxiosHarvestInvoices = function(feedTransactions, opts ) {
+processData.prototype.AxiosHarvestInvoices = function(feedTransactions, opts, options ) {
   //console.log('Running Process Data for Axios ' + JSON.stringify(opts) );
   // Array to return from processData
   processedTransactions = [];
@@ -72,7 +72,7 @@ processData.prototype.AxiosHarvestInvoices = function(feedTransactions, opts ) {
   return processedTransactions;
 }
 
-processData.prototype.AxiosHarvestExpenses = function(feedTransactions, opts ) {
+processData.prototype.AxiosHarvestExpenses = function(feedTransactions, opts, options ) {
   //console.log('Running Process Data for Axios ' + JSON.stringify(opts) );
   // Array to return from processData
   processedTransactions = [];
