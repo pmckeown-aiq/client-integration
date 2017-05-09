@@ -350,10 +350,9 @@ process.on('message', function (options) {
 		console.log('After all processing ' + JSON.stringify(invalidData));
 		console.log('After all processing ' + JSON.stringify(feedTransactionArray.length));
 		controlTotals.transactionCount = feedTransactionArray.length;
-		console.log('After all processing ' + JSON.stringify(feedTransactionArray[1]));
-                pete = _.uniqBy(_.map(feedTransactionArray, 'updateStatus.status'));
-                console.log('statuss are ' + JSON.stringify(pete));
+		console.log('After all processing ' + JSON.stringify(feedTransactionArray[0]));
 	        feedErrors = _.filter(feedTransactionArray, 'updateStatus.status' );
+		console.log('feederrors ' + JSON.stringify(feedErrors));
 		controlTotals.feedErrorsCount = feedErrors.length;
                 // count the lines on the transactions (useful but also necessary when writing back on lines updates back to 3rd Party API
 	        controlTotals.feedErrorsLinesCount =  _.flatMap(feedErrors, 'lines').length;

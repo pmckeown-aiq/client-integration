@@ -24,6 +24,10 @@ function formatDate(inputDate) {
   return res;
 }
 
+function isValidDate(inputDate) {
+  var regEx = /^\d{4}-\d{2}-\d{2}$/;
+  return inputDate.match(regEx) != null;
+}
 processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options ) {
   console.log('Running Process Data for Kefron ' + JSON.stringify(options) );
   // Array to return from processData
@@ -196,7 +200,6 @@ processData.prototype.PayrollImport = function(feedTransactions, opts, options )
   // format the arrays (Kefron comes with no headers ...
   var transactions = feedTransactions.map(function(obj) {
     return {
-      //InternalReference: obj.field4,
       DepartmentID: obj.field16.substr(0,3) + '-' + obj.field16.substr(3,3),
       GLAccountCode: obj.field18,
       Description: obj.field20,
@@ -208,6 +211,10 @@ processData.prototype.PayrollImport = function(feedTransactions, opts, options )
   myJournal.ExternalReference = options.data.type + ':' + options.data.file.substr(0,4) + '-' + options.data.file.substr(4,2) + '-' + options.data.file.substr(6,2)
       // The journal date comes from the file name! 
   myJournal.TransactionDate = options.data.file.substr(0,4) + '-' + options.data.file.substr(4,2) + '-' + options.data.file.substr(6,2)
+  myJournal.InternalReference = myJournal.ExternalReference;
+  if ( !isValidDate(myJournal.TransactionDate) )  {
+    myJournal.updateStatus = { 'status': 'warning', 'error': myJournal.TransactionDate + ' IS NOT A VALID DATE' };
+  }
   //myJournal.InternalReference = myLines[0].InternalReference;
   // Array for lines
   myJournal.lines = [];

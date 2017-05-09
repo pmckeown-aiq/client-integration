@@ -21,6 +21,7 @@ var aiqClient = require(appDir + '/resources/aiqClient.js');
 
 module.exports = updateData = function(opts) {
   var prepareUpdate = require(appDir + '/resources/prepareUpdate');
+  var CreateGeneralJournal = require(appDir + '/resources/CreateGeneralJournal');
   var GetCustomer = require(appDir + '/resources/GetCustomer');
   var GetSupplier = require(appDir + '/resources/GetSupplier');
   var CheckUniqueInvoiceByExternalReference = require(appDir + '/resources/CheckUniqueInvoiceByExternalReference');
@@ -35,6 +36,7 @@ module.exports = updateData = function(opts) {
   var callback = require(appDir + '/resources/callback');
 
   this.prepareUpdate = new prepareUpdate(this);
+  this.CreateGeneralJournal = new CreateGeneralJournal(this);
   this.GetCustomer = new GetCustomer(this);
   this.GetSupplier = new GetCustomer(this);
   this.CheckUniqueInvoiceByExternalReference = new CheckUniqueInvoiceByExternalReference(this);
@@ -221,7 +223,7 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
              console.log(err)
              next();
           });
-          // end of the Q.all transaction template (no closing character)
+          // end of then in promises
       }) // end SOAP.createClient 
     } // end the if/else VALID TRANSACTION else statement
   }, function(err) {
@@ -234,7 +236,7 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
 }
 
 // CreateGeneralJournal - it is very simple, has no "templating" to create a shell - so must come fully constructed (not that much to it!) 
-updateData.prototype.CreateGeneralJournal = function(opts, cb) {
+updateData.prototype.SaveJournal = function(opts, cb) {
   var envConnectionDetails = [];
   // push the "normal" or primary environment into the coID array 
   envConnectionDetails.push({ "coID": opts.coID, "value": "default", "uKey": opts.connection.uKey, "pKey": opts.connection.pKey, "url": opts.connection.url});
@@ -319,31 +321,32 @@ updateData.prototype.CreateGeneralJournal = function(opts, cb) {
       console.log('myConnection is ' + v.transactionType + ' ' + JSON.stringify(this.myConnection));
       //if (v.hasOwnProperty('transactionType')) delete v.transactionType ;
       //if (v.hasOwnProperty('transactionTemplate')) delete v.transactionTemplate ;
-      //if (v.hasOwnProperty('$$hashKey')) delete v.$$hashKey ;
+      if (v.hasOwnProperty('$$hashKey')) delete v.$$hashKey ;
+      v.InternalReference = v.ExternalReference;
       //if (v.hasOwnProperty('EnvironmentalIdentifier')) delete v.EnvironmentalIdentifier;
       soap.createClient(this.myConnection.url, (err, client) => {
 	var myClient = client;
 	aiq = new aiqClient(myClient, this.myConnection.pKey, this.myConnection.uKey, this.myConnection.coID);
-          v.coID = this.myConnection.coID;
-          Promise.all([aiq[transactionType]({ journal: v })])
-            .then((r2) => {
-              console.log('1got back from ' + v.transactionType + ' in updateData for ' + JSON.stringify(v.ExternalReference) + ' result ' + JSON.stringify(r2));
-              if ( r2.Status == "Success" ) {
-                console.log('updateData got ' + r2.Status);
-                process.send({ createdTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : true, message: 'transaction created' } }}); 
-              } else if ( r2.Status == "Unknown" ) {
-                process.send({ createdTransaction: {transactionRef : v.ExternalReference, updateStatus: {status : false, errorCode : r2.ErrorCode, message: r2.ErrorMessage } }}); 
-              } else if ( r2.Status == "Failure" ) {
-                process.send({ createdTransaction: {transactionRef : v.ExternalReference, updateStatus: {status : false, errorCode : r2.ErrorCode, message: r2.ErrorMessage } }}); 
-              }
-            })
-            .catch(err => {
-              console.log('Error: in updateData CreateGeneralJournal :', errors[err.error])
-              // No r2 comes back 
-              process.send({ createdTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : false, errorCode : 'SoapError' , message: err } }}); 
-              console.log(err);
-            })
-            // end of the Q.all create transaction (no closing character)
+        v.coID = this.myConnection.coID;
+        v.updateStageStatus = []; // will not have had an updateStageStatus object as is a valid transaction - add the object
+	this.CreateGeneralJournal(v)
+          .then(function(v) {
+             console.log('COMPLETED UPDATE' + JSON.stringify(v));
+             // At the moment callback does not reject the promise on a single error in callback to extrenal system - so it may have set "updateStatus" ... so check
+             if ( typeof v.updateStatus !== 'undefined' ) {
+               process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": v.updateStatus.status, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
+             } else { // a resource had set updateStatus 
+               process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": true, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
+             }
+             next();
+	  })
+           .catch(err => {
+             console.log('Error: ', JSON.stringify(err));
+             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStaus": {"status": false, "message": "Error in updating transaction" }, "updateStageStatus": v.updateStageStatus }});
+             console.log(err)
+             next();
+          });
+          // end of then in promises
       }) // end SOAP.createClient 
     } // end the if/else VALID TRANSACTION else statement
   }, function(err) {
