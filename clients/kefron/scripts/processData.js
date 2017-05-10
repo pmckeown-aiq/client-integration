@@ -17,10 +17,10 @@ module.exports = processData = function (feedTransactions, opts, options) {
 function formatDate(inputDate) {
   //inputDate = '20161031';
   stringDate = inputDate.toString();
-  p1 = stringDate.substring(0,4) 
-  p2 = stringDate.substring(4,6);
-  p3 = stringDate.substring(6,8);
-  res = p1 + '-' + p2 + '-' + p3
+  p1 = stringDate.substr(6,2) 
+  p2 = stringDate.substr(3,2);
+  p3 = stringDate.substr(0,2);
+  res = '20' + p1 + '-' + p2 + '-' + p3
   return res;
 }
 
@@ -140,6 +140,9 @@ processData.prototype.KDCScanningInvoices = function(feedTransactions, opts, opt
   myUniqueReferences.forEach(function(ref) {
     myLines = _.filter(feedTransactions, { "Reference": ref});
     invoice = {};
+    invoice.NetAmount = 0;
+    invoice.GrossAmount = 0;
+    invoice.TaxAmount = 0;
     mySuppliedHeaders.forEach(function(headerVal) {
       invoice[headerVal.name] = safeEval( 'head[\'' + headerVal.value + '\']', {head : myLines[0] });
     }) ;
@@ -149,9 +152,19 @@ processData.prototype.KDCScanningInvoices = function(feedTransactions, opts, opt
       mySuppliedLines.forEach(function(lineVal) { 
         newLine[lineVal.name] = safeEval( 'line[\'' + lineVal.value + '\']', {line : myLine });
       });
+      invoice.NetAmount += newLine.NetAmount;
+      invoice.TaxAmount += newLine.TaxAmount;
+      invoice.GrossAmount += newLine.GrossAmount;
       invoice.lines.push(newLine);
     });
     console.log('A single invoice: ' + JSON.stringify(invoice));
+    invoice.InvoiceDate = formatDate(invoice.InvoiceDate);
+    if ( !isValidDate(invoice.InvoiceDate) )  {
+      invoice.updateStatus = { 'status': 'warning', 'error': invoice.ExternalReference + ' INVOICE DATE IS NOT A VALID DATE' };
+    } // all other dates come from the same place so no need to validate
+    invoice.CreationDate = formatDate(invoice.CreationDate);
+    invoice.DeliveryDate = formatDate(invoice.DeliveryDate);
+    invoice.OrderDate = formatDate(invoice.OrderDate);
     processedTransactions.push(invoice);
   })
   // And at the end return the transactions
@@ -174,6 +187,8 @@ processData.prototype.LightSpeedInvoices = function(feedTransactions, opts, opti
     myLines = _.filter(feedTransactions, { "REFERENCE": ref});
     invoice = {};
     mySuppliedHeaders.forEach(function(headerVal) {
+      console.log(JSON.stringify('eval ' + headerVal));
+      console.log(JSON.stringify('eval ' + myLines[0]));
       invoice[headerVal.name] = safeEval( 'head[\'' + headerVal.value + '\']', {head : myLines[0] });
     }) ;
     invoice.lines = [];
