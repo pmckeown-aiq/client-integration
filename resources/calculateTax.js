@@ -83,6 +83,7 @@ module.exports = calculateTax = function(opts, feedTransactionArray, cb) {
 	console.log('SET LINE TAX CODE FROM ACCOUNT ' + myCoID + ' ' + coID);
         validate.doValidation(validateWith,transaction[validateWhat], clientName, coID, validateWhat, function(err, result){
 	  if (typeof result.data != 'undefined' ) {
+            console.log('SET TAX CODE FOR LINES ' + JSON.stringify(result.data));
 	    myTaxCodeForLines = result.data.DefaultTaxCode;
           } else {
 	console.log('NO TAX CODE FROM ACCOUNT ' + coID + ' ' + err);
@@ -92,6 +93,7 @@ module.exports = calculateTax = function(opts, feedTransactionArray, cb) {
 	  }
           transaction.lines.forEach(function(line) {
             line.TaxCode = myTaxCodeForLines;
+            console.log('LINE TAX CODE ' + JSON.stringify(line.TaxCode));
           });
         })
       });

@@ -146,15 +146,18 @@ processData.prototype.KDCScanningInvoices = function(feedTransactions, opts, opt
     mySuppliedHeaders.forEach(function(headerVal) {
       invoice[headerVal.name] = safeEval( 'head[\'' + headerVal.value + '\']', {head : myLines[0] });
     }) ;
+    // External Ref is just a period number
+    invoice.ExternalReference = 'Period:' + invoice.ExternalReference;
     invoice.lines = [];
     myLines.forEach(function(myLine) {
       newLine = {};
       mySuppliedLines.forEach(function(lineVal) { 
         newLine[lineVal.name] = safeEval( 'line[\'' + lineVal.value + '\']', {line : myLine });
       });
+      // Net Amount not supplied
+      newLine.NetAmount = newLine.InvoicedQuantity * newLine.StockItemPrice;
+      newLine.NetAmount = (newLine.NetAmount.toFixed(2)/1);
       invoice.NetAmount += newLine.NetAmount;
-      invoice.TaxAmount += newLine.TaxAmount;
-      invoice.GrossAmount += newLine.GrossAmount;
       invoice.lines.push(newLine);
     });
     console.log('A single invoice: ' + JSON.stringify(invoice));
