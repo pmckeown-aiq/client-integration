@@ -795,7 +795,10 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
     socket.on('loadDataReady', function (data) {
 	console.log('Processing ' + JSON.stringify(data));
         $scope.file = JSON.stringify(data.file).replace(/"/g,"");
-        $scope.warning = JSON.stringify(data.warn).replace(/"/g,"");
+        // might not have a danger property (file exists)
+        if ( typeof data.danger !== 'undefined' ) {
+          $scope.danger = JSON.stringify(data.danger).replace(/"/g,"");
+        }
         $scope.logFileName = JSON.stringify(data.logFileName);
         $scope.coID = JSON.stringify(data.coID).replace(/"/g,"");
         $scope.type = JSON.stringify(data.type).replace(/"/g,"");

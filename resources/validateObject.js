@@ -81,6 +81,7 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
     // loop through the transactions ...
     feedTransactionArray.forEach(function(transaction) {
       // first identify if we have multiple companies - we check for validateObjects.
+      console.log('VALIDATE OBJECT ' + validateObject.name + ' ' + JSON.stringify(transaction.lines[0].TaxCode));
       if ( typeof validateObjects.additionalEnvs !== 'undefined' ) {
         // check for the object in the transactiona array that defines which coID this transaction belongs to
         coIDIdentifier = validateObjects.additionalEnvs[0].identifiedBy.name;
@@ -170,6 +171,7 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
 		getObject =  setDefaultValue.defaultValue.getObjectName
 		// quick loop through lines ...
 	        transaction.lines.forEach(function(l) {
+                  console.log('SET LINE DEFAULT ' + l[setDefault] + ' to ' + result['data'][getObject] + ' get object ' + getObject)
 		  l[setDefault] = result['data'][getObject];
 		});
 	      });
@@ -246,5 +248,6 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
   // return the feedTransactionArray along with the invalidData array ...
   // first though make the invalidData array a unique array (no need to repeat the message!)
   invalidData = _.uniqBy(invalidData,'code');
+  console.log('CALL BACK VALIDATE OBJECT ' + validateObject.name + ' ' + JSON.stringify(feedTransactionArray[0].lines[0].TaxCode));
   return cb(null, feedTransactionArray, invalidData);
 }

@@ -125,7 +125,7 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
   return processedTransactions;
 }
 
-processData.prototype.KDCScanningInvoices = function(feedTransactions, opts, options ) {
+processData.prototype.ScanningInvoices = function(feedTransactions, opts, options ) {
   console.log('Running Process Data for Kefron ' + JSON.stringify(opts) );
   // Array to return from processData
   processedTransactions = [];
@@ -168,41 +168,6 @@ processData.prototype.KDCScanningInvoices = function(feedTransactions, opts, opt
     invoice.CreationDate = formatDate(invoice.CreationDate);
     invoice.DeliveryDate = formatDate(invoice.DeliveryDate);
     invoice.OrderDate = formatDate(invoice.OrderDate);
-    processedTransactions.push(invoice);
-  })
-  // And at the end return the transactions
-  return processedTransactions;
-}
-
-processData.prototype.LightSpeedInvoices = function(feedTransactions, opts, options ) {
-  console.log('Running Process Data for Kefron ' + JSON.stringify(opts) );
-  // Array to return from processData
-  processedTransactions = [];
-  // Sanity Check Variables
-  // Count of invoice lines and invoices, sum of NetAmount, TaxAmount and GrossAmount
-  // variables
-  
-  mySuppliedHeaders = _.filter(opts.clientSettings.headerValues, { "supplied": true });
-  mySuppliedLines = _.filter(opts.clientSettings.lineValues, { "supplied": true });
-  // 
-  myUniqueReferences = _.chain(feedTransactions).map(function(item) { return item['REFERENCE'] }).uniq().value();
-  myUniqueReferences.forEach(function(ref) {
-    myLines = _.filter(feedTransactions, { "REFERENCE": ref});
-    invoice = {};
-    mySuppliedHeaders.forEach(function(headerVal) {
-      console.log(JSON.stringify('eval ' + headerVal));
-      console.log(JSON.stringify('eval ' + myLines[0]));
-      invoice[headerVal.name] = safeEval( 'head[\'' + headerVal.value + '\']', {head : myLines[0] });
-    }) ;
-    invoice.lines = [];
-    myLines.forEach(function(myLine) {
-      newLine = {};
-      mySuppliedLines.forEach(function(lineVal) { 
-        newLine[lineVal.name] = safeEval( 'line[\'' + lineVal.value + '\']', {line : myLine });
-      });
-      invoice.lines.push(newLine);
-    });
-    console.log('A single invoice: ' + JSON.stringify(invoice));
     processedTransactions.push(invoice);
   })
   // And at the end return the transactions

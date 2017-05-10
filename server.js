@@ -221,6 +221,14 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
         throw ('No fle name from file upload');
       }
       var target_path = './public/data/' + fileName;
+      var logFile = './public/logs/' +fileName + '.log'
+      // Check to see if file exists
+      console.log('check if file exists')
+      if (fs.existsSync(target_path)) {
+        var fileData = { 'file': fileName , 'logFileName': logFile, 'danger' : fileName + ' already exists. Please ensure that it has not already been uploaded!' };
+      } else {
+        var fileData = { 'file': fileName, 'logFileName': logFile };
+      }
       //target_path = target_path +  uniqueNumber.generate();
       // move the file from the temporary location to the intended location
       fs.move(tempPath, target_path, { overwrite: true }, function (err) {
@@ -230,7 +238,6 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
         } 
         console.log
       });
-    } else {
       // ToDo - come up with a decent name for an api log append name
       console.log('process a api feedType');
       var tempPath = 'api';
@@ -239,22 +246,8 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
     console.log('success!')
     // Going to grab a log file to use .. it will be the name of the upload
     // file (but in /public/log 
-    var logFile = './public/logs/' +fileName + '.log'
     console.log('log file is ' + logFile );
-    try {
-      fs.accessSync(logFile, fs.F_OK);
-      // if the file exists warn that may have already uploaded this data 
-       var logExists = true;
-    } catch (e) {
-      // not really an error - but write the date to the file
-      // It isn't accessible
-    }
-    if ( typeof logExists !== 'undefined' && logExists ) { 
-      var fileData = { 'file': fileName , 'logFileName': logFile, 'warn' : 'Log file ' + logFile + ' already exists. Please ensure that ' + fileName + ' has not already been uploaded!' };
-    } else {
-      fs.closeSync(fs.openSync(logFile, 'w'));
-      var fileData = { 'file': fileName, 'logFileName': logFile };
-    }
+    fs.closeSync(fs.openSync(logFile, 'w'));
     var appLog = bunyan.createLogger({
       name: 'server',
       streams: [{
