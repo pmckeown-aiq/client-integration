@@ -15,13 +15,16 @@ module.exports = processData = function (feedTransactions, opts, options) {
 // Bespoke to customer - depends on the dates in the input data
 // Pass in a date in the format they use and return it as YYYY-MM-DD
 function formatDate(inputDate) {
-  //inputDate = '20161031';
-  stringDate = inputDate.toString();
-  p1 = stringDate.substr(6,2) 
-  p2 = stringDate.substr(3,2);
-  p3 = stringDate.substr(0,2);
-  res = '20' + p1 + '-' + p2 + '-' + p3
-  return res;
+  if ( typeof inputDate !== 'undefined' ) {
+    if ( typeof inputDate !== 'string' ) {
+      inputDate = inputDate.toString();
+    } 
+    p1 = inputDate.substr(6,2) 
+    p2 = inputDate.substr(3,2);
+    p3 = inputDate.substr(0,2);
+    res = '20' + p1 + '-' + p2 + '-' + p3
+    return res;
+  }
 }
 
 function isValidDate(inputDate) {

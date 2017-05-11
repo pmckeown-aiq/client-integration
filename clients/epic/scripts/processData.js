@@ -9,11 +9,20 @@ var safeEval = require('safe-eval')
 // Bespoke to customer - depends on the dates in the input data
 // Pass in a date in the format they use and return it as YYYY-MM-DD
 function formatDate(inputDate) {
-  console.log('formatDate ' + inputDate);
-  //inputDate = '18/10/2016';
-  dateParts = inputDate.split('/');
-  res = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
-  return res;
+  if ( typeof inputDate !== 'undefined' ) {
+    if ( typeof inputDate !== 'string' ) {
+      inputDate = inputDate.toString();
+    }
+    dateParts = inputDate.split('/');
+    res = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
+    return res;
+    return res;
+  }
+}
+
+function isValidDate(inputDate) {
+  var regEx = /^\d{4}-\d{2}-\d{2}$/;
+  return inputDate.match(regEx) != null;
 }
 
 module.exports = processData = function (feedTransactions, opts, options) {
