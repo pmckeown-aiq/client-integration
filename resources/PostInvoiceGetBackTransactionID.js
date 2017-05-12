@@ -24,8 +24,10 @@ module.exports = PostInvoiceGetBackTransactionID = function(v) {
         .then((result) => {
           updateStageStatus = { "stage" : "PostInvoiceGetBackTransactionID", "status": false, "serverStatus" : result[0].Status, "error" : result[0].ErrorMessage, "message" : "Transaction Posted", "transactionID": v.transactionID  };
           v.updateStageStatus.push(updateStageStatus);
-          if ( result[0].status = "Created" ) {
+          console.log('POST RETURNED ' + JSON.stringify(result));
+          if ( result[0].Status = "Created" ) {
             console.log('Resolve PostInvoiceGetBackTransactionID' + JSON.stringify(v.updateStageStatus)); 
+            updateStageStatus = { "stage" : "PostInvoiceGetBackTransactionID", "status": true, "serverStatus" : result[0].Status, "error" : result[0].ErrorMessage, "message" : "Transaction Posted", "transactionID": v.transactionID  };
             resolve(v);
           } else {
             reject(v);

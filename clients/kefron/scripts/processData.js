@@ -19,10 +19,15 @@ function formatDate(inputDate) {
     if ( typeof inputDate !== 'string' ) {
       inputDate = inputDate.toString();
     } 
-    p1 = inputDate.substr(6,2) 
-    p2 = inputDate.substr(3,2);
-    p3 = inputDate.substr(0,2);
-    res = '20' + p1 + '-' + p2 + '-' + p3
+    // Sometimes dates are DD/MM/YY and other times DD/MM/YYYY
+    if ( inputDate.length === 10 ) { // have YYYY
+      p1 = inputDate.substr(6,4); // year
+    } else {
+      p1 = '20' + inputDate.substr(6,2); // year
+    }
+    p2 = inputDate.substr(3,2); // month
+    p3 = inputDate.substr(0,2); // day
+    res = p1 + '-' + p2 + '-' + p3
     return res;
   }
 }
@@ -160,7 +165,7 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
       // Net Amount not supplied
       newLine.NetAmount = newLine.InvoicedQuantity * newLine.StockItemPrice;
       newLine.NetAmount = (newLine.NetAmount.toFixed(2)/1);
-      invoice.NetAmount += newLine.NetAmount;
+      //invoice.NetAmount += newLine.NetAmount;
       invoice.lines.push(newLine);
     });
     console.log('A single invoice: ' + JSON.stringify(invoice));
