@@ -81,7 +81,6 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
     // loop through the transactions ...
     feedTransactionArray.forEach(function(transaction) {
       // first identify if we have multiple companies - we check for validateObjects.
-      console.log('VALIDATE OBJECT ' + validateObject.name + ' ' + JSON.stringify(transaction.lines[0].TaxCode));
       if ( typeof validateObjects.additionalEnvs !== 'undefined' ) {
         // check for the object in the transactiona array that defines which coID this transaction belongs to
         coIDIdentifier = validateObjects.additionalEnvs[0].identifiedBy.name;

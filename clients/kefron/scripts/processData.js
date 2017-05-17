@@ -65,6 +65,7 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
       // this invoice number may be the ExternalReference (or may not be - as we bunch up by customer to create a single invoice
       ExternalReference: obj.field4,
       Notes: obj.field5, 
+      SummarySubAccount: obj.field5, // we will also use field 5 to summarise invoices where the type is 3 ...
       InvoiceDate: obj.field7,
       OrderNumber: obj.field8,
       AccountName: obj.field10,
@@ -75,7 +76,8 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
       PostCode: "",
       Country: obj.field21,
       TaxAmount: obj.field17,
-      LineDataRange: obj.field6
+      LineDataRange: obj.field6,
+      SummationType: obj.field20, // the SummationType - type used for summary for this invoice
     }
   })
 
@@ -88,6 +90,7 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
       TaxCode: obj.field14,
       StockItemPrice: obj.field15,
       InvoicedQuantity: obj.field16,
+      StockItemID: obj.field17.substr(0, obj.field17.indexOf('-')), // assumed this is the right code - column Q - take the first part to the "-" , 
       NetAmount: obj.field7
     }
   })
@@ -104,6 +107,15 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
     // Add the date range to the first line ...
     if ( invoice.lines.length > 0 ) {
       invoice.lines[0].Notes = invoice.LineDataRange;
+    }
+    // Summarising of Invoices 
+    // Type 1 - load the invoice as is
+    // Type 2 - Summarise by Product Code (Assume Column Q - set to StockItemID
+    // Type 3 - summary by sub account (column E (TBC)) - was "Notes" but also set to SummarySubAccount
+    //
+    console.log(invoice.ExternalReference + ' SHOULD BE SUMMARISED BY ' + invoice.SummationType);
+    if ( invoice.SummationType == 2 ) {
+
     }
     invoice.NetAmount = _.sumBy(invoice.lines, 'NetAmount');
     invoice.NetAmount =  parseFloat(invoice.NetAmount).toFixed(2);

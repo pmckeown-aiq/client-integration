@@ -77,7 +77,7 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, options
       //var Totalinternalprice = Number(res.Totalinternalprice.replace(/[^0-9\.]+/g,""));
       console.log(JSON.stringify(line));
       var Totalinternalprice = Number(line.Totalinternalprice);
-      if ( line.Newprice > 0 ) {
+      if ( line.Newprice != 0 ) {
 	console.log('Newprice is not 0 for ' + line.Reservationnumber);
 	console.log('Newprice is ' + line.Newprice);
         aiqLine.StockItemPrice = line.Newprice;
@@ -91,10 +91,11 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, options
       aiqLine.ReservedResourceID = line.Reservedresourceid; 
       // Push the line formatted for aiq into the invoice ...
       // Exclude lines where the StockItemPrice is 0 - we can get them ...
-      if ( aiqLine.StockItemPrice > 0 ) {
+      if ( aiqLine.StockItemPrice != 0  ) {
         invoice.lines.push(aiqLine);
       }
     });
+    console.log('Before discount check lines are ' + JSON.stringify(invoice.lines));
     var discountLines = _.filter(invoice.lines, { "GLAccountCode" : ''  });
     console.log(invoice.ExternalReference + ' DISCOUNT LINES LENGTH ' + discountLines.length);
     var vatStdLines = _.filter(invoice.lines, { "GLAccountCode" : '9999' });
@@ -109,7 +110,7 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, options
     _.remove(invoice.lines, { "GLAccountCode" : '9998'  });
     discountLines.forEach(function(v){ 
       // Will need to convert the Amount to a Rate when we match it to a line
-      v.DiscountAmount = v.StockItemPrice ;
+      v.DiscountAmount = ( -1 * v.StockItemPrice );
       v.Notes = v.StockItemDescription;
       delete v.GLAccountCode; 
       delete v.StockItemDescription;
@@ -410,11 +411,12 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, opti
       // Push the line formatted for aiq into the invoice ...
       // Exclude lines where the StockItemPrice is 0 - we can get them ...
       if ( aiqLine.StockItemPrice != 0 ) {
-        aiqLine.StockItemPrice = parseInt(aiqLine.StockItemPrice).toFixed(2);
+        aiqLine.StockItemPrice = parseFloat(aiqLine.StockItemPrice).toFixed(2);
         invoice.lines.push(aiqLine);
       }
     });
-    var discountLines = _.filter(invoice.lines, { "GLAccountCode" : ''  });
+    console.log('Before discount check lines are ' + JSON.stringify(invoice.lines));
+    var discountLines = _.filter(invoice.lines, { "GLAccountCode" : ""  });
     console.log(invoice.ExternalReference + ' DISCOUNT LINES LENGTH ' + discountLines.length);
     var vatStdLines = _.filter(invoice.lines, { "GLAccountCode" : '9999' });
     //console.log(invoice.ExternalReference + ' STD VAT LINES LENGTH ' + vatStdLines.length);
@@ -428,7 +430,7 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, opti
     _.remove(invoice.lines, { "GLAccountCode" : '9998'  });
     discountLines.forEach(function(v){ 
       // Will need to convert the Amount to a Rate when we match it to a line
-      v.DiscountAmount = v.StockItemPrice ;
+      v.DiscountAmount = ( -1 * v.StockItemPrice );
       v.Notes = v.StockItemDescription;
       delete v.GLAccountCode; 
       delete v.StockItemDescription;
@@ -457,6 +459,7 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, opti
       // Format the dates (can't do in safeEval and they are wrong!) 
       invoice.InvoiceDate = formatDate(invoice.InvoiceDate);
       invoice.OrderDate = formatDate(invoice.OrderDate);
+
       // now we have a series of lines in an array ... 
       // some will have VAT amounts and some have net amounts
       // VAT amounts have "VAT" in the StockItemDescription
@@ -466,7 +469,7 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, opti
       // Must then get the appropriate VAT rate code to add to TaxCode
       // and calculate the TaxRate
       // Due to rounding on VAT amounts - need to actually test non vat lines!
-      
+        
       // Using GL code
       //  When GlCode is 9999 - 20% VAT, 9998 - 4% VAT
       invoice.lines.forEach(function(line) {
@@ -608,68 +611,86 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, opti
         }
       }
       //});
-      invoice.lines.forEach(function(line) {
-        // Check VAT - if got through that with no TaxAmount raise error
-        if ( ! line.TaxAmount || line.TaxAmount == 0 || line.TaxAmount == '' ) {
-          // and there is no error already! 
-          if ( ! line.updateStatus ) {
-            line.updateStatus = { 'status': "warning", 'error':'No VAT Found' };
+      // AMMENDMENTS - change from invoices 
+      // If we have no VAT lines, and the NetAmount totals to zero then we are to drop the transaction (as it is not needed in AIQ as per client instruction - it is a change of booking with no charge so not required ...
+      totalNetAmount = _.sumBy(invoice.lines, 'NetAmount');
+      console.log(invoice.ExternalReference + ' has SUM NETAMOUNT IS ' + totalNetAmount + ' linecount ' +  invoice.lines.length)
+      if ( totalNetAmount == 0) {
+        invoice.updateStatus = { 'status': "warning", 'error':'Invoice Totals to Zero' };
+        console.log('DROP SUM NET AMOUNT  AND NOT VAT ON ' + invoice.ExtRef);
+        invoice.updateStatus = { 'status': "warning", 'error': 'Not processing as no VAT and line amounts total 0' };
+        invoice.lines.forEach(function(v) {
+          // Adjustments - getting a lot with no tax amount so default to zero
+          console.log(JSON.stringify(v));
+          v.TaxAmount = 0;
+          v.TaxRate = 0;
+          v.updateStatus = { 'status': "danger", 'error':'Invoice Totals to Zero' };
+          console.log(JSON.stringify(v));
+        });
+      } else { // total amount is not zero ...
+        invoice.lines.forEach(function(line) {
+          // Check VAT - if got through that with no TaxAmount raise error
+          if ( ! line.TaxAmount || line.TaxAmount == 0 || line.TaxAmount == '' ) {
+            // and there is no error already! 
+            if ( ! line.updateStatus ) {
+              line.updateStatus = { 'status': "warning", 'error':'No VAT Found' };
+            }
           }
-        }
-        // reduce the amounts to two decimals 
-        // hack to get make tax amount a number
-        // toFixed returns a string (needed above to compare) - so need 
-        // to mess about a lot to get numbers back! 
-        var tempTaxAmount = (line.TaxAmount * 1);	
-        line.TaxAmount = (tempTaxAmount.toFixed(2)/1);
-        var tempDiscountRate = (line.DiscountRate * 1);	
-        line.DiscountRate = (tempDiscountRate.toFixed(2)/1);
-        var tempActualPrice = (line.ActualPrice * 1);	
-        line.ActualPrice = (tempActualPrice.toFixed(2)/1);
-        line.TaxRate = (line.TaxAmount / line.ActualPrice); 
-        var tempTaxRate = (line.TaxRate * 1);	
-        line.TaxRate = (tempTaxRate.toFixed(2)/1);
-        sumTaxAmount += line.TaxAmount
-        sumNetAmount += line.NetAmount
-        // Tax Amount is already on the line
-        // line.TaxAmount = 
-        // So calculate the Tax Rate (line.TaxAmount / line.ActualPrice 
-        line.GrossAmount = (1 * line.NetAmount + line.TaxAmount);
-        sumGrossAmount += line.GrossAmount
-        line.InvoiceItemID = 0;
-        // Delete temp values that not needed for invoice Lines
-        delete line.ParentID;
-        delete line.ReservedResourceID;
-        //line.StockItemDescription = 'From Default';
-        // Calculate the sum of the net and Tax and Gross Amoubts
-        invoice.NetAmount += line.NetAmount.toFixed(2)/1;
-        invoice.GrossAmount += line.GrossAmount.toFixed(2)/1;
-        invoice.TaxAmount += line.TaxAmount.toFixed(2)/1;
-      // Round off the header values
-      });
-      var tempNetAmount = (invoice.NetAmount * 1);	
-      invoice.NetAmount = (tempNetAmount.toFixed(2)/1);     
-      var tempGrossAmount = (invoice.GrossAmount * 1);	
-      invoice.GrossAmount = (tempGrossAmount.toFixed(2)/1);     
-      var tempTaxAmount = (invoice.TaxAmount * 1);	
-      invoice.TaxAmount = (tempTaxAmount.toFixed(2)/1);     
-      // Mandatory Dates
-      today = new Date();
-      invoice.CreationDate = today.toISOString().slice(0,10);
-      invoice.DeliveryDate = today.toISOString().slice(0,10);
-      console.log(JSON.stringify(invoice.updateStatus) + ' WAS MY UPDATESTATUS');
-      // Set the updateStatus for the invoice - need function as simple uniqBy goes wrong if line updateStatus is null
-      invoice.updateStatus = _.uniqBy(_.map(invoice.lines, function(line) { 
-        if ( typeof line.updateStatus !== 'undefined' ) {
-          console.log('UPDATESTATUS is defined');
-          if ( line.updateStatus.status == 'warning' || line.updateStatus.status == 'danger' ) {
-            console.log('UPDATESTATUS is warning or danger ');
-            return line.updateStatus;
+          // reduce the amounts to two decimals 
+          // hack to get make tax amount a number
+          // toFixed returns a string (needed above to compare) - so need 
+          // to mess about a lot to get numbers back! 
+          var tempTaxAmount = (line.TaxAmount * 1);	
+          line.TaxAmount = (tempTaxAmount.toFixed(2)/1);
+          var tempDiscountRate = (line.DiscountRate * 1);	
+          line.DiscountRate = (tempDiscountRate.toFixed(2)/1);
+          var tempActualPrice = (line.ActualPrice * 1);	
+          line.ActualPrice = (tempActualPrice.toFixed(2)/1);
+          line.TaxRate = (line.TaxAmount / line.ActualPrice); 
+          var tempTaxRate = (line.TaxRate * 1);	
+          line.TaxRate = (tempTaxRate.toFixed(2)/1);
+          sumTaxAmount += line.TaxAmount
+          sumNetAmount += line.NetAmount
+          // Tax Amount is already on the line
+          // line.TaxAmount = 
+          // So calculate the Tax Rate (line.TaxAmount / line.ActualPrice 
+          line.GrossAmount = (1 * line.NetAmount + line.TaxAmount);
+          sumGrossAmount += line.GrossAmount
+          line.InvoiceItemID = 0;
+          // Delete temp values that not needed for invoice Lines
+          delete line.ParentID;
+          delete line.ReservedResourceID;
+          //line.StockItemDescription = 'From Default';
+          // Calculate the sum of the net and Tax and Gross Amoubts
+          invoice.NetAmount += line.NetAmount.toFixed(2)/1;
+          invoice.GrossAmount += line.GrossAmount.toFixed(2)/1;
+          invoice.TaxAmount += line.TaxAmount.toFixed(2)/1;
+        // Round off the header values
+        });
+        var tempNetAmount = (invoice.NetAmount * 1);	
+        invoice.NetAmount = (tempNetAmount.toFixed(2)/1);     
+        var tempGrossAmount = (invoice.GrossAmount * 1);	
+        invoice.GrossAmount = (tempGrossAmount.toFixed(2)/1);     
+        var tempTaxAmount = (invoice.TaxAmount * 1);	
+        invoice.TaxAmount = (tempTaxAmount.toFixed(2)/1);     
+        // Mandatory Dates
+        today = new Date();
+        invoice.CreationDate = today.toISOString().slice(0,10);
+        invoice.DeliveryDate = today.toISOString().slice(0,10);
+        console.log(JSON.stringify(invoice.updateStatus) + ' WAS MY UPDATESTATUS');
+        // Set the updateStatus for the invoice - need function as simple uniqBy goes wrong if line updateStatus is null
+        invoice.updateStatus = _.uniqBy(_.map(invoice.lines, function(line) { 
+          if ( typeof line.updateStatus !== 'undefined' ) {
+            console.log('UPDATESTATUS is defined');
+            if ( line.updateStatus.status == 'warning' || line.updateStatus.status == 'danger' ) {
+              console.log('UPDATESTATUS is warning or danger ');
+              return line.updateStatus;
+            }
           }
-        }
-      }));
+        }));
+      } // end the if total amount is zero
     } else { // invoice has no lines - mark as error
-      invoice.updateStatus = { 'status': "warning", 'error':'No non zero amount lines found' };
+      invoice.updateStatus = { 'status': "danger", 'error':'No non zero amount lines found' };
     } // end if invoice.lines.length = 0
     console.log(invoice.ExternalReference + ' DISCOUNT AFTER LINES LENGTH ' + discountLines.length);
     //console.log(invoice.ExternalReference + ' STD VAT AFTER LINES LENGTH ' + vatStdLines.length);

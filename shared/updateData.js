@@ -109,7 +109,8 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
         v.negativeAmounts = true;
       }
     }
-    if ( _.has(v, 'updateStatus') && v.updateStatus.status == false ) {
+    // Excluding WARNINGS - but need to build into config file to allow processing of (likely) zero balance transactionms
+    if ( _.has(v, 'updateStatus') && ( v.updateStatus.status == "danger" || v.updateStatus.status == "warning")) {
       process.send({ createdTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : false, message: 'not a valid transaction so not created ' + v.updateStatus.error } }});
       appLog.info('TransactionToBeRejected: ', v.ExternalReference, 'reason:',  JSON.stringify(v.updateStatus));
       for ( i=0;i<v.lines.length; i++ ) {
@@ -267,7 +268,8 @@ updateData.prototype.SaveJournal = function(opts, cb) {
     console.log('UPDATA DATA ' + JSON.stringify(v));
     transactionType = opts.processRules.transactionType;
     console.log(v.ExternalReference);
-    if ( _.has(v, 'updateStatus') && v.updateStatus.status == false ) {
+    // Excluding WARNINGS - but need to build into config file to allow processing of (likely) zero balance transactionms
+    if ( _.has(v, 'updateStatus') && ( v.updateStatus.status == "danger" || v.updateStatus.status == "warning")) {
       process.send({ createdTransaction : {transactionRef : v.ExternalReference, updateStatus: { status : false, message: 'not a valid transaction so not created ' + v.updateStatus.error } }});
       appLog.info('TransactionToBeRejected: ', v.ExternalReference, 'reason:',  JSON.stringify(v.updateStatus));
       for ( i=0;i<v.lines.length; i++ ) {
@@ -322,7 +324,7 @@ updateData.prototype.SaveJournal = function(opts, cb) {
       //if (v.hasOwnProperty('transactionType')) delete v.transactionType ;
       //if (v.hasOwnProperty('transactionTemplate')) delete v.transactionTemplate ;
       if (v.hasOwnProperty('$$hashKey')) delete v.$$hashKey ;
-      v.InternalReference = v.ExternalReference;
+      
       //if (v.hasOwnProperty('EnvironmentalIdentifier')) delete v.EnvironmentalIdentifier;
       soap.createClient(this.myConnection.url, (err, client) => {
 	var myClient = client;
@@ -415,7 +417,8 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
 	      v.negativeAmounts = true;
 	    }
 	  }
-          if ( _.has(v, 'updateStatus') && v.updateStatus.status == false ) {
+          // Excluding WARNINGS - but need to build into config file to allow processing of (likely) zero balance transactionms
+          if ( _.has(v, 'updateStatus') && ( v.updateStatus.status == "danger" || v.updateStatus.status == "warning")) {
             process.send({ creatingTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : false, message: 'not a valid transaction so not created' } }});
 	    appLog.info('TransactionToBeRejected: ', v.ExternalReference, 'reason:',  JSON.stringify(v.updateStatus));
 	    for ( i=0;i<v.lines.length; i++ ) {
@@ -608,7 +611,8 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
         v.negativeAmounts = true;
       }
     }
-    if ( _.has(v, 'updateStatus') && v.updateStatus.status == false ) {
+    // Excluding WARNINGS - but need to build into config file to allow processing of (likely) zero balance transactionms
+    if ( _.has(v, 'updateStatus') && ( v.updateStatus.status == "danger" || v.updateStatus.status == "warning")) {
       process.send({ creatingTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : false, message: 'not a valid transaction so not created ' + v.updateStatus.error } }});
       appLog.info('TransactionToBeRejected: ', v.ExternalReference, 'reason:',  JSON.stringify(v.updateStatus));
       if ( opts.processRules.hasLines == true ) { 

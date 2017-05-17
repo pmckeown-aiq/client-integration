@@ -5,7 +5,10 @@ var express = require('express');
 var fs = require('fs-extra');
 
 var app = express();
-
+var ports = process.env.NODE_ENV === 'production'
+  ? [80, 443]
+  : [3442, 3443]
+/*
 // HTTPS Section 
 var https = require('https')
 var ports = process.env.NODE_ENV === 'production'
@@ -19,10 +22,9 @@ var server = https.createServer(
   app
 )
 // END HTTPS Section 
-// HTTP Section 
-/* 
-var server = require('http').createServer(app);
 */
+// HTTP Section 
+var server = require('http').createServer(app);
 // END HTTP Section 
 
 
@@ -482,10 +484,10 @@ req.session.destroy(function (err) {
 });
 
 // Socket messages
-//server.listen(process.env.PORT || 3000);
+server.listen(process.env.PORT || 3000);
 //console.log('listening on' + process.env.PORT || 3000);
-server.listen(ports[1])
-app.listen(ports[0])
+//server.listen(ports[1])
+//app.listen(ports[0])
 
 // Simple route middleware to ensure user is authenticated. (Section 4)
 

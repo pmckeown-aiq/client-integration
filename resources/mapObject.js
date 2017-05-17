@@ -42,6 +42,7 @@ module.exports = mapObject = function(mapObjects, feedTransactionArray, cb) {
 	if (typeof sourceValue === 'string' ) {
 	  sourceValue = sourceValue.trim();
         }
+        console.log('MAP DATA ' + mapWhat );
         var mappedCode = _.filter(mapFiles[mapWhat]['data'], { "sourceValue" : sourceValue });
         // actually returns a one line array - convert to pure JSON
         //console.log(mappedCode.length + ' is what we got back - did we get a match???');
