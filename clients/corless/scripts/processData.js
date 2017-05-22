@@ -473,6 +473,7 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, opti
       // Using GL code
       //  When GlCode is 9999 - 20% VAT, 9998 - 4% VAT
       invoice.lines.forEach(function(line) {
+
         line.TaxMatched = false; // mark the line as NOT matched - will set to true as we find a match
         //line.isCorrect = { "status": false }; // assume the line is not correct as have no VAT!
         // See if I have a discount line that has parent id matching 
@@ -697,6 +698,26 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, opti
     //console.log(invoice.ExternalReference + ' REDUCED AFTER VAT LINES LENGTH ' + vatReducedLines.length);
     console.log(invoice.ExternalReference + ' ALL VAT AFTER LINES LENGTH ' + vatLines.length);
     console.log(JSON.stringify(invoice.updateStatus) + ' IS MY UPDATESTATUS');
+    // Bar Sales - product codes come in as UPTA_??? 
+    // We need to change the product code to UPTA 
+    _.map(invoice.lines, function(obj){
+      if(obj.StockItemID.includes('UPTA_')) {
+        // Bar Sales act differently - we are not expecting a VAT line if the product code (StockItemID upta_barsales_0)
+        if (obj.StockItemID == 'UPTA_BARSALES_0' ) {
+          // "updateStatus":{"status":"warning","error":"No VAT Found"},"TaxAmount":null,"TaxRate":null,"GrossAmount":null
+          //if (obj.TaxAmount == null && obj.TaxRate == null && obj.updateStatus.status == 'warning' && obj.updateStatus.error == "No VAT Found" ) {
+          if (obj.updateStatus.status == 'warning' && obj.updateStatus.error == "No VAT Found" ) {
+            console.log('BAR SALES 0 VAT LINE - ' + JSON.stringify(obj));
+            obj.TaxAmount = 0;
+            obj.TaxRate = 0;
+            obj.GrossAmount = obj.NetAmount + obj.TaxAmount;
+            obj.updateStatus = {};
+            console.log('BAR SALES 0 VAT LINE - ' + JSON.stringify(obj));
+          }
+        }
+        obj.StockItemID='UPTA';
+      }
+    });
     console.log('Push invoice :' + JSON.stringify(invoice));
     console.log('Push reference :' + invoice.ExternalReference);
     feedTransactionArray.push(invoice);

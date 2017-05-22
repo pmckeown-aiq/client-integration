@@ -32,6 +32,20 @@ function formatDate(inputDate) {
   }
 }
 
+// RSSQL Date format is different!
+function formatDateRSS(inputDate) {
+  if ( typeof inputDate !== 'undefined' ) {
+    if ( typeof inputDate !== 'string' ) {
+      inputDate = inputDate.toString();
+    } 
+    // dates are YYYYMMDD
+    p1 = inputDate.substr(0,4); // year
+    p2 = inputDate.substr(4,2); // month
+    p3 = inputDate.substr(6,2); // day
+    res = p1 + '-' + p2 + '-' + p3
+    return res;
+  }
+}
 function isValidDate(inputDate) {
   var regEx = /^\d{4}-\d{2}-\d{2}$/;
   return inputDate.match(regEx) != null;
@@ -78,6 +92,7 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
       TaxAmount: obj.field17,
       LineDataRange: obj.field6,
       SummationType: obj.field20, // the SummationType - type used for summary for this invoice
+      ShipmentViaID: obj.field20, // the SummationType - type used for summary for this invoice
     }
   })
 
@@ -89,15 +104,16 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
       DepartmentID: obj.field12 + "-" + obj.field11 ,
       TaxCode: obj.field14,
       StockItemPrice: obj.field15,
-      InvoicedQuantity: obj.field16,
+      InvoicedQuantity: parseFloat(obj.field16),
       StockItemID: obj.field17.substr(0, obj.field17.indexOf('-')), // assumed this is the right code - column Q - take the first part to the "-" , 
-      NetAmount: obj.field7
+      NetAmount: parseFloat(obj.field7),
+      //WorkOrder: obj.field13 // temporary field needed to summarise data by ...
     }
   })
   console.log('A header' + JSON.stringify(invoiceHeaders[0]));
   console.log('A Line' + JSON.stringify(invoiceLines[0]));
   invoiceHeaders.forEach(function(invoice) {
-    invoice.InvoiceDate = formatDate(invoice.InvoiceDate);
+    invoice.InvoiceDate = formatDateRSS(invoice.InvoiceDate);
     invoice.CreationDate = invoice.InvoiceDate;
     invoice.DeliveryDate = invoice.InvoiceDate;
     invoice.OrderDate = invoice.InvoiceDate;
@@ -109,14 +125,11 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
       invoice.lines[0].Notes = invoice.LineDataRange;
     }
     // Summarising of Invoices 
-    // Type 1 - load the invoice as is
-    // Type 2 - Summarise by Product Code (Assume Column Q - set to StockItemID
-    // Type 3 - summary by sub account (column E (TBC)) - was "Notes" but also set to SummarySubAccount
-    //
+    // Type 1 - Summarise the invoice - by Product Code (Column Q), StockItemPrice (Column O) and work order (column M)
+    // Type 2 and Type 3 - for test summarise by the same but enter one invoice for each sub account - Column E. The method of sending the invoices (consolidated format or seperate invoices) to be dealt with at reporting
+    // The "type" is to be recorded on the ShipmentViaID field on the invoice
+    // TO DO - the Customer Account is to have the GroupID GrpID field updated to store the "type"
     console.log(invoice.ExternalReference + ' SHOULD BE SUMMARISED BY ' + invoice.SummationType);
-    if ( invoice.SummationType == 2 ) {
-
-    }
     invoice.NetAmount = _.sumBy(invoice.lines, 'NetAmount');
     invoice.NetAmount =  parseFloat(invoice.NetAmount).toFixed(2);
     invoice.GrossAmount = (invoice.NetAmount*1) + (invoice.TaxAmount*1);
@@ -125,7 +138,6 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
     if (opts.processRules.attachDocument.required == true && opts.processRules.attachDocument.processData == true) {
       var attachmentData = safeEval(opts.processRules.attachDocument.attachmentData, { invoice });
       var attachmentFileName = safeEval(opts.processRules.attachDocument.attachmentFileName, { invoice });
-      console.log(JSON.stringify(attachmentData));
       var attachment = json2xls(attachmentData);
       console.log('Going to write a file ' + appDir + '/clients/' + opts.clientName + '/data/' + opts.coID + '/' + attachmentFileName + '.' + opts.processRules.attachDocument.attachmentType);
       invoice.AttachDocument = appDir + '/clients/' + opts.clientName + '/data/' + opts.coID + '/' + attachmentFileName  + '.' + opts.processRules.attachDocument.attachmentType;
@@ -136,6 +148,44 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
           throw new err;
         }
       });
+    }
+    // Ok - we have written the attachment - so we need to then summarise the lines ...
+    var props = ['ExternalReference', 'GLAccountCode', 'TaxCode' ,'StockItemID', 'StockItemPrice', 'StockItemDescription', 'DepartmentID'];
+    // For testing - StockItemDescription is not filtered on 
+    var props = ['ExternalReference', 'GLAccountCode', 'TaxCode' ,'StockItemID', 'StockItemPrice', 'DepartmentID'];
+    var myFilters = _.map(invoice.lines,_.partialRight(_.pick, props));
+    var uniqueFilters = _.uniqWith(myFilters,  _.isEqual);
+    console.log('I have FILTERS ' + myFilters.length);
+    console.log('I have UNIQUE FILTERS ' + uniqueFilters.length);
+    console.log('UNIQUE FILTERS ' + JSON.stringify(uniqueFilters));
+    console.log('MY FILTERS ' + JSON.stringify(myFilters));
+    summaryLines = []; // empty array to store summary lines
+    _.forEach(uniqueFilters, function(filter) {
+      myLines = _.filter(invoice.lines, filter);
+      filter.NetAmount = _.sumBy(myLines, 'NetAmount');
+      filter.InvoicedQuantity = _.sumBy(myLines, 'InvoicedQuantity');
+      filter.StockItemDescription = 'Summarised Line';
+      console.log('For ' + JSON.stringify(filter) + ' as a summary')
+      // push the filtered object to the summaryLines array
+      summaryLines.push(filter);
+    })
+    // replace the original invoice lines with the summary
+    invoice.lines = [];
+    invoice.lines = summaryLines;
+    // summary Totals (to compare to originals as a check) 
+    newTotals = {};
+    newTotals.NetAmount = _.sumBy(summaryLines, 'NetAmount');
+    newTotals.NetAmount =  parseFloat(newTotals.NetAmount).toFixed(2);
+    newTotals.TaxAmount = _.sumBy(summaryLines, 'TaxAmount');
+    newTotals.TaxAmount =  parseFloat(newTotals.TaxAmount).toFixed(2);
+    // compare the NetAmount for newTotals and invoice.NetAmount
+    if ( newTotals.NetAmount !== invoice.NetAmount ) {
+      // mark the invoice
+      invoice.updateStatus = { 'status': "danger", 'error':'Summary Net Total Did Not Match Original Net Total' };
+    }
+    if ( newTotals.TaxAmount !== invoice.TaxAmount ) {
+      // mark the invoice - COMMENTED OUT AS FOR REDUCED LINES USED FOR TESTING THIS FAILS - AS WE HAVE CUT OUT SOME LINES AND THE TAX AMOUNT IS FROM THE HEADER (WHICH WOULD BE FOR ALL LINES - NOT THE REDUCED LINES!) 
+      //invoice.updateStatus = { 'status': "danger", 'error':'Summary Tax Total Did Not Match Original Tax Total' };
     }
     processedTransactions.push(invoice);
   });

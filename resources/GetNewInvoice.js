@@ -70,6 +70,7 @@ module.exports = GetNewInvoice = function(v) {
         var tempLines = { "InvoiceLine" : v.lines };
         delete v.lines;
         v.Lines = tempLines;
+        console.log('TEMP LINES is ' + JSON.stringify(tempLines));
         // Notes must be chopped to 250 characters (limit in DB)
         if ( typeof v.Notes !== 'undefined' ) {
           v.Notes = v.Notes.substring(0,250);
@@ -96,7 +97,7 @@ module.exports = GetNewInvoice = function(v) {
             }
           }
         };
-        console.log('AIQ Invoice is transposed to result complete');
+        console.log('AIQ Invoice is transposed to result complete' + JSON.stringify(result));
         updateStageStatus = {"stage" : "GetNewInvoice", "status": true, "serverStatus" : "Success", "message" : "Template complete"};
         result.updateStageStatus.push(updateStageStatus);
         resolve(result);
