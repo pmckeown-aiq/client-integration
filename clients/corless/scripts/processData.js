@@ -290,12 +290,38 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, options
         }
       }
       //});
+      // Bar Sales - product codes come in as UPTA_??? 
+      // We need to change the product code to UPTA 
+      _.map(invoice.lines, function(obj){
+        console.log('BAR SALES CHECK ' + JSON.stringify(obj));
+        if(obj.StockItemID.includes('UPTA_')) {
+          // Bar Sales act differently - we are not expecting a VAT line if the product code (StockItemID upta_barsales_0)
+          if (obj.StockItemID == 'UPTA_BARSALES_0' ) {
+            console.log('BAR SALES 0 VAT LINE - ' + JSON.stringify(obj));
+            // "updateStatus":{"status":"warning","error":"No VAT Found"},"TaxAmount":null,"TaxRate":null,"GrossAmount":null
+            //if (obj.TaxAmount == null && obj.TaxRate == null && obj.updateStatus.status == 'warning' && obj.updateStatus.error == "No VAT Found" ) {
+            obj.TaxAmount = 0;
+            obj.TaxRate = 0;
+	    // Unset the updateStatus
+            delete obj.updateStatus;
+            console.log('BAR SALES 0 VAT LINE - ' + JSON.stringify(obj));
+            obj.noVatExpected=true;
+          }
+          obj.StockItemID='UPTA';
+          obj.GrossAmount = parseFloat(obj.NetAmount) + parseFloat(obj.TaxAmount);
+          // Note to below - don't expect VAT 
+        }
+      });
+
       invoice.lines.forEach(function(line) {
         // Check VAT - if got through that with no TaxAmount raise error
+	console.log('BAR SALES CHECK LINE ' + JSON.stringify(line));
         if ( ! line.TaxAmount || line.TaxAmount == 0 || line.TaxAmount == '' ) {
-          // and there is no error already! 
-          if ( ! line.updateStatus ) {
-            line.updateStatus = { 'status': "danger", 'error':'No VAT Found' };
+          // and there is no error already! Or for zero bar rated bar sales (and for payments where we expect no VAT) 
+          if ( ! line.noVatExpected ) {
+            if ( ! line.updateStatus ) {
+              line.updateStatus = { 'status': "danger", 'error':'No VAT Found' };
+            }
           }
         }
         // reduce the amounts to two decimals 
@@ -316,7 +342,7 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, options
         // Tax Amount is already on the line
         // line.TaxAmount = 
         // So calculate the Tax Rate (line.TaxAmount / line.ActualPrice 
-        line.GrossAmount = (1 * line.NetAmount + line.TaxAmount);
+        line.GrossAmount = parseFloat(line.NetAmount) + parseFloat(line.TaxAmount);
         sumGrossAmount += line.GrossAmount
         line.InvoiceItemID = 0;
         // Delete temp values that not needed for invoice Lines
@@ -324,10 +350,11 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, options
         delete line.ReservedResourceID;
         //line.StockItemDescription = 'From Default';
         // Calculate the sum of the net and Tax and Gross Amoubts
-        invoice.NetAmount += line.NetAmount.toFixed(2)/1;
-        invoice.GrossAmount += line.GrossAmount.toFixed(2)/1;
-        invoice.TaxAmount += line.TaxAmount.toFixed(2)/1;
+        invoice.NetAmount += parseFloat(line.NetAmount);
+        invoice.GrossAmount += parseFloat(line.GrossAmount);
+        invoice.TaxAmount += parseFloat(line.TaxAmount);
       });
+
       // Round off the header values
       var tempNetAmount = (invoice.NetAmount * 1);	
       invoice.NetAmount = (tempNetAmount.toFixed(2)/1);     
@@ -356,7 +383,8 @@ processData.prototype.CorlessInvoices = function(feedTransactions, opts, options
     //console.log(invoice.ExternalReference + ' STD VAT AFTER LINES LENGTH ' + vatStdLines.length);
     //console.log(invoice.ExternalReference + ' REDUCED AFTER VAT LINES LENGTH ' + vatReducedLines.length);
     console.log(invoice.ExternalReference + ' ALL VAT AFTER LINES LENGTH ' + vatLines.length);
-    console.log(invoice.updateStatus + ' IS MY UPDATESTATUS');
+    console.log(JSON.stringify(invoice.updateStatus) + ' IS MY UPDATESTATUS');
+
     // check to see if any lines are incorrect - if any staus is false	
     console.log('Push invoice :' + JSON.stringify(invoice));
     console.log('Push reference :' + invoice.ExternalReference);
@@ -629,20 +657,40 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, opti
           console.log(JSON.stringify(v));
         });
       } else { // total amount is not zero ...
+        // Bar Sales - product codes come in as UPTA_??? 
+        // We need to change the product code to UPTA 
+        _.map(invoice.lines, function(obj){
+          console.log('BAR SALES CHECK ' + JSON.stringify(obj));
+          if(obj.StockItemID.includes('UPTA_')) {
+            // Bar Sales act differently - we are not expecting a VAT line if the product code (StockItemID upta_barsales_0)
+            if (obj.StockItemID == 'UPTA_BARSALES_0' ) {
+              console.log('BAR SALES 0 VAT LINE - ' + JSON.stringify(obj));
+              // "updateStatus":{"status":"warning","error":"No VAT Found"},"TaxAmount":null,"TaxRate":null,"GrossAmount":null
+              //if (obj.TaxAmount == null && obj.TaxRate == null && obj.updateStatus.status == 'warning' && obj.updateStatus.error == "No VAT Found" ) {
+              obj.TaxAmount = 0;
+              obj.TaxRate = 0;
+              // Unset the updateStatus
+              delete obj.updateStatus;
+              console.log('BAR SALES 0 VAT LINE - ' + JSON.stringify(obj));
+              // Note to below - don't expect VAT 
+              obj.noVatExpected=true;
+            }
+            obj.StockItemID='UPTA';
+            obj.GrossAmount = parseFloat(obj.NetAmount) + parseFloat(obj.TaxAmount);
+          }
+        });
+  
         invoice.lines.forEach(function(line) {
           // Check VAT - if got through that with no TaxAmount raise error
+          console.log('BAR SALES CHECK LINE ' + JSON.stringify(line));
           if ( ! line.TaxAmount || line.TaxAmount == 0 || line.TaxAmount == '' ) {
-            // and there is no error already! 
-            if ( ! line.updateStatus ) {
-              line.updateStatus = { 'status': "warning", 'error':'No VAT Found' };
+            // and there is no error already! Or for zero bar rated bar sales (and for payments where we expect no VAT) 
+            if ( ! line.noVatExpected ) {
+              if ( ! line.updateStatus ) {
+                line.updateStatus = { 'status': "danger", 'error':'No VAT Found' };
+              }
             }
           }
-          // reduce the amounts to two decimals 
-          // hack to get make tax amount a number
-          // toFixed returns a string (needed above to compare) - so need 
-          // to mess about a lot to get numbers back! 
-          var tempTaxAmount = (line.TaxAmount * 1);	
-          line.TaxAmount = (tempTaxAmount.toFixed(2)/1);
           var tempDiscountRate = (line.DiscountRate * 1);	
           line.DiscountRate = (tempDiscountRate.toFixed(2)/1);
           var tempActualPrice = (line.ActualPrice * 1);	
@@ -650,74 +698,36 @@ processData.prototype.CorlessAdjustments = function(feedTransactions, opts, opti
           line.TaxRate = (line.TaxAmount / line.ActualPrice); 
           var tempTaxRate = (line.TaxRate * 1);	
           line.TaxRate = (tempTaxRate.toFixed(2)/1);
-          sumTaxAmount += line.TaxAmount
-          sumNetAmount += line.NetAmount
           // Tax Amount is already on the line
           // line.TaxAmount = 
           // So calculate the Tax Rate (line.TaxAmount / line.ActualPrice 
-          line.GrossAmount = (1 * line.NetAmount + line.TaxAmount);
-          sumGrossAmount += line.GrossAmount
+	  console.log(JSON.stringify(line));
+          line.GrossAmount = parseFloat(line.NetAmount) + parseFloat(line.TaxAmount);
           line.InvoiceItemID = 0;
           // Delete temp values that not needed for invoice Lines
-          delete line.ParentID;
-          delete line.ReservedResourceID;
           //line.StockItemDescription = 'From Default';
           // Calculate the sum of the net and Tax and Gross Amoubts
-          invoice.NetAmount += line.NetAmount.toFixed(2)/1;
-          invoice.GrossAmount += line.GrossAmount.toFixed(2)/1;
-          invoice.TaxAmount += line.TaxAmount.toFixed(2)/1;
-        // Round off the header values
+          invoice.NetAmount += parseFloat(line.NetAmount);
+          invoice.GrossAmount += parseFloat(line.GrossAmount);
+          invoice.TaxAmount += parseFloat(line.TaxAmount);
         });
-        var tempNetAmount = (invoice.NetAmount * 1);	
-        invoice.NetAmount = (tempNetAmount.toFixed(2)/1);     
-        var tempGrossAmount = (invoice.GrossAmount * 1);	
-        invoice.GrossAmount = (tempGrossAmount.toFixed(2)/1);     
-        var tempTaxAmount = (invoice.TaxAmount * 1);	
-        invoice.TaxAmount = (tempTaxAmount.toFixed(2)/1);     
-        // Mandatory Dates
-        today = new Date();
-        invoice.CreationDate = today.toISOString().slice(0,10);
-        invoice.DeliveryDate = today.toISOString().slice(0,10);
-        console.log(JSON.stringify(invoice.updateStatus) + ' WAS MY UPDATESTATUS');
-        // Set the updateStatus for the invoice - need function as simple uniqBy goes wrong if line updateStatus is null
-        invoice.updateStatus = _.uniqBy(_.map(invoice.lines, function(line) { 
-          if ( typeof line.updateStatus !== 'undefined' ) {
-            console.log('UPDATESTATUS is defined');
-            if ( line.updateStatus.status == 'warning' || line.updateStatus.status == 'danger' ) {
-              console.log('UPDATESTATUS is warning or danger ');
-              return line.updateStatus;
-            }
-          }
-        }));
       } // end the if total amount is zero
     } else { // invoice has no lines - mark as error
       invoice.updateStatus = { 'status': "danger", 'error':'No non zero amount lines found' };
     } // end if invoice.lines.length = 0
+    var tempNetAmount = (invoice.NetAmount * 1);	
+    invoice.NetAmount = (tempNetAmount.toFixed(2)/1);     
+    var tempGrossAmount = (invoice.GrossAmount * 1);	
+    invoice.GrossAmount = (tempGrossAmount.toFixed(2)/1);     
+    var tempTaxAmount = (invoice.TaxAmount * 1);	
+    invoice.TaxAmount = (tempTaxAmount.toFixed(2)/1);     
+    // Mandatory Dates
+    today = new Date();
+    invoice.CreationDate = today.toISOString().slice(0,10);
+    invoice.DeliveryDate = today.toISOString().slice(0,10);
     console.log(invoice.ExternalReference + ' DISCOUNT AFTER LINES LENGTH ' + discountLines.length);
-    //console.log(invoice.ExternalReference + ' STD VAT AFTER LINES LENGTH ' + vatStdLines.length);
-    //console.log(invoice.ExternalReference + ' REDUCED AFTER VAT LINES LENGTH ' + vatReducedLines.length);
     console.log(invoice.ExternalReference + ' ALL VAT AFTER LINES LENGTH ' + vatLines.length);
     console.log(JSON.stringify(invoice.updateStatus) + ' IS MY UPDATESTATUS');
-    // Bar Sales - product codes come in as UPTA_??? 
-    // We need to change the product code to UPTA 
-    _.map(invoice.lines, function(obj){
-      if(obj.StockItemID.includes('UPTA_')) {
-        // Bar Sales act differently - we are not expecting a VAT line if the product code (StockItemID upta_barsales_0)
-        if (obj.StockItemID == 'UPTA_BARSALES_0' ) {
-          // "updateStatus":{"status":"warning","error":"No VAT Found"},"TaxAmount":null,"TaxRate":null,"GrossAmount":null
-          //if (obj.TaxAmount == null && obj.TaxRate == null && obj.updateStatus.status == 'warning' && obj.updateStatus.error == "No VAT Found" ) {
-          if (obj.updateStatus.status == 'warning' && obj.updateStatus.error == "No VAT Found" ) {
-            console.log('BAR SALES 0 VAT LINE - ' + JSON.stringify(obj));
-            obj.TaxAmount = 0;
-            obj.TaxRate = 0;
-            obj.GrossAmount = obj.NetAmount + obj.TaxAmount;
-            obj.updateStatus = {};
-            console.log('BAR SALES 0 VAT LINE - ' + JSON.stringify(obj));
-          }
-        }
-        obj.StockItemID='UPTA';
-      }
-    });
     console.log('Push invoice :' + JSON.stringify(invoice));
     console.log('Push reference :' + invoice.ExternalReference);
     feedTransactionArray.push(invoice);

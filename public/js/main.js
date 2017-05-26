@@ -371,6 +371,7 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
       // strip off double quotes from callbackRules
       $scope.callbackRules = JSON.parse($scope.callbackRules)
       $scope.createdTransactionCount = 0;
+      $scope.failedTransactionCount = 0;
       $scope.wroteBackTransactionCount = 0;
       socket.emit('createTransactions', { transactions : $scope.feedTransactions, coID : $scope.coID, type : $scope.type });
       // try to hide the transaction table
@@ -708,6 +709,10 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
     socket.on('createdTransaction', function (data) {
         $scope.createdTransactions.push( data.createdTransaction );
 	$scope.createdTransactionCount++;
+        console.log('createdTransaction says ' + JSON.stringify(data));
+        if ( data.createdTransaction.updateStatus.status != true ) {
+	  $scope.failedTransactionCount++;
+        }
     });
 
     socket.on('createdObject', function (data) {

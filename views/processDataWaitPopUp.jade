@@ -1,15 +1,18 @@
 |<script type="text/ng-template" id="processDataWaitPopUp.html">
 |    <div class="modal-header">
-|      <h1 ng-show="(createdTransactionCount + controlTotals.feedErrorsCount) != controlTotals.transactionCount" >Processing ... </h1>
-|      <h3 ng-hide="(createdTransactionCount + controlTotals.feedErrorsCount) != controlTotals.transactionCount" >Completed update to accountsIQ ...</h3>
+|      <h1 ng-show="createdTransactionCount != controlTotals.transactionCount" >Processing ... </h1>
+|      <h3 ng-hide="createdTransactionCount != controlTotals.transactionCount" >Completed update to accountsIQ ...</h3>
+|      <h3>Created Transactions {{ createdTransactionCount }} </h3>
+|      <h3>Failed Transactions {{ failedTransactionCount }} </h3>
+|      <h3>Expected Failures {{ controlTotals.feedErrorsCount }} </h3>
+|      <h3>Total Transactions {{ controlTotals.transactionCount }} </h3>
 |    </div>
 |    <div class="modal-body">
 |      <div class="progress progress-striped active">
-|        <uib-progressbar ng-show="createdTransactionCount > 0" max="max" value="( ( (createdTransactionCount + controlTotals.feedErrorsCount) / controlTotals.transactionCount) * 100 )"><span style="color:white; white-space:nowrap;">{{ createdTransactionCount }} / {{ controlTotals.transactionCount }}</span></uib-progressbar>
-|        <!--<uib-progressbar ng-show="createdTransactionCount > 0" max="max" value="( ( (createdTransactionCount + controlTotals.feedErrorsCount) / controlTotals.transactionCount) * 100 )"><span style="color:white; white-space:nowrap;">{{ createdTransactionCount }} + {{ controlTotals.feedErrorsCount }} / {{ controlTotals.transactionCount }}</span></uib-progressbar> -->
+|        <uib-progressbar ng-show="createdTransactionCount > 0" max="max" value="((createdTransactionCount/controlTotals.transactionCount) * 100 )"><span style="color:white; white-space:nowrap;">{{ createdTransactionCount }} / {{ controlTotals.transactionCount }}</span></uib-progressbar>
 |      </div>
 |      <div ng-if="!writeBackRules.allowed">
-|        <button class="btn btn-primary" type="button" ng-hide="(createdTransactionCount != controlTotals.transactionCount" ng-click="ok()">OK</button>
+|        <button class="btn btn-primary" type="button" ng-show="createdTransactionCount == controlTotals.transactionCount" ng-click="ok()">OK</button>
 |      </div>
 |    </div>
 |</script>

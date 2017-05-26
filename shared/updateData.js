@@ -220,7 +220,7 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
 	  })
            .catch(err => {
              console.log('Error: ', JSON.stringify(err));
-             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStaus": {"status": false, "message": "Error in updating transaction" }, "updateStageStatus": v.updateStageStatus }});
+             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": false, "message": "Error in updating transaction" }, "updateStageStatus": v.updateStageStatus }});
              console.log(err)
              next();
           });
@@ -344,7 +344,7 @@ updateData.prototype.SaveJournal = function(opts, cb) {
 	  })
            .catch(err => {
              console.log('Error: ', JSON.stringify(err));
-             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStaus": {"status": false, "message": "Error in updating transaction" }, "updateStageStatus": v.updateStageStatus }});
+             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": false, "message": "Error in updating transaction" }, "updateStageStatus": v.updateStageStatus }});
              console.log(err)
              next();
           });
