@@ -244,6 +244,10 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
       console.log('process a api feedType');
       var tempPath = 'api';
       var fileName = 'api';
+    } else {
+      // Not CSV
+      var logFile = './public/logs/' + Date.now() + '.log'
+      var fileData = { 'file': 'API', 'logFileName': logFile };
     }
     console.log('success!')
     // Going to grab a log file to use .. it will be the name of the upload

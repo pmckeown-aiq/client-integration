@@ -41,6 +41,7 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
   // Array to hold the validation results to be sent back to the client as an array ..
   var invalidData = [];
   validateObjects.forEach(function(validateObject) {
+    console.log(JSON.stringify(validateObject));
     var validateWhat = validateObject.name;
     process.send({ "loadDataStatus": { message: "validating " + validateWhat + " ... please wait ..." }}); 
     var validateFiles = {} 
@@ -175,10 +176,10 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
 		});
 	      });
 	    if ( validateObject.name == "CurrencyCode" ) {
-              if ( result.data.IsBaseCurrency !== true ) {
+              //if ( result.data.IsBaseCurrency !== true ) {
 	        // Net to set the currency exchange rate 
 	        transaction.ExchangeRate = result.data.ExchangeRate;
-	      }
+	      //}
 	    }
 	  }
         });    
@@ -247,6 +248,6 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
   // return the feedTransactionArray along with the invalidData array ...
   // first though make the invalidData array a unique array (no need to repeat the message!)
   invalidData = _.uniqBy(invalidData,'code');
-  console.log('CALL BACK VALIDATE OBJECT ' + validateObject.name + ' ' + JSON.stringify(feedTransactionArray[0].lines[0].TaxCode));
+  //console.log('CALL BACK VALIDATE OBJECT ' + validateObject.name + ' ' + JSON.stringify(feedTransactionArray[0].lines[0].TaxCode));
   return cb(null, feedTransactionArray, invalidData);
 }

@@ -356,6 +356,21 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
 	// TODO need to be smart dealing with dates/dynamic form from server config!
 	// if feedtype == Harvest and type is date then it expects YYYYMMDD - form will have it as YYYY-MM-DD
 	var clientName = $scope.clientName.replace(/"/g,""); // replace quotes if there!
+    console.log('DATAMYFILTERS ' + JSON.stringify($scope.loadDataFilters));
+        if ( $scope.loadDataFilters ) {
+        if ( $scope.loadDataFilters.length > 0 ) {
+          $scope.loadDataFilters.forEach(function(filter) {
+            console.log('DATAMYFILTER ' + JSON.stringify(filter));
+            if ( filter.type == 'date' ) {
+              var myName = filter.name;
+              // undo the timezone adjustment we did during the formatting
+              filter[myName].setMinutes(filter[myName].getMinutes() - filter[myName].getTimezoneOffset());
+              console.log('DATAMYFILTER VALIE IS ' + filter[myName] );
+	    }
+          })
+        }
+        }
+        console.log('DATAMYFILTERS ' + JSON.stringify($scope.loadDataFilters));
 	var feedType = $scope.feedType.replace(/"/g,""); // replace quotes if there!
         socket.emit('loadData', { 'file' : $scope.file , 'logFileName' : $scope.logFileName , 'coID' : $scope.coID , 'type' : $scope.type , 'clientName': $scope.clientName, 'feedType' : $scope.feedType, 'loadDataFilters': $scope.loadDataFilters});
     };
@@ -728,47 +743,38 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
 
     socket.on('feedTransactions', function (data) {
 	//console.log('Data is ' + JSON.stringify(data));
-	if ( data.feedTransactions == "noTransactions" ) {
-	  // Set the error flag on this message to change the appearance of message
-          $scope.status.push({ text : 'No transactions for the criteria used. Please check and try again', isError : true });
-        }
-        else {
-          $scope.feedTransactions = data.feedTransactions;
-	  $scope.itemsPerPage = 50;
-          $scope.currentPage = 0;
-          $scope.prevPage = function() {
-            if ($scope.currentPage > 0) {
-              $scope.currentPage--;
-            }
-          };
-
-          $scope.prevPageDisabled = function() {
-            return $scope.currentPage === 0 ? "disabled" : "";
-          };
-
-          $scope.pageCount = function() {
-            return Math.ceil($scope.feedTransactions.length/$scope.itemsPerPage)-1;
-          };
-
-          $scope.nextPage = function() {
-            if ($scope.currentPage < $scope.pageCount()) {
-              $scope.currentPage++;
-            }
-          };
-
-          $scope.nextPageDisabled = function() {
-            return $scope.currentPage === $scope.pageCount() ? "disabled" : "";
-          };
-	  $scope.feedCols = Object.keys($scope.feedTransactions[0]);
-          $scope.hasLines = data.opts.hasLines;
-	  // we are only displaying supplied header and line balues
-          $scope.displayHeaderValues = data.opts.displayHeaderValues;
-          $scope.headerValues = data.opts.headerValues;
-	  if ( $scope.hasLines == true ) { 
-            $scope.displayLineValues = data.opts.displayLineValues;
-            $scope.lineValues = data.opts.lineValues;
-          };
+        $scope.feedTransactions = data.feedTransactions;
+	$scope.itemsPerPage = 50;
+        $scope.currentPage = 0;
+        $scope.prevPage = function() {
+        if ($scope.currentPage > 0) {
+          $scope.currentPage--;
+          }
+        $scope.prevPageDisabled = function() {
+          return $scope.currentPage === 0 ? "disabled" : "";
         };
+        $scope.pageCount = function() {
+          return Math.ceil($scope.feedTransactions.length/$scope.itemsPerPage)-1;
+        };
+        $scope.nextPage = function() {
+          if ($scope.currentPage < $scope.pageCount()) {
+            $scope.currentPage++;
+          }
+        };
+
+        $scope.nextPageDisabled = function() {
+          return $scope.currentPage === $scope.pageCount() ? "disabled" : "";
+        };
+	$scope.feedCols = Object.keys($scope.feedTransactions[0]);
+        $scope.hasLines = data.opts.hasLines;
+	// we are only displaying supplied header and line balues
+        $scope.displayHeaderValues = data.opts.displayHeaderValues;
+        $scope.headerValues = data.opts.headerValues;
+	if ( $scope.hasLines == true ) { 
+          $scope.displayLineValues = data.opts.displayLineValues;
+          $scope.lineValues = data.opts.lineValues;
+        };
+      };
     });
 
     socket.on('feedErrors', function (data) {

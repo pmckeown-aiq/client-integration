@@ -28,6 +28,12 @@ module.exports = GetNewInvoice = function(v) {
         result.Contact = '';
         result.Notes = '';
         result.DepartmentID = '';
+        // need to check if the CurrencyCode on the invoice is NOT The same as the currency code on the default
+        // If it is need to delete the exchange rate as that messes things up! 
+        if ( result.CurrencyCode != v.CurrencyCode ) {
+          // We are not creating an invoice with the suppliers base currency 
+          result.ExchangeRate = v.ExchangeRate; // set the Exchange rate to 1 - this assumes that the currency we are setting it to is the system base currency ! However - validation 
+        }
         // AccountBranchID is a number - not the customer code
         result.AccountBranchID = result.AccountID
         delete v.AccountID_getFromApiValue;

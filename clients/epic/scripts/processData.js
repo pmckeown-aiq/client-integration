@@ -58,42 +58,48 @@ processData.prototype.EpicInvoices = function(feedTransactions, opts, options ) 
     myExtRef = invoiceHeader.ExtRef;
     myTran_Date = invoiceHeader.Tran_Date;
     myTran_Date = invoiceHeader.Tran_Date;
-    myInvoices = _.filter(feedTransactions, { ExtRef: myExtRef, Tran_Date: myTran_Date });
-    console.log(myExtRef + ' has lines ' + myInvoices.length);
-    console.log(JSON.stringify(myInvoices));
-    myInvoice = {};
+    invoices = _.filter(feedTransactions, { ExtRef: myExtRef, Tran_Date: myTran_Date });
+    console.log(myExtRef + ' has lines ' + invoices.length);
+    console.log(JSON.stringify(invoices));
+    invoice = {};
+    invoice.NetAmount = 0;
+    invoice.TaxAmount = 0;
+    invoice.GrossAmount = 0;
      
 
     // conf file says which are headerValues - set them
     headerValues = _.filter(opts.clientSettings.headerValues, { "supplied" : true });
     headerValues.forEach(function(myValue) {
       console.log('Evaluate ' + myValue.name + ' ' + myValue.value);
-      myInvoice[myValue.name] = safeEval(myValue.value, {invoiceHeader: invoiceHeader})
+      invoice[myValue.name] = safeEval(myValue.value, {invoiceHeader: invoiceHeader})
     });
-    console.log('Invoice from conf ' + JSON.stringify(myInvoice));
+    console.log('Invoice from conf ' + JSON.stringify(invoice));
     // format the invoice datte
-    myInvoice.InvoiceDate = formatDate(myInvoice.InvoiceDate);
-    myInvoice.OrderDate = formatDate(myInvoice.OrderDate);
-    myInvoice.DeliveryDate = formatDate(myInvoice.DeliveryDate);
-    myInvoice.lines = [];
-    myLine = {}; // empty the line that we are to construct
-    myInvoices.forEach(function(invoice) {
+    invoice.InvoiceDate = formatDate(invoice.InvoiceDate);
+    invoice.OrderDate = formatDate(invoice.OrderDate);
+    invoice.DeliveryDate = formatDate(invoice.DeliveryDate);
+    invoice.lines = [];
+    line = {}; // empty the line that we are to construct
+    invoices.forEach(function(inv) {
       // the conf file should say if it is a line value ...
-      console.log('line is ' + JSON.stringify(invoice));
       lineValue = _.filter(opts.clientSettings.lineValues, { "supplied" : true });
       lineValue.forEach(function(myValue) {
         console.log('Evaluate ' + myValue.name + ' ' + myValue.value);
-        myLine[myValue.name] = safeEval(myValue.value, {invoice : invoice})
+        line[myValue.name] = safeEval(myValue.value, {invoice : inv})
       })
-      console.log('My Invoice line ' + JSON.stringify(myLine));
+      console.log('My Invoice line ' + JSON.stringify(line));
       // clone the line (otherwise next update updates all the lines!) 
-      myTempLine = JSON.parse(JSON.stringify(myLine));
-      myInvoice.lines.push(myTempLine);     
-      console.log('Invoice from conf ' + JSON.stringify(myInvoice));
+      myTempLine = JSON.parse(JSON.stringify(line));
+      invoice.lines.push(myTempLine);     
+      invoice.NetAmount += parseFloat(myTempLine.NetAmount);
+      invoice.GrossAmount += parseFloat(myTempLine.GrossAmount);
+      invoice.TaxAmount += parseFloat(myTempLine.TaxAmount);
+      console.log('Invoice from conf ' + JSON.stringify(invoice));
     })
     // Environment Identifier must be on the header
-    myInvoice.EnvironmentIdentifier = myInvoice.lines[0].EnvironmentIdentifier;
-    processedTransactions.push(myInvoice)
+    invoice.EnvironmentIdentifier = invoice.lines[0].EnvironmentIdentifier;
+
+    processedTransactions.push(invoice)
   })
   // And at the end return the transactions
   return processedTransactions;

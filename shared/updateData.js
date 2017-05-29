@@ -120,6 +120,15 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
       // Call the callback for the async.forEachLimit
       next();
       //console.log('Transaction ' + v.ExternalReference + ' is not a valid transaction so not created.');
+    } else if ( _.has(v, 'updateStatus') && ( v.updateStatus.exclude == true) )  {
+      process.send({ createdTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : false, message: 'Transaction marked by user to be excluded so not created ' + v.updateStatus.exclude } }});
+      appLog.info('TransactionToBeRejected: ', v.ExternalReference, 'reason:', 'excluded by user');
+      for ( i=0;i<v.lines.length; i++ ) {
+        appLog.info('TransactionRejected: ', v.ExternalReference, 'LineNo:',  i, 'reason:', 'excluded by user' );
+      }
+      isInValidCount =  isInValidCount + 1;
+      // Call the callback for the async.forEachLimit
+      next();
     } else {
       // VALID TRANSACTIONS - do the data update
       process.send({ creatingTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : true, message: 'transaction to be created'  } }});

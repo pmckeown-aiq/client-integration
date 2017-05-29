@@ -46,6 +46,7 @@ div(ng-show="showfeedTransactions")
     |<tr ng-repeat-start="transaction in feedTransactions | offset: currentPage*itemsPerPage | limitTo: itemsPerPage" class="success" ng-class="transaction.updateStatus.status"> 
     |  <td ng-repeat="column in displayHeaderValues">{{transaction[column.name]}} </td>
     |  <td>{{transaction.updateStatus.error}}</td>
+    |  <td><input type="checkbox" ng-model="transaction.updateStatus.exclude" name="exclude" ng-checked="transaction.updateStatus.status == 'warning' || transaction.updateStatus.status == 'danger'">
     |  <td ng-if="hasLines"><button type="button" ng-click="openTransactionLines(transaction)" class="btn btn-xs indent">View Imported Lines</button></td>
     |</tr>
     |<tr ng-repeat-end><tr ng-repeat-end> 

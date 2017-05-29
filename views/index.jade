@@ -42,7 +42,6 @@ block content
                ul 
                 label(for="{{ filter.name }}: " ,class='control-label') {{ filter.label }}  
                 |<input type="{{ filter.type }}" name="{{ filter.name }}"  ng-model="filter[filter.name]" ng-required="{{ filter.required }}">
-             
              button(type='button', class='btn btn-primary', ng-click='loadFileForm.$valid && loadData(loadFileForm) ; showLoadDataWait(feedTransactions.length)', ng-hide='feedTransactions.length>0') Next - load the data
            .well.clearfix(ng-show="currentStage>3")
             .col-md-12

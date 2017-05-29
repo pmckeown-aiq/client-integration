@@ -81,12 +81,12 @@ loadData.prototype.harvestSalesInvoicesApi = function(opts, filters, cb) {
   var harvestOptions = {};
   filters.forEach(function(filter) {
     // special handlig for dates (from and to) that should come with time zone and time 
-    if (filter.name == "from" || filter.name == "to") {
+    console.log(JSON.stringify(filter));
+    if (filter.type == 'date' ) {
       filter.value = filter.value.slice(0, 10);
     }
     harvestOptions[filter.name] = filter.value; 
   })
-
   // Added 20/03/2017 - updated node-harvest caused problems with a new parameter for paging ... need true 
   console.log("we have harvestOptions"  +  JSON.stringify(harvestOptions) )
   if ( loopFilters.length !== 0 ) {
