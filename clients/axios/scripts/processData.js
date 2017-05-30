@@ -96,6 +96,9 @@ processData.prototype.AxiosHarvestExpenses = function(feedTransactions, opts, op
       if ( 'apiInvoice.' + header.value !== undefined ) {
         myInvoice[header.name] = safeEval('apiInvoice.' + header.value, {apiInvoice: apiInvoice})
       }
+      //console.log('UPDATED EXT REF ' + myInvoice.ExternalReference);
+      //myInvoice.ExternalReference = myInvoice.ExternalReference + ' FROM: ' + apiInvoice.apiOptions.from + ' TO: ' + apiInvoice.apiOptions.to;
+      //console.log('UPDATED EXT REF ' + myInvoice.ExternalReference);
     });
     // Then grab any with a supplied = false but have a default ...
     headerDefaultedValues = _.filter(opts.clientSettings.headerValues, { "supplied" : false, "default" : true  });

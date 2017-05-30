@@ -105,7 +105,8 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
       TaxCode: obj.field14,
       StockItemPrice: obj.field15,
       InvoicedQuantity: parseFloat(obj.field16),
-      StockItemID: obj.field17.substr(0, obj.field17.indexOf('-')), // assumed this is the right code - column Q - take the first part to the "-" , 
+      //StockItemID: obj.field17.substr(0, obj.field17.indexOf('-')), // assumed this is the right code - column Q - take the first part to the "-" , 
+      StockItemID: obj.field17,
       NetAmount: parseFloat(obj.field7),
       //WorkOrder: obj.field13 // temporary field needed to summarise data by ...
     }

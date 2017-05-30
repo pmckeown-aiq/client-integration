@@ -270,6 +270,7 @@ loadData.prototype.harvestSalesInvoicesApi = function(opts, filters, cb) {
                   line.project = fakeProject
   	        } 
   	      });
+              inv.apiOptions =  harvestOptions;
               feedTransactions.push(inv);
               invoicesListed++;
               console.log('inv after async parallel is pushed into feedTransactions');
@@ -468,6 +469,8 @@ loadData.prototype.harvestExpensesApi = function(opts, filters, cb) {
             }, function (err) {
               // We have a list of persons - but they may have zero expense lines ... only push them into the arrauy if person.lines.length > 0
               if ( person.lines.length > 0 ) {
+                person.apiOptions =  harvestOptions;
+                console.log('PUSH PERSON ' + JSON.stringify(person));
                 feedTransactions.push(person);
               }
 	      processedLines += person.lines.length;
