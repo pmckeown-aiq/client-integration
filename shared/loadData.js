@@ -82,6 +82,11 @@ loadData.prototype.harvestSalesInvoicesApi = function(opts, filters, cb) {
   filters.forEach(function(filter) {
     // special handlig for dates (from and to) that should come with time zone and time 
     console.log(JSON.stringify(filter));
+    // special handlig for dates (from and to) that should come with time zone and time
+    if (filter.name == "from" || filter.name == "to") {
+      filter.value = filter.value.slice(0, 10);
+    }
+    harvestOptions[filter.name] = filter.value;
     if (filter.type == 'date' ) {
       filter.value = filter.value.slice(0, 10);
     }
