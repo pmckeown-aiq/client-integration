@@ -31,8 +31,27 @@ module.exports = GetNewInvoice = function(v) {
         // need to check if the CurrencyCode on the invoice is NOT The same as the currency code on the default
         // If it is need to delete the exchange rate as that messes things up! 
         if ( result.CurrencyCode != v.CurrencyCode ) {
+          console.log('Got Invoice NOT IN ACCOUNT CURRENCY');
           // We are not creating an invoice with the suppliers base currency 
-          result.ExchangeRate = v.ExchangeRate; // set the Exchange rate to 1 - this assumes that the currency we are setting it to is the system base currency ! However - validation 
+          // So need to update the transaction to be in the suppliers base currency
+          // update the lines
+          result.BCNetAmount = 0;
+          result.BCTaxAmount = 0;
+          result.NetAmount = 0;
+          result.TaxAmount = 0;
+          v.lines.forEach(function(line) {
+            line.StockItemPrice = parseFloat(line.StockItemPrice) * parseFloat(result.ExchangeRate);
+            line.ActualPrice = parseFloat(line.ActualPrice) * parseFloat(result.ExchangeRate);
+            result.BCNetAmount += parseFloat(line.NetAmount);
+            result.BCTaxAmount += parseFloat(line.TaxAmount);
+            line.NetAmount = parseFloat(line.NetAmount) * parseFloat(result.ExchangeRate);
+            line.TaxAmount = parseFloat(line.TaxAmount) * parseFloat(result.ExchangeRate);
+            result.NetAmount += parseFloat(line.NetAmount);
+            result.TaxAmount += parseFloat(line.TaxAmount);
+            //result.CurrrencyCode = JSON.parse(JSON.stringify(v.CurrencyCode)); // actual static copy!
+          })
+          result.GrossAmount = parseFloat(result.NetAmount) + parseFloat(result.TaxAmount);
+          result.BCGrossAmount = parseFloat(result.BCNetAmount) + parseFloat(result.BCTaxAmount);
         }
         // AccountBranchID is a number - not the customer code
         result.AccountBranchID = result.AccountID
@@ -96,9 +115,19 @@ module.exports = GetNewInvoice = function(v) {
           if ( name != "transactionType" ) {
             if ( name != "uniqueExternalReferences" ) {
               if ( name != "transactionTemplate" ) {
-                console.log(name + ' has value ' + v[name]);
-                // and apply to result the corresponding value in feed transactions (referenced as v)
-                result[name] = v[name];
+                if ( name != "CurrencyCode" ) {
+                if ( name != "NetAmount" ) {
+                if ( name != "TaxAmount" ) {
+                if ( name != "GrossAmount" ) {
+                if ( name != "ExchangeRate" ) {
+                  console.log(name + ' has value ' + v[name]);
+                  // and apply to result the corresponding value in feed transactions (referenced as v)
+                  result[name] = v[name];
+                }
+                }
+                }
+                }
+                }
               }
             }
           }

@@ -1,0 +1,2 @@
+{"name":"AzureAD: OIDC Passport Strategy","hostname":"LAPTOP-TD5VMNIE","pid":16376,"level":40,"msg":"Using http for callbackURL is not recommended, please consider using https","time":"2017-05-29T19:14:11.296Z","v":0}
+starting the child process

@@ -8,13 +8,15 @@ module.exports = CheckUniqueInvoiceByExternalReference = function(v) {
     // Use GetTransactionsByExternalReference - so can check by customer/supplier
     var query = {};
     query.ExternalReference = v.ExternalReference;
-    if ( typeof v.GetTransactionsTransactionType !== 'undefined' ) { 
-      query.TypesFilter = [];
-      query.TypesFilter.push(v.GetTransactionsTransactionType);
+    if ( typeof v.GetTransactionsTransactionType !== 'undefined' ) {
+      query.TypesFilter = {};
+      query.TypesFilter.int = [];
+      query.TypesFilter.int.push(v.GetTransactionsTransactionType);
     }
-    if ( typeof v.AccountID !== 'undefined' ) { 
-      query.AccountIDsFilter = [];
-      query.AccountIDsFilter.push(v.AccountID);
+    if ( typeof v.AccountID !== 'undefined' ) {
+      query.AccountIDsFilter = {};
+      query.AccountIDsFilter.int = [];
+      query.AccountIDsFilter.int.push(parseInt(v.AccountID));
     }
     console.log('GetTransactions query is ' + JSON.stringify(query));
     return new Promise(function(resolve, reject) {
