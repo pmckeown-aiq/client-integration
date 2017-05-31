@@ -151,7 +151,7 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
       });
     }
     // Ok - we have written the attachment - so we need to then summarise the lines ...
-    var props = ['ExternalReference', 'GLAccountCode', 'TaxCode' ,'StockItemID', 'StockItemPrice', 'StockItemDescription', 'DepartmentID'];
+    //var props = ['ExternalReference', 'GLAccountCode', 'TaxCode' ,'StockItemID', 'StockItemPrice', 'StockItemDescription', 'DepartmentID'];
     // For testing - StockItemDescription is not filtered on 
     var props = ['ExternalReference', 'GLAccountCode', 'TaxCode' ,'StockItemID', 'StockItemPrice', 'DepartmentID'];
     var myFilters = _.map(invoice.lines,_.partialRight(_.pick, props));

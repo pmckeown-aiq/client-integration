@@ -35,7 +35,7 @@ module.exports = AllocateTransactions = function(v) {
               console.log('Check Result AllocateTransactionsResult ' + JSON.stringify(result[0]));
               if (result[0] ) {
                 if (result[0].Status == 'Success' ) {
-                    updateStageStatus = { "stage" : "AllocateTransactions", "status": true, "serverStatus" : result[0].Status, "error" : result[0].ErrorMessage, "message" : "Allocatrion Complete" };
+                    updateStageStatus = { "stage" : "AllocateTransactions", "status": true, "serverStatus" : result[0].Status, "error" : result[0].ErrorMessage, "message" : "Allocation Complete" };
                     payment.updateStageStatus.push(updateStageStatus);
                     resolve(payment);
                 } else {
@@ -53,15 +53,15 @@ module.exports = AllocateTransactions = function(v) {
             });
         } else {
           // Not sure yet what to do when more than one invoice
-          updateStageStatus = { "stage" : "AllocateTransactions", "status": true, "serverStatus" : "NoInvoices", "error" : "", "message" : "Allocation had more than 1 invoice to allocate " + payment.ExternalReference + " to. Not yet supported."};
+          updateStageStatus = { "stage" : "AllocateTransactions", "status": false, "serverStatus" : "MultipleInvoices", "error" : "", "message" : "Allocation had more than 1 invoice to allocate " + payment.ExternalReference + " to. Not yet supported."};
           payment.updateStageStatus.push(updateStageStatus);
-          resolve(payment);
+          reject(payment);
         } 
       } else { // i was not there or had a length of 0 - no invoices
       // Just send it back ... not an error just nothing to do ...
-        updateStageStatus = { "stage" : "AllocateTransactions", "status": true, "serverStatus" : "NoInvoices", "error" : "", "message" : "Allocation had no invoices to allocate " + payment.ExternalReference + " to."};
+        updateStageStatus = { "stage" : "AllocateTransactions", "status": false, "serverStatus" : "NoInvoices", "error" : "", "message" : "Allocation had no invoices to allocate " + payment.ExternalReference + " to."};
         payment.updateStageStatus.push(updateStageStatus);
-        resolve(payment);
+        reject(payment);
       }
     });
   }

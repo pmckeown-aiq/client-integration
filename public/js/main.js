@@ -712,15 +712,6 @@ app.controller('updateController', function ($scope, $rootScope, $uibModal, sock
         $scope.salesInvoiceDefaults = data.salesInvoiceDefaults;
     });
 
-    socket.on('creatingTransaction', function (data) {
-	// If the transaction is invalid - push it to the status for now
-	// createdTransaction message that follows below
-	if ( data.creatingTransaction.status == false ) {
-          // And add it to the table ... mimick the server response for createdTransaction
-          $scope.createdTransactions.push( data.creatingTransaction ); 
-        }
-    });
-
     socket.on('createdTransaction', function (data) {
         $scope.createdTransactions.push( data.createdTransaction );
 	$scope.createdTransactionCount++;

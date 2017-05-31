@@ -131,7 +131,6 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
       next();
     } else {
       // VALID TRANSACTIONS - do the data update
-      process.send({ creatingTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : true, message: 'transaction to be created'  } }});
       appLog.info('TransactionToBeCreated: ', v.ExternalReference )
       isValidCount =  isValidCount + 1;
       if ( v.hasOwnProperty('isWarn') ) {
@@ -218,13 +217,20 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
              return this.callback(v,opts) // pass both the transaction and the "opts" 
           })
            .then(function(v) {
-             console.log('COMPLETED UPDATE' + JSON.stringify(v));
+             console.log('COMPLETED UPDATE 1' + JSON.stringify(v));
+             hasError = _.some(v.updateStageStatus, {status: false});
+             console.log('HADERROR ' + JSON.stringify(hasError));
              // At the moment callback does not reject the promise on a single error in callback to extrenal system - so it may have set "updateStatus" ... so check
-             if ( typeof v.updateStatus !== 'undefined' ) {
-               process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": v.updateStatus.status, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
+             if ( hasError ) { // errors in the stages 
+               if ( typeof v.updateStatus !== 'undefined' ) {
+		 myStatus = v.updateStatus.status;
+               } else {
+		myStatus = false;
+               }
              } else { // a resource had set updateStatus 
-               process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": true, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
+		myStatus = true;
              }
+             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": myStatus, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
              next();
 	  })
            .catch(err => {
@@ -290,7 +296,6 @@ updateData.prototype.SaveJournal = function(opts, cb) {
       //console.log('Transaction ' + v.ExternalReference + ' is not a valid transaction so not created.');
     } else {
       // VALID TRANSACTIONS - do the data update
-      process.send({ creatingTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : true, message: 'transaction to be created'  } }});
       appLog.info('TransactionToBeCreated: ', v.ExternalReference )
       isValidCount =  isValidCount + 1;
       if ( v.hasOwnProperty('isWarn') ) {
@@ -342,13 +347,20 @@ updateData.prototype.SaveJournal = function(opts, cb) {
         v.updateStageStatus = []; // will not have had an updateStageStatus object as is a valid transaction - add the object
 	this.CreateGeneralJournal(v)
           .then(function(v) {
-             console.log('COMPLETED UPDATE' + JSON.stringify(v));
+             console.log('COMPLETED UPDATE 2' + JSON.stringify(v));
+             hasError = _.some(v.updateStageStatus, {status: false});
+             console.log('HADERROR ' + JSON.stringify(hasError));
              // At the moment callback does not reject the promise on a single error in callback to extrenal system - so it may have set "updateStatus" ... so check
-             if ( typeof v.updateStatus !== 'undefined' ) {
-               process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": v.updateStatus.status, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
+             if ( hasError ) { // errors in the stages 
+               if ( typeof v.updateStatus !== 'undefined' ) {
+		 myStatus = v.updateStatus.status;
+               } else {
+		myStatus = false;
+               }
              } else { // a resource had set updateStatus 
-               process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": true, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
+		myStatus = true;
              }
+             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": myStatus, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
              next();
 	  })
            .catch(err => {
@@ -428,7 +440,6 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
 	  }
           // Excluding WARNINGS - but need to build into config file to allow processing of (likely) zero balance transactionms
           if ( _.has(v, 'updateStatus') && ( v.updateStatus.status == "danger" || v.updateStatus.status == "warning")) {
-            process.send({ creatingTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : false, message: 'not a valid transaction so not created' } }});
 	    appLog.info('TransactionToBeRejected: ', v.ExternalReference, 'reason:',  JSON.stringify(v.updateStatus));
 	    for ( i=0;i<v.lines.length; i++ ) {
 	      appLog.info('TransactionRejected: ', v.ExternalReference, 'LineNo:',  i, 'reason:',  JSON.stringify(v.lines[i].updateStatus));
@@ -436,7 +447,6 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
 	    isInValidCount =  isInValidCount + 1;
             //console.log('Transaction ' + v.ExternalReference + ' is not a valid transaction so not created.');
           } else {
-            process.send({ creatingTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : true, message: 'transaction to be created'  } }});
 	    appLog.info('TransactionToBeCreated: ', v.ExternalReference )
 	    isValidCount =  isValidCount + 1;
 	    if ( v.hasOwnProperty('isWarn') ) {
@@ -622,7 +632,6 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
     }
     // Excluding WARNINGS - but need to build into config file to allow processing of (likely) zero balance transactionms
     if ( _.has(v, 'updateStatus') && ( v.updateStatus.status == "danger" || v.updateStatus.status == "warning")) {
-      process.send({ creatingTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : false, message: 'not a valid transaction so not created ' + v.updateStatus.error } }});
       appLog.info('TransactionToBeRejected: ', v.ExternalReference, 'reason:',  JSON.stringify(v.updateStatus));
       if ( opts.processRules.hasLines == true ) { 
         for ( i=0;i<v.lines.length; i++ ) {
@@ -635,7 +644,6 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
       //console.log('Transaction ' + v.ExternalReference + ' is not a valid transaction so not created.');
     } else {
       // VALID TRANSACTIONS - do the data update
-      process.send({ creatingTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : true, message: 'transaction to be created'  } }});
       appLog.info('TransactionToBeCreated: ', v.ExternalReference )
       isValidCount =  isValidCount + 1;
       if ( v.hasOwnProperty('isWarn') ) {
@@ -707,13 +715,25 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
                console.log('call callback ?' + JSON.stringify(v));
           })
            .then(function() {
-             console.log('COMPLETED UPDATE' + JSON.stringify(v));
-             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, updateStatus: { "status": v.updateStatus } }});
+             console.log('COMPLETED UPDATE 3' + JSON.stringify(v));
+             hasError = _.some(v.updateStageStatus, {status: false});
+             console.log('HADERROR ' + JSON.stringify(hasError));
+             // At the moment callback does not reject the promise on a single error in callback to extrenal system - so it may have set "updateStatus" ... so check
+             if ( hasError ) { // errors in the stages 
+               if ( typeof v.updateStatus !== 'undefined' ) {
+		 myStatus = v.updateStatus.status;
+               } else {
+		myStatus = false;
+               }
+             } else { // a resource had set updateStatus 
+		myStatus = true;
+             }
+             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": myStatus, "message": "Update Complete" }, "updateStageStatus": v.updateStageStatus }});
              next();
           })
            .catch(err => {
              console.log('Error: ', JSON.stringify(err));
-             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, updateStatus: { "status": false, "message": v.updateStatus } }});
+             process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": false, "message": "Error in updating transaction" }, "updateStageStatus": v.updateStageStatus }});
              console.log(err)
              next();
           });
