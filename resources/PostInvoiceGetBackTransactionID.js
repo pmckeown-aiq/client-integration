@@ -22,14 +22,16 @@ module.exports = PostInvoiceGetBackTransactionID = function(v) {
     console.log('GOING TO POST ' +  v.updateStageStatus.transactionID );
       Promise.all([aiq.PostInvoiceGetBackTransactionID({ invoiceID: v.transactionID })])
         .then((result) => {
-          updateStageStatus = { "stage" : "PostInvoiceGetBackTransactionID", "status": false, "serverStatus" : result[0].Status, "error" : result[0].ErrorMessage, "message" : "Transaction Posted", "transactionID": v.transactionID  };
           v.updateStageStatus.push(updateStageStatus);
           console.log('POST RETURNED ' + JSON.stringify(result));
           if ( result[0].Status = "Created" ) {
             console.log('Resolve PostInvoiceGetBackTransactionID' + JSON.stringify(v.updateStageStatus)); 
             updateStageStatus = { "stage" : "PostInvoiceGetBackTransactionID", "status": true, "serverStatus" : result[0].Status, "error" : result[0].ErrorMessage, "message" : "Transaction Posted", "transactionID": v.transactionID  };
+            v.updateStageStatus.push(updateStageStatus);
             resolve(v);
           } else {
+            updateStageStatus = { "stage" : "PostInvoiceGetBackTransactionID", "status": false, "serverStatus" : result[0].Status, "error" : result[0].ErrorMessage, "message" : "Transaction Posted - check for errore", "transactionID": v.transactionID  };
+            v.updateStageStatus.push(updateStageStatus);
             reject(v);
           }
           resolve(v);

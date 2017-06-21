@@ -56,9 +56,10 @@ processData.prototype.EpicInvoices = function(feedTransactions, opts, options ) 
   console.log('HEADERS ' + JSON.stringify( uniqueHeaders.length));
   uniqueHeaders.forEach(function(invoiceHeader) {
     myExtRef = invoiceHeader.ExtRef;
+    myCustomerCode = invoiceHeader.CustomerCode;
+    myDepartment = invoiceHeader.Department;
     myTran_Date = invoiceHeader.Tran_Date;
-    myTran_Date = invoiceHeader.Tran_Date;
-    invoices = _.filter(feedTransactions, { ExtRef: myExtRef, Tran_Date: myTran_Date });
+    invoices = _.filter(feedTransactions, { ExtRef: myExtRef, CustomerCode: myCustomerCode, Department: myDepartment, Tran_Date: myTran_Date });
     console.log(myExtRef + ' has lines ' + invoices.length);
     console.log(JSON.stringify(invoices));
     invoice = {};
@@ -98,7 +99,7 @@ processData.prototype.EpicInvoices = function(feedTransactions, opts, options ) 
     })
     // Environment Identifier must be on the header
     invoice.EnvironmentIdentifier = invoice.lines[0].EnvironmentIdentifier;
-
+    invoice.updateStatus = { };
     processedTransactions.push(invoice)
   })
   // And at the end return the transactions
@@ -123,6 +124,7 @@ processData.prototype.SalesReceipts = function(feedTransactions, opts, options )
     console.log('aiq  ' + JSON.stringify(aiqPayment));
     // format the invoice date
     aiqPayment.PaymentDate = formatDate(aiqPayment.PaymentDate);
+    aiqPayment.updateStatus = { };
     // some payments are coming across as 0 
     if ( aiqPayment.PaymentAmount !== 0 ) { 
       processedTransactions.push(aiqPayment);
