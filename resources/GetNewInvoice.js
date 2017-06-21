@@ -75,6 +75,9 @@ module.exports = GetNewInvoice = function(v) {
           if ( typeof v.lines[i].ActualPrice == "undefined" ) {
             v.lines[i].ActualPrice = (v.lines[i].StockItemPrice * (1 - v.lines[i].DiscountRate))
           }
+          if ( v.lines[i].ActualPrice ==  null ) {
+            v.lines[i].ActualPrice = (v.lines[i].StockItemPrice * (1 - v.lines[i].DiscountRate))
+          }
           // Notes must be chopped to 250 characters (limit in DB)
           if ( typeof v.lines[i].Notes !== 'undefined' ) {
             v.lines[i].Notes = v.lines[i].Notes.substring(0,250);

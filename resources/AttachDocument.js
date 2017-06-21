@@ -15,7 +15,7 @@ module.exports = AttachDocument = function(v) {
     console.log('in attachDocument' + JSON.stringify(v));
     console.log('transationID ' + JSON.stringify(v.transactionID));
     if ( typeof v.AttachDocument !== 'undefined' ) {
-      var document = { "Header": {"MasterType": "SalesInvoice", "MasterID": v.transactionID, "Filename": v.ExternalReference + ".xlsx" } }
+      var document = { "Header": {"MasterType": "SalesInvoice", "MasterID": v.transactionID, "Filename": "Kefron Invoice Details.xlsx" } }
       console.log('Going to attach document ' + v.AttachDocument);
       console.log('transationID ' + JSON.stringify(document));
       document.Content = {};

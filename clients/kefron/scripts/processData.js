@@ -104,6 +104,7 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
       DepartmentID: obj.field12 + "-" + obj.field11 ,
       TaxCode: obj.field14,
       StockItemPrice: obj.field15,
+      ActualPrice: obj.field15,
       InvoicedQuantity: parseFloat(obj.field16),
       //StockItemID: obj.field17.substr(0, obj.field17.indexOf('-')), // assumed this is the right code - column Q - take the first part to the "-" , 
       StockItemID: obj.field17,
@@ -153,7 +154,7 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
     // Ok - we have written the attachment - so we need to then summarise the lines ...
     //var props = ['ExternalReference', 'GLAccountCode', 'TaxCode' ,'StockItemID', 'StockItemPrice', 'StockItemDescription', 'DepartmentID'];
     // For testing - StockItemDescription is not filtered on 
-    var props = ['ExternalReference', 'GLAccountCode', 'TaxCode' ,'StockItemID', 'StockItemPrice', 'DepartmentID'];
+    var props = ['ExternalReference', 'GLAccountCode', 'TaxCode' ,'StockItemID', 'ActualPrice', 'StockItemPrice', 'DepartmentID'];
     var myFilters = _.map(invoice.lines,_.partialRight(_.pick, props));
     var uniqueFilters = _.uniqWith(myFilters,  _.isEqual);
     console.log('I have FILTERS ' + myFilters.length);
@@ -165,14 +166,16 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
       myLines = _.filter(invoice.lines, filter);
       filter.NetAmount = _.sumBy(myLines, 'NetAmount');
       filter.InvoicedQuantity = _.sumBy(myLines, 'InvoicedQuantity');
-      filter.StockItemDescription = 'Summarised Line';
+      //filter.StockItemDescription = 'Summarised Line';
       console.log('For ' + JSON.stringify(filter) + ' as a summary')
       // push the filtered object to the summaryLines array
       summaryLines.push(filter);
     })
     // replace the original invoice lines with the summary
+console.log(JSON.stringify(invoice.lines))
     invoice.lines = [];
     invoice.lines = summaryLines;
+console.log('SUMMARY ' + JSON.stringify(summaryLines))
     // summary Totals (to compare to originals as a check) 
     newTotals = {};
     newTotals.NetAmount = _.sumBy(summaryLines, 'NetAmount');
@@ -189,6 +192,7 @@ processData.prototype.RSSQLInvoices = function(feedTransactions, opts, options )
       //invoice.updateStatus = { 'status': "danger", 'error':'Summary Tax Total Did Not Match Original Tax Total' };
     }
     processedTransactions.push(invoice);
+console.log(JSON.stringify(invoice));
   });
   //console.log(JSON.stringify(processedTransactions));
   // And at the end return the transactions
