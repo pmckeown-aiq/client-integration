@@ -67,9 +67,10 @@ process.on('message', function (options) {
       // need resources script
       var manageMap = require(appDir + '/resources/manageMap.js');
       manageMap.loadMap(options, function(result) {
-        //console.log('Call back loadMap' + JSON.stringify(options.data)); 
         options.mapData = result;
         //console.log(JSON.stringify(options));
+        console.log('Call back RESULT loadMap' + JSON.stringify(result)); 
+        console.log('Call back OPTIONS.MAPDATA loadMap' + JSON.stringify(options.mapData)); 
         process.send(options);
       });
     }
@@ -89,8 +90,9 @@ process.on('message', function (options) {
           throw err;
         }
         //console.log('Call back updateMap' + JSON.stringify(options.data) + ' with result ' + JSON.stringify(result)); 
-        delete options.op;
         options.mapDataResult = result;
+        delete options.op;
+        console.log('UPDATE MAP RESENDS ' + JSON.stringify(options));
         process.send(options);
       });
     }

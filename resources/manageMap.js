@@ -6,7 +6,7 @@ var appDir = path.dirname(require.main.filename);
 module.exports = {
   // Get the codes for mapping data from source to accountsIQ
   loadMap: function(options, cb) {
-    console.log('CAN MANAGEMAP SEE ' + JSON.stringify(options));
+    console.log('LOADMAP SEE ' + JSON.stringify(options));
     var mapFileName = options.data.name + '.map.json';
     var clientName = options.data.clientName.replace(/"/g,"");
     var coID = options.data.coID.replace(/"/g,"");
@@ -14,16 +14,19 @@ module.exports = {
     var file = path.join(appDir + '/clients/' + clientName + '/data/' + coID + '/' + mapFileName);
     if (fs.existsSync(file)) {
       console.log('GOT ' + file);
-      var map = require(file);
-      console.log(map);
-      cb(map)
+      //var map = require(file);
+      fs.readFile(file, (err, map) => {
+        if (err) throw err;
+        //console.log('FS File ' + map);
+        cb(JSON.parse(map));
+      });
     } else {
       console.log('Not able to load '+ file + ' data file');
     }
   },
   // Update the codes for mapping data from source to accountsIQ
   updateMap: function(options, cb) {
-    console.log('MANAGE MAP OPTIONS ' + JSON.stringify(options));
+    console.log('UPDATEMAP OPTIONS ' + JSON.stringify(options));
     var mapFileName = options.data.name.replace(/"/g,"") + ".map.json";
     var clientName = options.data.clientName.replace(/"/g,"");
     var coID = options.data.coID.replace(/"/g,"");
