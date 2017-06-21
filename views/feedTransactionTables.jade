@@ -4,7 +4,7 @@ div(ng-show="feedTransactions.length>0")
   div(ng-show="feedErrors.length > 0")
     |<!-- Table for Transactions in Error On Processing Data -->
     |<table class="table table-striped" export-csv="feedErrorsCSV">
-    |<thead><tr><th ng-repeat="column in displayHeaderValues" >{{column.displayName}}</th></tr></thead>
+    |<thead><tr><th ng-repeat="column in displayHeaderValues" >{{column.displayName}}</th><th>Message</th></tr></thead>
     |<tbody>
     |<tr ng-repeat-start="transaction in feedErrors" class="success" ng-class="transaction.updateStatus.status"> 
     |  <td ng-repeat="column in displayHeaderValues">{{transaction[column.name]}} </td>

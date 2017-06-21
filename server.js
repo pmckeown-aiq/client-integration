@@ -488,11 +488,11 @@ req.session.destroy(function (err) {
 });
 
 // Socket messages
-//server.listen(process.env.PORT || 3000);
+server.listen(process.env.PORT || 3000);
 
 //console.log('listening on' + process.env.PORT || 3000);
-server.listen(ports[1])
-app.listen(ports[0])
+//server.listen(ports[1])
+//app.listen(ports[0])
 
 // Simple route middleware to ensure user is authenticated. (Section 4)
 

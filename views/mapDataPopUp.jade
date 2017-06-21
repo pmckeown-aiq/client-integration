@@ -22,7 +22,7 @@
 |            <span ng-if="mapData.data.mapAdditionalProperty">
 |              <input class="col-md-4" type=={{mapData.data.mapSourceType}}  placeholder="Add new" id="newAdditionalProperty" ng-model="newRecord[mapData.data.mapAdditionalValues]">
 |            </span>
-|            <input ng-class="{'col-md-4':mapData.data.mapAdditionalProperty, 'col-md-6': !mapData.data.mapAdditionalProperty}" type={{ mapData.data. placeholder="Add new" id="newAiqValue" ng-model="newRecord.aiqValue">
+|            <input ng-class="{'col-md-4':mapData.data.mapAdditionalProperty, 'col-md-6': !mapData.data.mapAdditionalProperty}" type=text placeholder="Add new" id="newAiqValue" ng-model="newRecord.aiqValue">
 |          </div>
 |        </div>
 |        <div class="form-group" ng-repeat="value in mapData.mapData.data | orderBy:'-'">

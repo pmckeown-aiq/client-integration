@@ -1,10 +1,11 @@
 |<script type="text/ng-template" id="TransactionLinesPopUp.html">
 |  <div class="modal-body">
 |      <table class="a table table-striped borderless">
-|        <thead><tr><td ng-repeat="col in displayLineValues">{{col.displayName}}</td></tr></thead>
+|        <thead><tr><th ng-repeat="col in displayLineValues">{{col.displayName}}</th><th>Message</th></tr></thead>
 |        <tbody>
 |          <tr ng-repeat-start='line in transaction.lines' ng-class="transaction.updateStatus.status" ng-if="hasLines">
 |          <td class="small" ng-repeat="col in displayLineValues">{{line[col.name]}} </td>
+|          <td>{{transaction.updateStatus.error}}</td>
 |          </tr>
 |          <tr ng-repeat-end><tr ng-repeat-end >
 |      </tbody></table>
