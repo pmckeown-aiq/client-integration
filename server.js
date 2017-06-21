@@ -8,7 +8,6 @@ var app = express();
 var ports = process.env.NODE_ENV === 'production'
   ? [80, 443]
   : [3442, 3443]
-/*
 // HTTPS Section 
 var https = require('https')
 var ports = process.env.NODE_ENV === 'production'
@@ -22,10 +21,11 @@ var server = https.createServer(
   app
 )
 // END HTTPS Section 
-*/
+/*
 // HTTP Section 
 var server = require('http').createServer(app);
 // END HTTP Section 
+*/
 
 
 var io = require('socket.io').listen(server);

@@ -285,7 +285,7 @@ app.controller('ManageMapDataPopUpController',function ($scope, $uibModalInstanc
       var newRecord = {};
       for (var key in $scope.newRecord) {
         if ($scope.newRecord.hasOwnProperty(key)) {
-	  console.log
+	  console.log('new Record ' + JSON.stringify($scope.newRecord));
           newRecord[key] = $scope.newRecord[key];
         }
       }

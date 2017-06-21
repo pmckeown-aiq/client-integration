@@ -17,11 +17,16 @@ module.exports = mapObject = function(mapObjects, feedTransactionArray, cb) {
   mapObjects.forEach(function(mapObject) {
     var mapWhat = mapObject.name;
     var mapFiles = {} 
-    if (fs.existsSync(appDir + '/clients/' + clientName + '/data/' + coID + '/' + mapWhat + '.map.json')) {
-      mapFiles[mapWhat] =  require(appDir + '/clients/' + clientName + '/data/' + coID + '/' + mapWhat + '.map.json');
+    var file = path.join(appDir + '/clients/' + clientName + '/data/' + coID + '/' +  mapWhat + '.map.json');
+    //if (fs.existsSync(appDir + '/clients/' + clientName + '/data/' + coID + '/' + mapWhat + '.map.json')) {
+    if (fs.existsSync(file)) {
+      //mapFiles[mapWhat] =  require(appDir + '/clients/' + clientName + '/data/' + coID + '/' + mapWhat + '.map.json');
+       mapFiles[mapWhat] = JSON.parse(fs.readFileSync(file)); 
+       //console.log('FS File ' + map);
     } else {
-      cb(new Error("File for data mapping does not exist - " + "/clients/" + clientName + "/data/" + coID + "/" + mapWhat + ".map.json"))
+      cb(new Error("File for data mapping does not exist - " + file ))
     }
+    console.log('MAPWHAT ' + JSON.stringify(mapFiles[mapWhat]));   
     // Extract from the transactions an array of all the values that need to be mapped
     myUniqueArray = _.chain(feedTransactionArray).map(function(item) { return item[mapWhat] }).uniq().value();
     console.log(JSON.stringify(myUniqueArray));
@@ -46,6 +51,8 @@ module.exports = mapObject = function(mapObjects, feedTransactionArray, cb) {
         var mappedCode = _.filter(mapFiles[mapWhat]['data'], { "sourceValue" : sourceValue });
         // actually returns a one line array - convert to pure JSON
         //console.log(mappedCode.length + ' is what we got back - did we get a match???');
+        console.log('mappedCode.length ' + mappedCode.length + ' ' + sourceValue);
+        console.log('FILE is ' + JSON.stringify(mapFiles[mapWhat]));
         if ( mappedCode.length == 1 ) {
           var mappedCode = mappedCode[0];    
           console.log(JSON.stringify(mappedCode) + ' is actually the code!');

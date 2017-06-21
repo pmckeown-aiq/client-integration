@@ -71,6 +71,7 @@ env: function(opts ,cb) {
 	     myMapObject.name = object.name;
 	     myMapObject.map = object.map;
 	     myMapObject.displayName = object.displayName;
+	     myMapObject.mapSourceType = object.mapSourceType;
 	     if ( object.mapAdditionalProperty ) {
 	       myMapObject.mapAdditionalProperty = object.mapAdditionalProperty;
 	       myMapObject.mapAdditionalValues = object.mapAdditionalValues;
