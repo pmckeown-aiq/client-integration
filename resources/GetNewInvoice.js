@@ -18,9 +18,9 @@ module.exports = GetNewInvoice = function(v) {
     console.log('GetNewInvoice comes with ' + JSON.stringify(v));
     Promise.all([aiq[transactionTemplate]({[templatingType]: v[templatingValue] })])
       .then((result) => {
-        console.log('1 Got result from Promise.all ' + JSON.stringify(result));
+        console.log('GetNewInvoice Got result from Promise.all ' + JSON.stringify(result));
         result = result[0].Result;
-        console.log('2 Got result[0].Result from Promise.all ' + JSON.stringify(result));
+        console.log('GetNewInvoice Got result[0].Result from Promise.all ' + JSON.stringify(result));
         // r is now a template - but not a complete template! It is missing a few required fields ... so we add them 
         result.OrderNumber = '';
         result.PaymentMethodID = '';

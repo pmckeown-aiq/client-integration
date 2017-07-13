@@ -54,26 +54,6 @@ function isValidDate(inputDate) {
   return inputDate.match(regEx) != null;
 }
 
-function getTaxRate(taxCodeArray, opts, cb) {
-  var validateWith = 'GetTaxCodeList';
-  var validate = require(appDir + '/resources/' + validateWith + '.js');
-  var returnArray = [];
-  // ValidateWhat should be CustomerCode or SupplierCode
-  console.log('SET LINE TAX CODE FROM ACCOUNT ' + opts.coID);
-  taxCodeArray.forEach(function(validateWhat) {
-    validate.doValidation(validateWith,validateWhat, opts.clientName, opts.coID, validateWhat, function(err, result){
-      if (typeof result.data != 'undefined' ) {
-        console.log('SET TAX CODE FOR LINES ' + JSON.stringify(result.data));
-        returnArray.push(result.data);
-      } else {
-        console.log('NO TAX CODE FROM ACCOUNT ' + opts.coID + ' ' + err);
-        cb('NO TAX CODE FROM ACCOUNT ' + opts.coID + ' ' + JSON.stringify(result), null);
-      }
-    })
-    console.log('Return ' + JSON.stringify(returnArray));
-    cb(null, returnArray);
-  })
-}
 
 function writeAttachment(consolidatedInvoice, opts) {
   return new Promise(function(resolve, reject){
@@ -89,36 +69,25 @@ function writeAttachment(consolidatedInvoice, opts) {
           console.log("Edit File");
           // edit worksheet
           var worksheet = workbook.getWorksheet("Inv 1");
-          //worksheet.getCell('A7').value = consolidatedInvoice.AccountName;
-          //worksheet.getCell('A8').value = consolidatedInvoice.Address1;
-          //worksheet.getCell('A9').value = consolidatedInvoice.Address2;
-          //worksheet.getCell('A10').value = consolidatedInvoice.City;
-          //worksheet.getCell('A11').value = consolidatedInvoice.County_State;
-          //worksheet.getCell('A12').value = consolidatedInvoice.PostCode;
-          //worksheet.getCell('H13').value = consolidatedInvoice.InvoiceDate;
+          worksheet.getCell('A7').value = consolidatedInvoice.AccountName;
+          worksheet.getCell('A8').value = consolidatedInvoice.Address1;
+          worksheet.getCell('A9').value = consolidatedInvoice.Address2;
+          worksheet.getCell('A10').value = consolidatedInvoice.City;
+          worksheet.getCell('A11').value = consolidatedInvoice.County_State;
+          worksheet.getCell('A12').value = consolidatedInvoice.PostCode;
+          worksheet.getCell('H13').value = consolidatedInvoice.InvoiceDate;
           //worksheet.getCell('J13').value = consolidatedInvoice.;
-          //worksheet.getCell('H15').value = consolidatedInvoice.CustomerCode;
-          //worksheet.getCell('J15').value = consolidatedInvoice.OrderNumber;
+          worksheet.getCell('H15').value = consolidatedInvoice.CustomerCode;
+          worksheet.getCell('J15').value = consolidatedInvoice.OrderNumber;
           console.log("Add rows ..");
           consolidatedInvoice.lines.forEach(function(line) {
-            console.log('ADD LINE ' + consolidatedInvoice.SummarySubAccount + ' or ' + line.SummarySubAccount);
-            worksheet.addRow([line.ExternalReference, consolidatedInvoice.SummarySubAccount, line.StockItemDescriptionType3, line.WorkOrder, line.WorkOrderDate, line.InvoicedQuantity, line.StockItemPrice, line.NetAmount, line.TaxAmount, line.NetAmount + line.TaxAmount ]);
+            worksheet.addRow([line.StockItemID, consolidatedInvoice.SummarySubAccount, line.StockItemDescription, line.WorkOrder, line.WorkOrderDate, line.InvoicedQuantity, line.StockItemPrice, line.NetAmount, line.TaxAmount, line.NetAmount + line.TaxAmount ]);
           });
-          // Add totals 
-          var rowValues = [];
-          rowValues[8] = consolidatedInvoice.NetAmount;
-          rowValues[9] = consolidatedInvoice.TaxAmount;
-          rowValues[10] = parseFloat(consolidatedInvoice.NetAmount) + parseFloat(consolidatedInvoice.TaxAmount);
-          worksheet.addRow(rowValues);
-          var row = worksheet.lastRow;
-          row.font = { name: 'Calibri', size: 10, bold: true };
           console.log("DONE Edit File" + consolidatedInvoice.lines.length);
           console.log("Write File - " + appDir + '/clients/' + opts.clientName + '/data/' + opts.coID + '/' + attachmentFileName  + '.' + opts.processRules.attachDocument.attachmentType);
         })
         .then(function() {
           workbook.xlsx.writeFile(appDir + '/clients/' + opts.clientName + '/data/' + opts.coID + '/' + attachmentFileName  + '.' + opts.processRules.attachDocument.attachmentType);
-          console.log('attach to invoice');
-          consolidatedInvoice.AttachDocument = appDir + '/clients/' + opts.clientName + '/data/' + opts.coID + '/' + attachmentFileName  + '.' + opts.processRules.attachDocument.attachmentType;
           console.log("Done - resolve Promise");
           resolve(consolidatedInvoice);
         })
@@ -143,31 +112,19 @@ function createConsolidatedInvoices(customer, invoiceLines, opts) {
     consolidatedInvoice = {};
     consolidatedInvoice.lines = [];
     consolidatedInvoice.CustomerCode = myInvoices[0].CustomerCode;
-    consolidatedInvoice.SummarySubAccount = myInvoices[0].SummarySubAccount;
     consolidatedInvoice.Notes = myInvoices[0].Notes;
     consolidatedInvoice.OrderNumber = myInvoices[0].OrderNumber;
     consolidatedInvoice.ShipmentViaID = myInvoices[0].ShipmentViaID;
-    consolidatedInvoice.ExternalReference = myInvoices[0].CustomerCode + '-' + myInvoices[0].InvoiceDate;
-    consolidatedInvoice.InvoiceDate = myInvoices[0].InvoiceDate;
-    if ( !isValidDate(consolidatedInvoice.InvoiceDate) )  {
-      consolidatedInvoice.updateStatus = { 'status': 'warning', 'error': consolidatedInvoice.ExternalReference + ' INVOICE DATE IS NOT A VALID DATE' };
-    } // all other dates come from the same place so no need to validate
-    consolidatedInvoice.CreationDate = consolidatedInvoice.InvoiceDate;
-    consolidatedInvoice.DeliveryDate = consolidatedInvoice.InvoiceDate;
-    consolidatedInvoice.OrderDate = consolidatedInvoice.InvoiceDate;
+    consolidatedInvoice.ExternalReference = myInvoices[0].CustomerCode;
+    consolidatedInvoice.InvoiceDate = formatDateRSS(myInvoices[0].InvoiceDate);
+    consolidatedInvoice.CreationDate = formatDateRSS(myInvoices[0].InvoiceDate);
+    consolidatedInvoice.DeliveryDate = formatDateRSS(myInvoices[0].InvoiceDate);
+    consolidatedInvoice.OrderDate = formatDateRSS(myInvoices[0].InvoiceDate);
     // now need to loop through the non-consolidated invoices (myInvoices) for this customer
     myInvoices.forEach(function(invoice) {
       invoice.lines = [];
       console.log('Inspect invoice ' + invoice.ExternalReference);
       invoice.lines = _.filter(invoiceLines, { ExternalReference : invoice.ExternalReference });
-      invoice.lines.forEach(function(line) {
-        myTaxCode = _.filter(opts.taxRateArray, { Code: "S" });
-        console.log('myTaxCode ' + JSON.stringify(myTaxCode));
-        if (myTaxCode.length == 1 ) {
-         line.TaxAmount = parseFloat(line.NetAmount) * parseFloat(myTaxCode[0].Rate);
-         console.log('Tax Amount ' + line.TaxAmount);
-        }
-      })
       // Push the invoice lines into the consolidated invoice lines
       //console.log('PUSH ' + JSON.stringify(invoice.lines.length));
       // concatenate the lines to the array
@@ -218,11 +175,10 @@ function summariseConsolidatedInvoice(consolidatedInvoice, opts) {
           consolidatedInvoice.updateStatus = { 'status': "danger", 'error':'Summary Net Total Did Not Match Original Net Total' };
         }
         if ( newTotals.TaxAmount !== consolidatedInvoice.TaxAmount ) {
-          // mark the invoice - COMMENTED OUT AS FOR REDUCED LINES USED FOR TESTING THIS FAILS - AS WE HAVE CUT OUT SOME LINES AND THE TAX AMOUNT IS FROM THE HEADER (WHICH WOULD BE FOR ALL LINES - NOT THE REDUCED LINES!)
+          // mark the invoice - COMMENTED OUT AS FOR REDUCED LINES USED FOR TESTING THIS FAILS - AS WE HAVE CUT OUT SOME LINES AND THE TAX AMOUNT IS FROM THE HEADER (WHICH WOULD BE FOR ALL LINES - NOT THE REDUCED LINES!) 
           //invoice.updateStatus = { 'status': "danger", 'error':'Summary Tax Total Did Not Match Original Tax Total' };
         }
         console.log('resolve summariseConsolidated invoice ...');
-        console.log(JSON.stringify(consolidatedInvoice));
         resolve(consolidatedInvoice);
       })
       .catch(function (err) {
@@ -230,11 +186,9 @@ function summariseConsolidatedInvoice(consolidatedInvoice, opts) {
       });
 };
 
-function processNonConsolidatedInvoice(invoice, invoiceLines, opts) {
+function processNonConsolidatedInvoice(invoice) {
   return new Promise(function(resolve, reject){
-    if ( !isValidDate(invoice.InvoiceDate) )  {
-      invoice.updateStatus = { 'status': 'warning', 'error': invoice.ExternalReference + ' INVOICE DATE IS NOT A VALID DATE' };
-    } // all other dates come from the same place so no need to validate
+    invoice.InvoiceDate = formatDateRSS(invoice.InvoiceDate);
     invoice.CreationDate = invoice.InvoiceDate;
     invoice.DeliveryDate = invoice.InvoiceDate;
     invoice.OrderDate = invoice.InvoiceDate;
@@ -244,10 +198,9 @@ function processNonConsolidatedInvoice(invoice, invoiceLines, opts) {
     // Add the date range to the first line ...
     if ( invoice.lines.length > 0 ) {
       invoice.lines[0].Notes = invoice.LineDataRange;
-      invoice.lines[0].SummarySubAccount = invoice.SummarySubAccount;
     }
-    // Summarising of Invoices
-    // Type 1 - No Summary
+    // Summarising of Invoices 
+    // Type 1 - No Summary 
     // Type 2 - No Summary
     // Type 3 - Summary by product, but change on price (when same product has different prices), glcode and analysis. Also put the sub account (SummarySubAccount)
     // on every line ...
@@ -262,6 +215,41 @@ function processNonConsolidatedInvoice(invoice, invoiceLines, opts) {
     })
 };
 
+/*
+function processConsolidatedInvoices(consolidatedCustomers, opts, invoiceLines) {
+  return new Promise(function(resolve, reject){
+    // CONSOLOIDATED INVOICES ..
+    //consolidatedCustomers.forEach(function(customer) {
+    console.log('call async forEach ');
+    async.forEachLimit(consolidatedCustomers, 5, function(customer, next) {
+      console.log('in async for ' + customer);
+      createConsolidatedInvoice(customer, invoiceLines, opts)
+        .then(function(consolidatedInvoice) {
+          console.log('Call writeAttachment');
+          return writeAttachment(consolidatedInvoice, opts)
+        })
+        .then(function(consolidatedInvoice) {
+          console.log('Call writeAttachment');
+          return summariseConsolidatedInvoice(consolidatedInvoice, opts)
+        })
+        .catch(function(err) {
+          console.log('error in writeAttachment ' + err);
+        })
+        .then(function(consolidatedInvoice) {
+          console.log('PROMISE RESOLVED');
+          console.log('Push consolidatedInvoice into processedTransactions');
+          processedTransactions.push(consolidatedInvoice);
+          console.log('processedTransactions ' + processedTransactions.length);
+          next();
+        })
+        .catch(function(err) {
+          console.log('error in processConsolidatedInvoice ' + err);
+          next();
+        })
+    });
+  })
+};
+*/
 processData.prototype.RSSQLInvoices = async function(feedTransactions, opts, options, cb) {
   console.log('Running Process Data for Kefron ' + JSON.stringify(options) );
   // Array to return from processData
@@ -281,7 +269,7 @@ processData.prototype.RSSQLInvoices = async function(feedTransactions, opts, opt
       ExternalReference: obj.field4,
       Notes: obj.field5, 
       SummarySubAccount: obj.field5, // we will also use field 5 to summarise invoices where the type is 3 ...
-      InvoiceDate: formatDateRSS(obj.field7),
+      InvoiceDate: obj.field7,
       OrderNumber: obj.field8,
       AccountName: obj.field10,
       AccountAddress1: obj.field11,
@@ -301,9 +289,7 @@ processData.prototype.RSSQLInvoices = async function(feedTransactions, opts, opt
     return {
       ExternalReference: obj.field2,
       GLAccountCode: obj.field4,
-      SummarySubAccount: obj.field5,
       StockItemDescription: (obj.field13 + obj.field9).trim(),
-      StockItemDescriptionType3: (obj.field9).trim(),
       WorkOrder: obj.field13.split(" ")[0],
       WorkOrderDate: obj.field13.split(" ")[1],
       DepartmentID: obj.field12 + "-" + obj.field11 ,
@@ -321,63 +307,110 @@ processData.prototype.RSSQLInvoices = async function(feedTransactions, opts, opt
   console.log(JSON.stringify(feedTransactions[0]));
   consolidatedHeaders = _.filter(invoiceHeaders, { SummationType: "3" });
   console.log('Consolidate ' + JSON.stringify(consolidatedHeaders.length));
-  taxCodesArray = _.chain(invoiceLines).map(function(item) { return item.TaxCode }).uniq().value();
-  getTaxRate(taxCodesArray, opts, function(err, data) {
-    if (err) throw err;
-    console.log('TAX ARRAY ' + JSON.stringify(data));
-    opts.taxRateArray = data;
-    consolidatedCustomers = _.chain(consolidatedHeaders).map(function(item) { return item.CustomerCode }).uniq().value();
-    type1Customers = _.filter(invoiceHeaders, { SummationType: "1" });
-    type2Customers = _.filter(invoiceHeaders, { SummationType: "2" });
-    nonConsolidatedHeaders = _.union(type1Customers,type2Customers);
-    console.log('CONSOLIDATE CUSTOMERS COUNT ' + consolidatedCustomers.length);
-    console.log('NON CONSOLIDATE INVOICES COUNT ' + invoiceHeaders.length);
-    //await Promise.all(consolidatedCustomers.map(function (customer) {
-  async.series([
-      function(callback) {
-        Promise.all(consolidatedCustomers.map(function (customer) {
-          return createConsolidatedInvoices(customer, invoiceLines, opts);
-        }))
-        .then(consolInvArray => { 
-          console.log('consolInvArray length ' + consolInvArray.consolInvArray);
-          return Promise.all(consolInvArray.map(function (consolidatedInvoice) {
-              return writeAttachment(consolidatedInvoice, opts)
-           }))
-        })
-        .then(consolInvArray => { 
-          console.log('consolInvArray length ' + consolInvArray.length);
-          return Promise.all(consolInvArray.map(function (consolidatedInvoice) {
-              return summariseConsolidatedInvoice(consolidatedInvoice, opts)
-           }))
-        })
-        .then(consolInvArray => { 
-          console.log('process 1 complete - callback time');
-          callback(null, consolInvArray);
-        }).catch(function(e) {
-          console.log(e); // "oh, no!"
-        });
-      },
-      function(callback) {
-        Promise.all(nonConsolidatedHeaders.map(function (invoice) {
-          return processNonConsolidatedInvoice(invoice, invoiceLines, opts);
-        }))
-        .then(nonConsolInvArray => { 
-          console.log('process 2 complete - callback time');
-          callback(null, nonConsolInvArray);
-        }).catch(function(e) {
-          console.log(e); // "oh, no!"
-        });
-      }
+  consolidatedCustomers = _.chain(consolidatedHeaders).map(function(item) { return item.CustomerCode }).uniq().value();
+  type1Customers = _.filter(invoiceHeaders, { SummationType: "1" });
+  type2Customers = _.filter(invoiceHeaders, { SummationType: "2" });
+  nonConsolidatedHeaders = _.union(type1Customers,type2Customers);
+  console.log('nonConsolidatedHeaders ' + JSON.stringify(nonConsolidatedHeaders.length));
+function firstMethod () {
+   var promise = new Promise(function(resolve, reject){
+      setTimeout(function() {
+         console.log('first method completed');
+         resolve({data: '123'});
+      }, 2000);
+   });
+   return promise;
+};
+ 
+ 
+function secondMethod (someStuff) {
+   var promise = new Promise(function(resolve, reject){
+      setTimeout(function() {
+         console.log('second method completed');
+         resolve({newData: someStuff.data + ' some more data'});
+      }, 2000);
+   });
+   return promise;
+};
+ 
+function thirdMethod (someStuff) {
+   var promise = new Promise(function(resolve, reject){
+      setTimeout(function() {
+         console.log('third method completed');
+         resolve({result: someStuff.newData});
+      }, 3000);
+   });
+   return promise;
+};
+ 
+promiseForeach.each(consolidatedCustomers,
+  [
+        function (customer){
+            return createConsolidatedInvoices(customer, invoiceLines, opts)
+        },
+        function (customer){
+            return writeAttachment(customer, invoiceLines, opts)
+        }
     ],
-    // callback to integration.js
-    function(err, processedTransactions) {
-      // results is now equal to ['one', 'two']
-      console.log('process  complete - callback time');
-      processedTransactions = processedTransactions.reduce((a, b) => a.concat(b), []);
-          console.log('CALLBACK Transactions Count ' + processedTransactions.length);
-      cb(null, processedTransactions)
-    });
-  })
+    function (arrResult, customer) {
+        return {
+            //fullName: customer[0],
+            //photo: customer[1],
+            customer: customer[2]
+        }
+    },
+    function (err, newList) {
+        if (err) {
+            console.error(err)
+            return;
+        }
+        console.log('newList : ', newList)
+    })
+
+
+    /*async.forEach(consolidatedCustomers, function(customer, next) {
+    console.log('call async forEach ');
+      console.log('in async for ' + customer);
+         .then(next()));
+    // CONSOLOIDATED INVOICES ..
+    //consolidatedCustomers.forEach(function(customer) {
+      createConsolidatedInvoice(customer, invoiceLines, opts)
+        //.then((consolidatedInvoice) {
+        //  console.log('Call writeAttachment');
+        //  writeAttachment(consolidatedInvoice, opts)
+        //})
+        .then((consolidatedInvoice) {
+          console.log('Call SummariseInvoice');
+          summariseConsolidatedInvoice(consolidatedInvoice, opts)
+        })
+        .catch(function(err) {
+          console.log('error in writeAttachment ' + err);
+        })
+        .then((consolidatedInvoice) {
+          console.log('PROMISE RESOLVED');
+          console.log('Push consolidatedInvoice into processedTransactions');
+          processedTransactions.push(consolidatedInvoice);
+          console.log('processedTransactions ' + processedTransactions.length);
+          next();
+        })
+        .catch(function(err) {
+          console.log('error in processConsolidatedInvoice ' + err);
+          next();
+        })
+    }, function(err) {
+      if (err) return next(err);
+    }) // end async.forEach
+*/
+  // NON CONSOLIDATED INVOICES ...
+ // nonConsolidatedHeaders.forEach(function(invoice) {
+ //   processNonConsolidatedInvoices(invoice) 
+ //     .then(function(invoice) {
+ //       processedTransactions.push(invoice);
+ //     })
+ // });
+  //console.log(JSON.stringify(processedTransactions));
+  // And at the end return the transactions
+   cb('process  complete');
 }
 
 processData.prototype.ScanningInvoices = function(feedTransactions, opts, options ) {
@@ -412,6 +445,7 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
       // Net Amount not supplied
       newLine.NetAmount = newLine.InvoicedQuantity * newLine.StockItemPrice;
       newLine.NetAmount = (newLine.NetAmount.toFixed(2)/1);
+      //invoice.NetAmount += newLine.NetAmount;
       invoice.lines.push(newLine);
     });
     console.log('A single invoice: ' + JSON.stringify(invoice));

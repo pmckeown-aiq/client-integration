@@ -40,6 +40,7 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
   var config = require(appDir + '/conf/config.js');
   // Array to hold the validation results to be sent back to the client as an array ..
   var invalidData = [];
+  console.log('Objects to validate ' + JSON.stringify(validateObjects));
   validateObjects.forEach(function(validateObject) {
     console.log(JSON.stringify(validateObject));
     var validateWhat = validateObject.name;

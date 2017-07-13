@@ -256,7 +256,13 @@ process.on('message', function (options) {
             var processData = require(opts.processRules.processScript);
             this.processData = new processData(this);
             var feedTransactionArray = [];
-            feedTransactionArray = this.processData[opts.type](feedTransactions, opts, options);
+            this.processData[opts.type](feedTransactions, opts, options, function (err, feedTransactionArray) {
+              if (err) return console.error(err);
+            console.log('processData has come back');
+            console.log('processData has come back' + feedTransactionArray.length);
+            console.log('processData has come back' + feedTransactionArray[0].length);
+
+            //feedTransactionArray = this.processData[opts.type](feedTransactions, opts, options);
             // NEVER NEVER SEND THE FULL OPTIONS !!!!!
             process.send({ "loadDataStatus": { message: " Completed processing transactions ... now validating the data and applying data maps please wait ..." }}); 
             /* Load the resources files 
@@ -367,6 +373,7 @@ process.on('message', function (options) {
                 invalidData = null;
                 feedTransactions = null;
             });
+            });
           } else {
             console.log('NO TRANSACTIONS');
             //process.send({ "error" : "error - no Transactions returned" })
@@ -472,7 +479,6 @@ process.on('message', function (options) {
         this.updateData[transactionType](opts, function (err, data) {
           if (err) return console.error(err);
           console.log(data.toString());
-          
         });
       });
     }
