@@ -380,7 +380,7 @@ processData.prototype.RSSQLInvoices = async function(feedTransactions, opts, opt
   })
 }
 
-processData.prototype.ScanningInvoices = function(feedTransactions, opts, options ) {
+processData.prototype.ScanningInvoices = function(feedTransactions, opts, options, cb ) {
   console.log('Running Process Data for Kefron ' + JSON.stringify(opts) );
   // Array to return from processData
   processedTransactions = [];
@@ -425,10 +425,11 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
     processedTransactions.push(invoice);
   })
   // And at the end return the transactions
-  return processedTransactions;
+  cb(null, processedTransactions);
+  //return processedTransactions;
 }
 
-processData.prototype.PayrollImport = function(feedTransactions, opts, options ) {
+processData.prototype.PayrollImport = function(feedTransactions, opts, options , cb) {
   console.log('Running Process Data for Kefron ' + JSON.stringify(opts) );
   console.log('Running Process Data for Kefron ' + JSON.stringify(options) );
   // Array to return from processData
@@ -461,5 +462,6 @@ processData.prototype.PayrollImport = function(feedTransactions, opts, options )
   });	  
   console.log(JSON.stringify(myJournal));
   processedTransactions.push(myJournal);
-  return processedTransactions;
+  cb(null, processedTransactions);
+  //return processedTransactions;
 }
