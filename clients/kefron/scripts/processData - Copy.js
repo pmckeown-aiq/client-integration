@@ -61,7 +61,6 @@ function getTaxRate(taxCodeArray, opts, cb) {
   // ValidateWhat should be CustomerCode or SupplierCode
   console.log('SET LINE TAX CODE FROM ACCOUNT ' + opts.coID);
   taxCodeArray.forEach(function(validateWhat) {
-   console.log('SET LINE TAX CODE FROM ACCOUNT ' + opts.coID);
     validate.doValidation(validateWith,validateWhat, opts.clientName, opts.coID, validateWhat, function(err, result){
       if (typeof result.data != 'undefined' ) {
         console.log('SET TAX CODE FOR LINES ' + JSON.stringify(result.data));
@@ -90,6 +89,17 @@ function writeAttachment(consolidatedInvoice, opts) {
           console.log("Edit File");
           // edit worksheet
           var worksheet = workbook.getWorksheet("Inv 1");
+          //worksheet.getCell('A7').value = consolidatedInvoice.AccountName;
+          //worksheet.getCell('A8').value = consolidatedInvoice.Address1;
+          //worksheet.getCell('A9').value = consolidatedInvoice.Address2;
+          //worksheet.getCell('A10').value = consolidatedInvoice.City;
+          //worksheet.getCell('A11').value = consolidatedInvoice.County_State;
+          //worksheet.getCell('A12').value = consolidatedInvoice.PostCode;
+          //worksheet.getCell('H13').value = consolidatedInvoice.InvoiceDate;
+          //worksheet.getCell('J13').value = consolidatedInvoice.;
+          //worksheet.getCell('H15').value = consolidatedInvoice.CustomerCode;
+          //worksheet.getCell('J15').value = consolidatedInvoice.OrderNumber;
+          console.log("Add rows ..");
           consolidatedInvoice.lines.forEach(function(line) {
             console.log('ADD LINE ' + consolidatedInvoice.SummarySubAccount + ' or ' + line.SummarySubAccount);
             worksheet.addRow([line.ExternalReference, line.SummarySubAccount, line.StockItemDescriptionType3, line.WorkOrder, line.WorkOrderDate, line.InvoicedQuantity, line.StockItemPrice, line.NetAmount, line.TaxAmount, line.NetAmount + line.TaxAmount ]);
@@ -179,8 +189,7 @@ function createConsolidatedInvoices(customer, invoiceLines, opts) {
 function summariseConsolidatedInvoice(consolidatedInvoice, opts) {
   return new Promise(function(resolve, reject){
         // Ok - we have written the attachment - so we need to then summarise the lines ...
-        //var props = ['SummarySubAccount', 'GLAccountCode', 'TaxCode' ,'StockItemID', 'StockItemDescriptionType3', 'ActualPrice', 'StockItemPrice', 'DepartmentID'];
-        var props = ['GLAccountCode', 'TaxCode' ,'StockItemID', 'StockItemDescriptionType3', 'ActualPrice', 'StockItemPrice', 'DepartmentID'];
+        var props = ['SummarySubAccount', 'GLAccountCode', 'TaxCode' ,'StockItemID', 'StockItemDescriptionType3', 'ActualPrice', 'StockItemPrice', 'DepartmentID'];
         var myFilters = _.map(consolidatedInvoice.lines,_.partialRight(_.pick, props));
         var uniqueFilters = _.uniqWith(myFilters,  _.isEqual);
         console.log('I have PROPS ' + JSON.stringify(props));
@@ -394,7 +403,7 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
       invoice[headerVal.name] = safeEval( 'head[\'' + headerVal.value + '\']', {head : myLines[0] });
     }) ;
     // External Ref is just a period number
-    invoice.ExternalReference = invoice.CustomerCode + ':' + invoice.ExternalReference;
+    invoice.ExternalReference = 'Period:' + invoice.ExternalReference;
     invoice.lines = [];
     myLines.forEach(function(myLine) {
       newLine = {};
@@ -414,7 +423,6 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
     invoice.CreationDate = formatDate(invoice.CreationDate);
     invoice.DeliveryDate = formatDate(invoice.DeliveryDate);
     invoice.OrderDate = formatDate(invoice.OrderDate);
-    invoice.NetAmount = _.sumBy(invoice.lines, 'NetAmount');
     processedTransactions.push(invoice);
   })
   // And at the end return the transactions
