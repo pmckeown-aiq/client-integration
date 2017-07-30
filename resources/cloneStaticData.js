@@ -19,11 +19,11 @@ var appLog = bunyan.createLogger({
 
 async function createDepartment(v, slave) {
   var obj = await new Promise ((resolve, reject) => {
-    console.log('Cloning static data ' + v.id + ' env ' + slave.url );
+    //console.log('Cloning static data ' + v.id + ' env ' + slave.url );
     soap.createClient(slave.url, (err, client) => {
       var aiq = new aiqClient(client, slave.pKey, slave.uKey, slave.coID);
       aiq['CreateDepartment'](v, (err, result) => {
-	console.log('resolve with ' + JSON.stringify(result));
+	//console.log('resolve with ' + JSON.stringify(result));
         resolve(result)
       })
     });
@@ -61,7 +61,7 @@ module.exports = {
      }
      objectsToValidate.forEach(function(objectToValidate) {
        var thisObject = codeMaintenanceSettings[objectToValidate];
-      console.log("thisObject is " + JSON.stringify(thisObject))
+      //console.log("thisObject is " + JSON.stringify(thisObject))
       if (thisObject.validateWith == "GetDepartmentList") {
        var validateWith = thisObject.validateWith;
        process.send({"extract": objectToValidate ,"success":false})
@@ -73,7 +73,7 @@ module.exports = {
            masterEnv.push({ "url": opts.connection.url, "clientName": clientName, "coID": opts.coID, "pKey": opts.connection.pKey, "uKey": opts.connection.uKey });	
        // Check if we have more than one database configured
        if ( typeof opts.additionalEnvs !== 'undefined' ) {
-         console.log('We have a second database to extract from! ' + JSON.stringify(opts.additionalEnvs));
+         //console.log('We have a second database to extract from! ' + JSON.stringify(opts.additionalEnvs));
 	 // additional environments are stored in an array
 	 opts.additionalEnvs.forEach(function(additionalEnv) {
 	   // push the additional environment into the extractEnvs array ...
@@ -81,9 +81,9 @@ module.exports = {
            slaveEnv.push({ "url": opts.connection.url, "clientName": clientName, "coID": additionalEnv.coID, "pKey": opts.connection.pKey, "uKey": additionalEnv.uKey });	
          })
        }
-       console.log('Slave environments ' + JSON.stringify(slaveEnv.length));
-       console.log('masterEnv: ' + JSON.stringify(masterEnv));
-       console.log('slaveEnv: ' + JSON.stringify(slaveEnv));
+       //console.log('Slave environments ' + JSON.stringify(slaveEnv.length));
+       //console.log('masterEnv: ' + JSON.stringify(masterEnv));
+       //console.log('slaveEnv: ' + JSON.stringify(slaveEnv));
        // Now run through each extractEnvs (may be just one!) 
        slaveEnv.forEach(function(slave) {
          // Open the masterEnv data file (file produced by extractStaticData (for speed not a direct connection to the SOAP API (done inside the slaveEnv loop - as want a fresh copy of masterData on each pass (as we are editing the array to remove items already existing in the slave
@@ -92,7 +92,7 @@ module.exports = {
        if ( typeof masterData[0].Result !== 'undefined' ) {
          if ( typeof masterData[0].Result.Department === 'undefined' ) {
            process.send({ "error" : "error in cloneStaticData " , "data": "No master data to clone from"});
-           console.log(JSON.stringify(masterData));
+           //console.log(JSON.stringify(masterData));
            throw ("No master data to clone from");
          }
        } else {
@@ -100,8 +100,8 @@ module.exports = {
            throw ("No master data to clone from");
        }
          var slaveData = require(appDir + '/clients/' + clientName + '/data/' + slave.coID + '/GetDepartmentList.extract.json');
-	 console.log('masterData1 : ' + masterData[0].Result.Department.length);
-	 console.log('slaveData : ' + slave.coID + ';'  + slaveData[0].Result.Department.length);
+	 //console.log('masterData1 : ' + masterData[0].Result.Department.length);
+	 //console.log('slaveData : ' + slave.coID + ';'  + slaveData[0].Result.Department.length);
          if ( typeof slaveData[0].Result !== 'undefined' ) {
            if ( typeof slaveData[0].Result.Department === 'undefined' ) {
              process.send({ "error" : "error in cloneStaticData " , "data": "No slave data  - extract file should have at least one record in it."});
@@ -114,13 +114,13 @@ module.exports = {
 	 // Compare the two arrays of objects - for Departments the field is DepartmentID
          // Grab the list from the slave environment
          slaveKeys = _.map(slaveData[0].Result.Department, 'DepartmentID'); 
-         console.log('slaveKeys are ' + JSON.stringify(slaveKeys));
+         //console.log('slaveKeys are ' + JSON.stringify(slaveKeys));
 	 // now reject 
 	 _.forEach(slaveKeys, function(key) {
-           //console.log('Remove ' + key);
+           ////console.log('Remove ' + key);
 	   masterData[0].Result.Department = _.reject(masterData[0].Result.Department, { "DepartmentID": key });
          });
-         console.log('After remove masterData is ' + masterData[0].Result.Department.length);
+         //console.log('After remove masterData is ' + masterData[0].Result.Department.length);
          masterData[0].Result.Department.forEach(function(record) {
            if (record.DepartmentID !== "ABB01" ) {
 	     v = {};

@@ -17,7 +17,7 @@ module.exports = {
     if (myCode.length === 1) {
       return cb(null, { "code": myCodeToCheck, "exists": true, "data": myCode[0] });
     } else {
-      console.log('NOT FOUND STOCK ITEM ' + JSON.stringify(myCode) + ' ' + myCodeToCheck + ' in ' + file );
+      //console.log('NOT FOUND STOCK ITEM ' + JSON.stringify(myCode) + ' ' + myCodeToCheck + ' in ' + file );
       return cb(null, { "code": myCodeToCheck, "exists": false });
     }
   }

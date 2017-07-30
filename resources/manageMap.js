@@ -6,27 +6,27 @@ var appDir = path.dirname(require.main.filename);
 module.exports = {
   // Get the codes for mapping data from source to accountsIQ
   loadMap: function(options, cb) {
-    console.log('LOADMAP SEE ' + JSON.stringify(options));
+    //console.log('LOADMAP SEE ' + JSON.stringify(options));
     var mapFileName = options.data.name + '.map.json';
     var clientName = options.data.clientName.replace(/"/g,"");
     var coID = options.data.coID.replace(/"/g,"");
 
     var file = path.join(appDir + '/clients/' + clientName + '/data/' + coID + '/' + mapFileName);
     if (fs.existsSync(file)) {
-      console.log('GOT ' + file);
+      //console.log('GOT ' + file);
       //var map = require(file);
       fs.readFile(file, (err, map) => {
         if (err) throw err;
-        //console.log('FS File ' + map);
+        ////console.log('FS File ' + map);
         cb(JSON.parse(map));
       });
     } else {
-      console.log('Not able to load '+ file + ' data file');
+      //console.log('Not able to load '+ file + ' data file');
     }
   },
   // Update the codes for mapping data from source to accountsIQ
   updateMap: function(options, cb) {
-    console.log('UPDATEMAP OPTIONS ' + JSON.stringify(options));
+    //console.log('UPDATEMAP OPTIONS ' + JSON.stringify(options));
     var mapFileName = options.data.name.replace(/"/g,"") + ".map.json";
     var clientName = options.data.clientName.replace(/"/g,"");
     var coID = options.data.coID.replace(/"/g,"");
@@ -38,7 +38,7 @@ module.exports = {
             options.mapData.data.forEach(function(line) {
 	      delete line.$$hashKey;
 	    })
-            console.log('GOT ' + file + ' - going to write - ' + JSON.stringify(options.mapData));
+            //console.log('GOT ' + file + ' - going to write - ' + JSON.stringify(options.mapData));
             fs.writeFile(file, JSON.stringify(options.mapData), function(err) {
               if (err) throw err;
               cb(null, 'file saved'); 

@@ -76,8 +76,8 @@ module.exports = {
               return cb(isSuccess);
             })
             .fail(err => {
-               console.log('FAIL load static data ' + validateWith + ' env ' + extractEnv.coID );
-               console.log(JSON.stringify(err));
+               //console.log('FAIL load static data ' + validateWith + ' env ' + extractEnv.coID );
+               //console.log(JSON.stringify(err));
                var isSuccess = { 'extract' : objectToValidate , 'coID': extractEnv.coID, 'success' : false , 'error': err}; 
                return cb(isSuccess);
             })

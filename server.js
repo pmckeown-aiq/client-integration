@@ -8,7 +8,6 @@ var app = express();
 var ports = process.env.NODE_ENV === 'production'
   ? [80, 443]
   : [3442, 3443]
-/*
 // HTTPS Section 
 var https = require('https')
 var ports = process.env.NODE_ENV === 'production'
@@ -22,10 +21,11 @@ var server = https.createServer(
   app
 )
 // END HTTPS Section 
-*/
+/*
 // HTTP Section 
 var server = require('http').createServer(app);
 // END HTTP Section 
+*/
 
 
 var io = require('socket.io').listen(server);
@@ -196,7 +196,7 @@ app.post('/getConfig', ensureAuthenticated, function (req, res) {
         }); 
 	var data = { coIDs: coIDs , types: types };
 	res.send(data);
-	console.log('JUST SENT ' + JSON.stringify(data));
+	//console.log('JUST SENT ' + JSON.stringify(data));
 });
 
 // Handle post for file upload
@@ -207,14 +207,14 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
     var feedType = req.body.feedType ;
     var clientName = req.body.clientName ;
     var loadDataFilters = req.body.loadDataFilters ;
-    console.log('Got From /upload post ' + JSON.stringify(req.body));
+    //console.log('Got From /upload post ' + JSON.stringify(req.body));
     // if feedType is api - we do not actually have a file to upload
     // TODO instead of upload test the API config
 	
     // set where the file should actually exists - in this case it is in the "images" directory
-    console.log('feedType is ' + feedType)
+    //console.log('feedType is ' + feedType)
     if ( feedType == 'csv' ) {
-      console.log('process a csv feedType');
+      //console.log('process a csv feedType');
       if ( typeof req.files.file !== 'undefined' ) {
         var tempPath = req.files.file.path;
         var fileName = req.files.file.name;
@@ -225,7 +225,7 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
       var target_path = './public/data/' + fileName;
       var logFile = './public/logs/' +fileName + '.log'
       // Check to see if file exists
-      console.log('check if file exists')
+      //console.log('check if file exists')
       if (fs.existsSync(target_path)) {
         var fileData = { 'file': fileName , 'logFileName': logFile, 'danger' : fileName + ' already exists. Please ensure that it has not already been uploaded!' };
       } else {
@@ -238,10 +238,10 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
           //throw err;
           io.sockets.emit({ "error": "uploadFileFailed", "data": err });
         } 
-        console.log
+        //console.log
       });
       // ToDo - come up with a decent name for an api log append name
-      console.log('process a api feedType');
+      //console.log('process a api feedType');
       var tempPath = 'api';
       var fileName = 'api';
     } else {
@@ -249,10 +249,10 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
       var logFile = './public/logs/' + Date.now() + '.log'
       var fileData = { 'file': 'API', 'logFileName': logFile };
     }
-    console.log('success!')
+    //console.log('success!')
     // Going to grab a log file to use .. it will be the name of the upload
     // file (but in /public/log 
-    console.log('log file is ' + logFile );
+    //console.log('log file is ' + logFile );
     fs.closeSync(fs.openSync(logFile, 'w'));
     var appLog = bunyan.createLogger({
       name: 'server',
@@ -275,8 +275,8 @@ app.post('/upload', ensureAuthenticated, function (req, res) {
         fileData.callbackRules = opts.opts.callbackRules;        
     })
     appLog.info('loadDataReady: ', fileData);
-    console.log('emit to loadDataReady do we know what coID is ' + coID);
-    console.log('emit to loadDataReady fileData is ' + JSON.stringify(fileData));
+    //console.log('emit to loadDataReady do we know what coID is ' + coID);
+    //console.log('emit to loadDataReady fileData is ' + JSON.stringify(fileData));
     io.sockets.emit('loadDataReady', fileData );
     res.end('yes');
 });
@@ -296,21 +296,21 @@ app.get('/getFromApi', ensureAuthenticated, function (req, res) {
         }); 
 	var data = { coIDs: coIDs , types: types };
 	res.send(data);
-	console.log('JUST SENT ' + JSON.stringify(data));
+	//console.log('JUST SENT ' + JSON.stringify(data));
 });
 
-console.log('starting the child process');
+//console.log('starting the child process');
 //var cp = require('child_process').fork('integration');
 var fork = require('child_process').fork;
 var cp = fork('integration');
 cp.on('error', function(err) {
-  console.log('Oh no, the errors: ' + err);
+  //console.log('Oh no, the errors: ' + err);
   io.sockets.emit({ "error": "fatalError", "data": err });
   cp.kill();
   cp = fork('integration');
 });
 cp.on('exit', function(code, signal) {
-  console.log('Child Process Exited: ' + code + signal);
+  //console.log('Child Process Exited: ' + code + signal);
   io.sockets.emit({ "error": "fatalError", "data": code + signal });
   cp.kill();
   cp = fork('integration');
@@ -323,12 +323,12 @@ cp.on('message', function (message) {
     if (message.invalidData) {
       // this is an "error" so add message.isError = true
       message.isError = true;
-      console.log('Send missing objects to client: ' + JSON.stringify(message));
+      //console.log('Send missing objects to client: ' + JSON.stringify(message));
       io.sockets.emit("invalidData", message.invalidData);
     } else if (message.error) {
       // status message sent by the child process - send it to the client
-      console.log('WE HAVE AN ERROR !!!!!' + JSON.stringify(message));
-      console.log('WE HAVE AN ERROR !!!!!' + JSON.stringify(message.data));
+      //console.log('WE HAVE AN ERROR !!!!!' + JSON.stringify(message));
+      //console.log('WE HAVE AN ERROR !!!!!' + JSON.stringify(message.data));
       io.sockets.emit('error', message );
     } else if (message.status) {
       // status message sent by the child process - send it to the client
@@ -373,7 +373,7 @@ cp.on('message', function (message) {
       // Means a transaction has been returned from SOAP
       io.sockets.emit('wroteBack', message );
     } else if (message.soapResult) {
-      console.log('Got SoapResult from child ' + JSON.stringify(message));	
+      //console.log('Got SoapResult from child ' + JSON.stringify(message));	
       io.sockets.emit('soapResult', message );
     } 
     else {	    
@@ -387,7 +387,7 @@ io.sockets.on('connection', function (socket) {
     socket.emit('status', { message: "Connected to server for processing. Press the Load Data button to read the transactions." });
 
     socket.on('extractStaticData', function (data) {
-	console.log('server.js got the extractStaticData ' + JSON.stringify(data));
+	//console.log('server.js got the extractStaticData ' + JSON.stringify(data));
         cp.send({ op: 'extractStaticData', data });
         socket.emit('status', { message: "Issued call to load static data from AccountsIQ. If you have changed a lot of codes (Customers, Items, Departments etc..) you may want to wait till complete to load the data." });
     });
@@ -401,7 +401,7 @@ io.sockets.on('connection', function (socket) {
         socket.emit('status', { message: "Loading Data File" });
 	//console.log(JSON.stringify(data));
         cp.send({ op: 'loadData', data });
-	console.log('loadData came with ' + JSON.stringify(data));
+	//console.log('loadData came with ' + JSON.stringify(data));
         socket.emit('status', { message: "Data File Load Complete .. about to load data ... please wait ..." });
     });
 
@@ -411,38 +411,38 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('getDefaults', function (data) {
-	console.log('getDefaults came with ' + JSON.stringify(data));
+	//console.log('getDefaults came with ' + JSON.stringify(data));
         cp.send({ op: 'getDefaults', data });
         socket.emit('status', { message: "Retrieving " + data.object + " Defaults" });
     });
 
     socket.on('createInvalidItem', function (data) {
-	console.log('Server received createInvalidItem with ' + JSON.stringify(data));
+	//console.log('Server received createInvalidItem with ' + JSON.stringify(data));
         cp.send({ op: 'createInvalidItem', data });
     });
 
     socket.on('createTransactions', function (data) {
-	console.log(JSON.stringify(data));
-	console.log('ABOUT TO CREATE TRANSACTIONS');
+	//console.log(JSON.stringify(data));
+	//console.log('ABOUT TO CREATE TRANSACTIONS');
         cp.send({ op: 'createTransactions', data });
         socket.emit('status', { message: "Issued Create Transactions ..." });
     });
 
     socket.on('getFromApi', function (data) {
-	console.log(JSON.stringify(data));
-	console.log('ABOUT TO Get From Api');
+	//console.log(JSON.stringify(data));
+	//console.log('ABOUT TO Get From Api');
         cp.send({ op: 'getFromApi', data });
     });
 
 
     socket.on('loadMap', function (data) {
 	// form to manage a data map has been called ..
-	console.log('ABOUT TO LOAD MAP ' + JSON.stringify(data));
+	//console.log('ABOUT TO LOAD MAP ' + JSON.stringify(data));
         cp.send({ op: 'loadMap', data });
     });
 
     socket.on('updateMap', function (data) {
-	console.log('ABOUT TO UPDATE MAP VALUE ' + JSON.stringify(data));
+	//console.log('ABOUT TO UPDATE MAP VALUE ' + JSON.stringify(data));
 	data.op = 'updateMap';
         cp.send(data);
     });
@@ -488,11 +488,11 @@ req.session.destroy(function (err) {
 });
 
 // Socket messages
-server.listen(process.env.PORT || 3000);
+//server.listen(process.env.PORT || 3000);
 
 //console.log('listening on' + process.env.PORT || 3000);
-//server.listen(ports[1])
-//app.listen(ports[0])
+server.listen(ports[1])
+app.listen(ports[0])
 
 // Simple route middleware to ensure user is authenticated. (Section 4)
 

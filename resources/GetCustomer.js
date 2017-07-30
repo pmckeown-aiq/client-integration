@@ -39,7 +39,7 @@ module.exports = GetCustomer = function(v) {
         }
       })
       .catch(function(err) { // SOAP error on Save Invoice
-        console.log('SOAP Error' + JSON.stringify(err));
+        //console.log('SOAP Error' + JSON.stringify(err));
         updateStageStatus = { "stage" : "GetCustomer", "status": false, "serverStatus" : v.Status, "message" : "Failed to complete GetCustomer", "error": JSON.stringify(err)};
         v.updateStageStatus.push(updateStageStatus);
         reject(v);

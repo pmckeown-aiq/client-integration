@@ -45,7 +45,7 @@ var integration = new Integration({
 
 process.on('message', function (options) {
     if (options.op === 'extractStaticData') {
-      console.log('client asked to extract static data with ' + JSON.stringify(options));
+      ////console.log('client asked to extract static data with ' + JSON.stringify(options));
       env.env({ coID: options.data.coID, type: options.data.type, get: '' }, function(opts) {
         opts = opts.opts;
         // add the client name to the data passed to extractStaticData - needed for the directory structure to write file to
@@ -53,7 +53,7 @@ process.on('message', function (options) {
                 
         var extractStaticData = require('./resources/extractStaticData.js');
         extractStaticData.extract(opts , function(result) {
-          console.log('extracStaticData result ' + JSON.stringify(result));
+          ////console.log('extracStaticData result ' + JSON.stringify(result));
           if ( result.success == true ) {
             process.send({ extractStaticData: result });
           } else {
@@ -63,36 +63,36 @@ process.on('message', function (options) {
       })
     }
     else if (options.op === 'loadMap') {
-      //console.log('loadMap for '+ JSON.stringify(options));
+      //////console.log('loadMap for '+ JSON.stringify(options));
       // need resources script
       var manageMap = require(appDir + '/resources/manageMap.js');
       manageMap.loadMap(options, function(result) {
         options.mapData = result;
-        //console.log(JSON.stringify(options));
-        console.log('Call back RESULT loadMap' + JSON.stringify(result)); 
-        console.log('Call back OPTIONS.MAPDATA loadMap' + JSON.stringify(options.mapData)); 
+        ////console.log(JSON.stringify(options));
+        ////console.log('Call back RESULT loadMap' + JSON.stringify(result)); 
+        //console.log('Call back OPTIONS.MAPDATA loadMap' + JSON.stringify(options.mapData)); 
         process.send(options);
       });
     }
     else if (options.op === 'updateMap') {
-      //console.log('updateMap for '+ JSON.stringify(options));
+      ////console.log('updateMap for '+ JSON.stringify(options));
       // need resources script
       var manageMap = require(appDir + '/resources/manageMap.js');
       manageMap.updateMap(options, function(err, result) {
         if (err) {
           if ( err.constructor === Object ) {
-            console.log('Error returned from manageMap.updateMap object error type ' + JSON.stringify(err))
+            //console.log('Error returned from manageMap.updateMap object error type ' + JSON.stringify(err))
             process.send({ "error" : "error in manageMap.updateMap  " , "data": JSON.stringify(err)}); 
           } else {
-            console.log('Error returned from manageMap.updateMap ' + err)
+            //console.log('Error returned from manageMap.updateMap ' + err)
             process.send({ "error" : "error in manageMap.updateMap  " , "data": err }); 
           }
           throw err;
         }
-        //console.log('Call back updateMap' + JSON.stringify(options.data) + ' with result ' + JSON.stringify(result)); 
+        ////console.log('Call back updateMap' + JSON.stringify(options.data) + ' with result ' + JSON.stringify(result)); 
         options.mapDataResult = result;
         delete options.op;
-        console.log('UPDATE MAP RESENDS ' + JSON.stringify(options));
+        //console.log('UPDATE MAP RESENDS ' + JSON.stringify(options));
         process.send(options);
       });
     }
@@ -141,7 +141,7 @@ process.on('message', function (options) {
         // add the clientName for the path 
         mapObjects.clientName = options.data.clientName.replace(/"/g,"");
         mapObjects.coID = options.data.coID.replace(/"/g,"");
-        console.log('MAP OBJECTS ' + JSON.stringify(mapObjects));
+        //console.log('MAP OBJECTS ' + JSON.stringify(mapObjects));
         /* now we need to see which of the values (does not matter if a header or line as we do the same regardless) is mapped, and which are validatedi
          objects to validate and map are supplied - so they ar properties of objects in opts.clientSettings.validate(Header/Line)values
          and they are in the validate property */
@@ -180,19 +180,19 @@ process.on('message', function (options) {
         myFilters = [];
         // Check for any filters passed from client 
         var loadDataFilters = options.data.loadDataFilters;
-        //console.log('loadDataFilters is ' + JSON.stringify(loadDataFilters));
+        ////console.log('loadDataFilters is ' + JSON.stringify(loadDataFilters));
         // check if there are any filters (won't be for CSV or flagged as unprocessed API feeds
         if ( loadDataFilters !== undefined ) {
           for (var i = 0; i < loadDataFilters.length; i++ ) {
-            //console.log('WE HAVE A FILTER ' + JSON.stringify(loadDataFilters[i].name));
+            ////console.log('WE HAVE A FILTER ' + JSON.stringify(loadDataFilters[i].name));
             var name = loadDataFilters[i].name
-            //console.log('name is now ' + name);
-            //console.log('CLIENT SENT ' + JSON.stringify(loadDataFilters[i]));
+            ////console.log('name is now ' + name);
+            ////console.log('CLIENT SENT ' + JSON.stringify(loadDataFilters[i]));
             myFilters.push({ 'name': name, 'value': loadDataFilters[i][name] });
           };
         };
         // Check the opts for "hard coded" filters for the api call
-        //console.log('opts is ' + JSON.stringify(opts.apiSettings.apiFilters));
+        ////console.log('opts is ' + JSON.stringify(opts.apiSettings.apiFilters));
         if ( opts.hasOwnProperty('apiSettings') ) {
           if ( typeof opts.apiSettings.apiFilters !== "undefined" ) {
             // Some filters can't be applied to an api all at once. If the api expects a single filter (i.e status=sent) but we want to extract data that has multiple values (so status=sent or status=paid) we need to be a bit different and cause a loop om the data extract ... 
@@ -202,7 +202,7 @@ process.on('message', function (options) {
             })
           }
         }
-        console.log('API FILTERS ARE ' + JSON.stringify(myFilters));
+        //console.log('API FILTERS ARE ' + JSON.stringify(myFilters));
 
         // LOAD THE DATA FROM THE SOURCE FILE
         // Call the loadData script (load the data and call the process data
@@ -215,10 +215,10 @@ process.on('message', function (options) {
         this.loadData[opts.processRules.loadFrom](options, myFilters, function(err, feedTransactions) {
           if (err) { 
             if ( err.constructor === Object ) {
-              console.log('Error returned from loadData ' + JSON.stringify(err))
+              //console.log('Error returned from loadData ' + JSON.stringify(err))
               process.send({ "error" : "error in loadData  " , "data": JSON.stringify(err)}); 
             } else {
-              console.log('Error returned from loadData ' + err)
+              //console.log('Error returned from loadData ' + err)
               process.send({ "error" : "error in loadData  " , "data": err }); 
             }
             throw err;
@@ -227,10 +227,10 @@ process.on('message', function (options) {
           if (typeof opts.callbackRules.options != 'undefined' ) {
             isAlreadyCalledback = new RegExp(opts.callbackRules.options.value);
             if (opts.callbackRules.onLines == true) {
-              console.log('in remove');
+              //console.log('in remove');
               _.forEach(feedTransactions, function(trans) {
                   _.remove(trans.lines, function(line) {
-                      console.log('in remove 3 ' + JSON.stringify(line[opts.callbackRules.apiFieldName]));
+                      //console.log('in remove 3 ' + JSON.stringify(line[opts.callbackRules.apiFieldName]));
                       //return line[opts.callbackRules.apiFieldName] == opts.callbackRules.options.value ;
                       return isAlreadyCalledback.test(line[opts.callbackRules.apiFieldName]);
                   });
@@ -258,124 +258,117 @@ process.on('message', function (options) {
             var feedTransactionArray = [];
             this.processData[opts.type](feedTransactions, opts, options, function (err, feedTransactionArray) {
               if (err) return console.error(err);
-            console.log('processData has come back');
-            console.log('processData has come back' + feedTransactionArray.length);
-            console.log('processData has come back' + feedTransactionArray[0].length);
-
-            //feedTransactionArray = this.processData[opts.type](feedTransactions, opts, options);
-            // NEVER NEVER SEND THE FULL OPTIONS !!!!!
-            process.send({ "loadDataStatus": { message: " Completed processing transactions ... now validating the data and applying data maps please wait ..." }}); 
-            /* Load the resources files 
-            1) Map Objects (CURRENTLY HAPPENS EXTERNALLY)
-            2) Calculate values (tax amount from tax rates). Also needs to set the tax code if from AccountID as needs to be validated ... 
-            3) Validate the objects (includes setting default values)
-            */
-            var mapObject = require(appDir + '/resources/mapObject.js');
-            //var setDefaultValues = require(appDir + '/resources/setDefaultValues.js');
-            var calculateTax = require(appDir + '/resources/calculateTax.js');
-            var validateObject = require(appDir + '/resources/validateObject.js');
-            // Check if we have more than one database configured
-            if ( typeof opts.additionalEnvs !== 'undefined' ) {
-              console.log('We have a second database to upload to! ' + JSON.stringify(opts.additionalEnvs));
-              // add the setting to the validateObjects object (this get past to the validateObjects function, it will allow us to choose the path for the extract file which varies by coID (coID is part of the path to the file for the relevant environment
-              validateObjects.additionalEnvs = opts.additionalEnvs;
-            }
-            // we get back the transaction array and the invalid data array - send them both to the client
-            // for header and lines - first filter out the objects with defaults and then see if they have a "defaultValue.get" property
-            headerSetDefaultValues = _.filter(opts.clientSettings.headerValues, { "supplied" : false, "default" : true })
-            headerSetByValidationValues = _.filter(headerSetDefaultValues, function(item){
-              return item.defaultValue.getFromValidation === true;
-            });
-            lineSetDefaultValues = _.filter(opts.clientSettings.lineValues, { "supplied" : false, "default" : true })
-            lineSetByValidationValues = _.filter(lineSetDefaultValues, function(item){
-              return item.defaultValue.getFromValidation === true;
-            });
-            // generate a list where we are setting the object property to a static value .. 
-            // variable to use to check for static values to be set as defaults
-            checkForStatic = 'defaultValue.set';
-            // arrays of header and lines "set static values"
-            headerSetStaticDefault = _.filter(headerSetDefaultValues, function(o) { return _.has(o, checkForStatic); });
-            lineSetStaticDefault = _.filter(lineSetDefaultValues, function(o) { return _.has(o, checkForStatic); });
-            /* Now perform data transformation and validation. 
-            The async.waterfall method wil be used to allow each operation to complete but at the same time passing the results down the chain of operations (as each operation needs to work on the modified version of feedTransactionArray as modified by the previous stage. First map, then set default values, then calculate and inject tax codes and rates if needed, and finally validate the data in the final version of the transactions array 
-            */
-            async.waterfall([
-              function(callback) {
-                mapObject(mapObjects, feedTransactionArray, function(err, feedTransactionArray) { 
-                  if (err) { 
-                    if ( err.constructor === Object ) {
-                      console.log('Error returned from mapObjects' + JSON.stringify(err))
-                      process.send({ "error" : "error in mapObjects " , "data": JSON.stringify(err) }); 
-                    } else {
-                      process.send({ "error" : "error in mapObjects " , "data": JSON.stringify(err).toString() }); 
-                      console.log('Error returned from mapObjects' + err)
-                    }
-                    throw err;
-                  };
-                  console.log('Map Objects - no error');
-                  callback(null, feedTransactionArray)
-                })
-              },
-              //function(feedTransactionArray, callback) {
-              //  setDefaultValue(validateObjects, feedTransactionArray, headerSetByValidationValues, lineSetByValidationValues, headerSetStaticDefault, lineSetStaticDefault, function(feedTransactionArray) {
-              //    callback(null, feedTransactionArray)
-              //  })
-              //},
-              function(feedTransactionArray, callback) {
-                opts.clientName = options.data.clientName.replace(/"/g,"");
-                calculateTax(opts, feedTransactionArray, function(err, feedTransactionArray) { 
-                  if (err) { 
-                    if ( err.constructor === Object ) {
-                      console.log('Error returned from calculateTax ' + JSON.stringify(err))
-                      process.send({ "error" : "error in calculateTax  " , "data": err }); 
-                    } else {
-                      console.log('Error returned from calculateTax ' + err)
-                      process.send({ "error" : "error in calculateTax  " , "data": err.toString() }); 
-                    }
-                    throw err;
-                  };
-                  console.log('complete calculatetax ' + feedTransactionArray.length);
-                  console.log('complete calculatetax ' + JSON.stringify(feedTransactionArray));
-                  callback(null, feedTransactionArray)
-                })
-              },
-              function(feedTransactionArray, callback) {
-                validateObject(validateObjects, feedTransactionArray, headerSetByValidationValues, lineSetByValidationValues, headerSetStaticDefault, lineSetStaticDefault, function(err, feedTransactionArray, invalidData) {
-                  if (err) { 
-                    if ( err.constructor === Object ) {
-                      console.log('Error returned from validateObject ' + JSON.stringify(err))
-                      process.send({ "error" : "error in validateObject  " , "data": err }); 
-                    } else {
-                      console.log('Error returned from validateObject ' + err)
-                      process.send({ "error" : "error in validateObject  " , "data": err.toString() }); 
-                    }
-                    throw err;
-                  };
-                  callback(null, feedTransactionArray, invalidData)
-                })
+              // NEVER NEVER SEND THE FULL OPTIONS !!!!!
+              process.send({ "loadDataStatus": { message: " Completed processing transactions ... now validating the data and applying data maps please wait ..." }}); 
+              /* Load the resources files 
+              1) Map Objects (CURRENTLY HAPPENS EXTERNALLY)
+              2) Calculate values (tax amount from tax rates). Also needs to set the tax code if from AccountID as needs to be validated ... 
+              3) Validate the objects (includes setting default values)
+              */
+              var mapObject = require(appDir + '/resources/mapObject.js');
+              //var setDefaultValues = require(appDir + '/resources/setDefaultValues.js');
+              var calculateTax = require(appDir + '/resources/calculateTax.js');
+              var validateObject = require(appDir + '/resources/validateObject.js');
+              // Check if we have more than one database configured
+              if ( typeof opts.additionalEnvs !== 'undefined' ) {
+                //console.log('We have a second database to upload to! ' + JSON.stringify(opts.additionalEnvs));
+                // add the setting to the validateObjects object (this get past to the validateObjects function, it will allow us to choose the path for the extract file which varies by coID (coID is part of the path to the file for the relevant environment
+                validateObjects.additionalEnvs = opts.additionalEnvs;
               }
-             ], function(err,feedTransactionArray, invalidData) {
-                console.log('After all processing ' + JSON.stringify(invalidData));
-                console.log('After all processing ' + JSON.stringify(feedTransactionArray.length));
-                controlTotals.transactionCount = feedTransactionArray.length;
-                console.log('After all processing ' + JSON.stringify(feedTransactionArray[0]));
-                feedErrors = _.filter(feedTransactionArray, 'updateStatus.status' );
-                console.log('feederrors ' + JSON.stringify(feedErrors));
-                controlTotals.feedErrorsCount = feedErrors.length;
-                // count the lines on the transactions (useful but also necessary when writing back on lines updates back to 3rd Party API
-                controlTotals.feedErrorsLinesCount =  _.flatMap(feedErrors, 'lines').length;
-                process.send({ "controlTotals" : controlTotals });
-                process.send({ "invalidData" : invalidData });
-                process.send({ "feedTransactions": feedTransactionArray, "opts": opts.clientSettings }); 
-                process.send({ "feedErrors": feedErrors, "opts": opts.clientSettings }); 
-                process.send({ "loadDataStatus": { message: "Complete - press OK to continue"}}); 
-                // set the array to null
-                invalidData = null;
-                feedTransactions = null;
-            });
+              // we get back the transaction array and the invalid data array - send them both to the client
+              // for header and lines - first filter out the objects with defaults and then see if they have a "defaultValue.get" property
+              headerSetDefaultValues = _.filter(opts.clientSettings.headerValues, { "supplied" : false, "default" : true })
+              headerSetByValidationValues = _.filter(headerSetDefaultValues, function(item){
+                return item.defaultValue.getFromValidation === true;
+              });
+              lineSetDefaultValues = _.filter(opts.clientSettings.lineValues, { "supplied" : false, "default" : true })
+              lineSetByValidationValues = _.filter(lineSetDefaultValues, function(item){
+                return item.defaultValue.getFromValidation === true;
+              });
+              // generate a list where we are setting the object property to a static value .. 
+              // variable to use to check for static values to be set as defaults
+              checkForStatic = 'defaultValue.set';
+              // arrays of header and lines "set static values"
+              headerSetStaticDefault = _.filter(headerSetDefaultValues, function(o) { return _.has(o, checkForStatic); });
+              lineSetStaticDefault = _.filter(lineSetDefaultValues, function(o) { return _.has(o, checkForStatic); });
+              /* Now perform data transformation and validation. 
+              The async.waterfall method wil be used to allow each operation to complete but at the same time passing the results down the chain of operations (as each operation needs to work on the modified version of feedTransactionArray as modified by the previous stage. First map, then set default values, then calculate and inject tax codes and rates if needed, and finally validate the data in the final version of the transactions array 
+              */
+              async.waterfall([
+                function(callback) {
+                  mapObject(mapObjects, feedTransactionArray, function(err, feedTransactionArray) { 
+                    if (err) { 
+                      if ( err.constructor === Object ) {
+                        //console.log('Error returned from mapObjects' + JSON.stringify(err))
+                        process.send({ "error" : "error in mapObjects " , "data": JSON.stringify(err) }); 
+                      } else {
+                        process.send({ "error" : "error in mapObjects " , "data": JSON.stringify(err).toString() }); 
+                        //console.log('Error returned from mapObjects' + err)
+                      }
+                      throw err;
+                    };
+                    console.log('Map Objects - no error');
+                    callback(null, feedTransactionArray)
+                  })
+                },
+                /*
+                function(feedTransactionArray, callback) {
+                  opts.clientName = options.data.clientName.replace(/"/g,"");
+                  console.log('Call Calculate Tax');
+                  calculateTax(opts, feedTransactionArray, function(err, feedTransactionArray) { 
+                    if (err) { 
+                      if ( err.constructor === Object ) {
+                        //console.log('Error returned from calculateTax ' + JSON.stringify(err))
+                        process.send({ "error" : "error in calculateTax  " , "data": err }); 
+                      } else {
+                        //console.log('Error returned from calculateTax ' + err)
+                        process.send({ "error" : "error in calculateTax  " , "data": err.toString() }); 
+                      }
+                      throw err;
+                    };
+                    console.log('complete calculatetax ' + feedTransactionArray.length);
+                    //console.log('complete calculatetax ' + JSON.stringify(feedTransactionArray));
+                    callback(null, feedTransactionArray)
+                  })
+                },
+               */
+                function(feedTransactionArray, callback) {
+                  validateObject(validateObjects, feedTransactionArray, headerSetByValidationValues, lineSetByValidationValues, headerSetStaticDefault, lineSetStaticDefault, function(err, feedTransactionArray, invalidData) {
+                    if (err) { 
+                      if ( err.constructor === Object ) {
+                        //console.log('Error returned from validateObject ' + JSON.stringify(err))
+                        process.send({ "error" : "error in validateObject  " , "data": err }); 
+                      } else {
+                        //console.log('Error returned from validateObject ' + err)
+                        process.send({ "error" : "error in validateObject  " , "data": err.toString() }); 
+                      }
+                      throw err;
+                    };
+                    callback(null, feedTransactionArray, invalidData)
+                  })
+                }
+               ], function(err,feedTransactionArray, invalidData) {
+                  //console.log('After all processing ' + JSON.stringify(invalidData));
+                  //console.log('After all processing ' + JSON.stringify(feedTransactionArray.length));
+                  controlTotals.transactionCount = feedTransactionArray.length;
+                  //console.log('After all processing ' + JSON.stringify(feedTransactionArray[0]));
+                  feedErrors = _.filter(feedTransactionArray, 'updateStatus.status' );
+                  //console.log('feederrors ' + JSON.stringify(feedErrors));
+                  controlTotals.feedErrorsCount = feedErrors.length;
+                  // count the lines on the transactions (useful but also necessary when writing back on lines updates back to 3rd Party API
+                  controlTotals.feedErrorsLinesCount =  _.flatMap(feedErrors, 'lines').length;
+                  process.send({ "controlTotals" : controlTotals });
+                  process.send({ "invalidData" : invalidData });
+                  process.send({ "feedTransactions": feedTransactionArray, "opts": opts.clientSettings }); 
+                  process.send({ "feedErrors": feedErrors, "opts": opts.clientSettings }); 
+                  process.send({ "loadDataStatus": { message: "Complete - press OK to continue"}}); 
+                  // set the array to null
+                  invalidData = null;
+                  feedTransactions = null;
+              });
             });
           } else {
-            console.log('NO TRANSACTIONS');
+            //console.log('NO TRANSACTIONS');
             //process.send({ "error" : "error - no Transactions returned" })
           }
         });
@@ -384,10 +377,10 @@ process.on('message', function (options) {
     else if (options.op === 'getDefaults') {
       env.env({ coID: options.data.coID, type: options.data.type, get: 'connection' }, function(opts) {
         var coID = options.data.coID.replace(/"/g,"");
-        console.log('coID is ' + coID);
-        console.log('coID is ' + JSON.stringify(options));
+        //console.log('coID is ' + coID);
+        //console.log('coID is ' + JSON.stringify(options));
         opts = opts.opts;
-        console.log(JSON.stringify(opts));
+        //console.log(JSON.stringify(opts));
         soap.createClient(opts.connection.url, (err, client) => {
          var aiq = new aiqClient(client, opts.connection.pKey, opts.connection.uKey, coID);
          if ( options.data.object == 'CustomerCode' ) {
@@ -399,8 +392,8 @@ process.on('message', function (options) {
          }
          myQOperation
             .then(([result]) => {
-               console.log(' back in integration.js ' + JSON.stringify(result));
-               console.log(' back in integration.js ' + JSON.stringify(result.Result));
+               //console.log(' back in integration.js ' + JSON.stringify(result));
+               //console.log(' back in integration.js ' + JSON.stringify(result.Result));
                // remove all the blanks
                for(var p in result.Result)
                   if( result.Result[p] === '' )
@@ -410,8 +403,8 @@ process.on('message', function (options) {
             })
             .fail(err => {
                process.send({ "error" : "error in getting defaults for " + JSON.stringify(myQOperation), "data": JSON.stringify(err)});
-               console.log('Error:' + JSON.stringify(err));
-               console.log(err)
+               //console.log('Error:' + JSON.stringify(err));
+               //console.log(err)
             })
             .done();
          })
@@ -421,24 +414,24 @@ process.on('message', function (options) {
         integration.stop();
     }
     else if (options.op === 'createInvalidItem') {
-      console.log('Going to call createInvalidItem in integration.js with options ' + JSON.stringify(options));
+      //console.log('Going to call createInvalidItem in integration.js with options ' + JSON.stringify(options));
       appLog.info('createInvalidItem:', options.data);
       env.env({ coID: options.data.coID, type: options.data.type, get: '' }, function(opts) {
         var coID = options.data.coID.replace(/"/g,"");
-        console.log('coID is ' + coID);
+        //console.log('coID is ' + coID);
         opts = opts.opts;
-        console.log('createInvalidItem receivd ' + JSON.stringify(options));
+        //console.log('createInvalidItem receivd ' + JSON.stringify(options));
         objectType = options.data.element.objectType;
         // bring in the resources file - createObject
         var createObject = require('./resources/createObject.js');      
         this.createObject = new createObject(this);
         this.createObject[objectType](opts, options.data.element, function(result){
-          console.log('CAllback for createObject gave result ' + JSON.stringify(result));
+          //console.log('CAllback for createObject gave result ' + JSON.stringify(result));
           // Now update the map file for the object if needed 
           
           // AccountID : check if the "code" (from api usually!) matches the data.Code
           if ( objectType == "CustomerCode" && options.element.code !== options.element.data.Code ) { 
-            console.log('API code is ' + options.element.code + ' but created ' + objectType + ' with Code ' + options.element.data.Code + ' so need to map ...')
+            //console.log('API code is ' + options.element.code + ' but created ' + objectType + ' with Code ' + options.element.data.Code + ' so need to map ...')
           }
           process.send({ createdObject: result });
           if ( result.status == "Failure" ) { // we have an error
@@ -450,23 +443,23 @@ process.on('message', function (options) {
     else if (options.op === 'getFromApi') {
       env.env({ coID: options.data.coID, type: options.data.type, get: '' }, function(opts) {
         var coID = options.data.coID.replace(/"/g,"");
-        console.log('coID is ' + coID);
+        //console.log('coID is ' + coID);
         var opts = opts.opts;
         var theObject =  options.data.element;
-        console.log('Get From API in Integration.js option = ' + JSON.stringify(options));
-        console.log('Get From API in Integration.js' + JSON.stringify(theObject));
+        //console.log('Get From API in Integration.js option = ' + JSON.stringify(options));
+        //console.log('Get From API in Integration.js' + JSON.stringify(theObject));
         var GetCustomerFromApi = require(appDir + '/resources/GetCustomerFromApi.js');
-              console.log(JSON.stringify(opts.processRules));
+              //console.log(JSON.stringify(opts.processRules));
         this.GetCustomerFromApi = new GetCustomerFromApi(this);
         this.GetCustomerFromApi[opts.processRules.loadFrom]( theObject, opts, function(apiCustomer) {
-          console.log('Got back GetCustomerFromApi ' + JSON.stringify(apiCustomer));
+          //console.log('Got back GetCustomerFromApi ' + JSON.stringify(apiCustomer));
           theObject.details = apiCustomer
           process.send({ 'fetchedFromApi' : theObject });
         }) 
       })
     }
     else if (options.op === 'createTransactions') {
-      console.log('We have createTransactions in integration.js with ' + JSON.stringify(options));
+      //console.log('We have createTransactions in integration.js with ' + JSON.stringify(options));
       // Load data into accountsIQ
       env.env({ coID: options.data.coID, type: options.data.type, get: '' }, function(opts) {
         opts = opts.opts;
@@ -474,11 +467,11 @@ process.on('message', function (options) {
         opts.transactions = options.data.transactions;
         var updateData = require(appDir + opts.processRules.updateDataScript);
         var transactionType = opts.processRules.transactionType;
-        console.log('transactionType is ' + transactionType);
+        //console.log('transactionType is ' + transactionType);
         this.updateData = new updateData(this);
         this.updateData[transactionType](opts, function (err, data) {
           if (err) return console.error(err);
-          console.log(data.toString());
+          //console.log(data.toString());
         });
       });
     }

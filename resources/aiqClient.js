@@ -34,7 +34,7 @@ function aiqClient(soapClient, partnerKey, userKey, companyId) {
         this.companyId = companyId;
         this.soapClient = soapClient;
         this.token = null;
-        console.log('companyID is ' + this.companyId)
+        //console.log('companyID is ' + this.companyId)
         // Map the name of the method to its return type
         var mapping = {
             LoginOnly: '',
@@ -78,7 +78,7 @@ function aiqClient(soapClient, partnerKey, userKey, companyId) {
         Object.keys(mapping).forEach((name) => this[name] = this.genericCall(name, mapping[name]));
     }
 aiqClient.prototype.login = function(forceRefresh) {
-        //console.log('in login in aiqClient');
+        ////console.log('in login in aiqClient');
         if (this.token && !forceRefresh)
             return Q.when([this.token]);
 
@@ -86,7 +86,7 @@ aiqClient.prototype.login = function(forceRefresh) {
         var res = Q.defer();
         Q.ninvoke(this.soapClient, "Login", loginArgs)
             .then((tk) => {
-                //console.log('LAST SOAP FROM LOGIN ' + this.soapClient.lastRequest) // to LOG the last client request SOAP
+                ////console.log('LAST SOAP FROM LOGIN ' + this.soapClient.lastRequest) // to LOG the last client request SOAP
                 if (!tk || !tk.length || !tk[0] || typeof (tk[0].LoginResult) === 'undefined')
                     return res.reject({ error: errorCodes.UNKOWN_ERROR });
 
@@ -94,7 +94,7 @@ aiqClient.prototype.login = function(forceRefresh) {
                     return res.reject({ error: errorCodes.INVALID_CREDENTIALS });
                 this.token = tk[0].LoginResult;
 
-                //console.log('logged in with session ', this.token)
+                ////console.log('logged in with session ', this.token)
                 res.resolve(this.token);
             })
             .fail(() => res.reject({ error: errorCodes.UNKNOWN_ERROR }));
@@ -104,35 +104,35 @@ aiqClient.prototype.login = function(forceRefresh) {
 
 aiqClient.prototype.genericCall = function(name, returnType) {
         return function () {
-	    console.log('genericCall running with ' + JSON.stringify(name));
+	    //console.log('genericCall running with ' + JSON.stringify(name));
             var res = Q.defer();
             var args = arguments.length ? (arguments[0] || {}) : {};
             this.login()
 	        .then((token) => {
                 args['token'] = token;
-     	        console.log('ARGS ARE  ' + JSON.stringify(args));
+     	        //console.log('ARGS ARE  ' + JSON.stringify(args));
                 Q.ninvoke(this.soapClient, name, args)
                    .then((result) => {
-                     console.log('XML Request ' + this.soapClient.lastRequest); // to LOG the last client request SOAP
-                     console.log('Result:' + JSON.stringify(result));
+                     //console.log('XML Request ' + this.soapClient.lastRequest); // to LOG the last client request SOAP
+                     //console.log('Result:' + JSON.stringify(result));
 	             //console.log('RESULT IN AIQ CLIENT: ' + JSON.stringify(result));
                      if ( !result || !result.length ) {
-                       console.log('about to return in aiqClient 3');
+                       //console.log('about to return in aiqClient 3');
                        return res.fail({error: errorCodes.RESULT_ERROR_TYPE_1});
 	             }
 	             if ( !result[0] ) {
-	               console.log('about to return in aiqClient 4');
+	               //console.log('about to return in aiqClient 4');
                        return res.fail({error: errorCodes.RESULT_NOT_ARRAY});
 	             }
 		     if ( typeof result[0][`${name}Result`] === 'undefined' ) {
-		       console.log('about to return in aiqClient 5');
+		       //console.log('about to return in aiqClient 5');
                        return res.fail({error: errorCodes.RESULT_ERROR_TYPE_2});
 	             }
                      if (  !result[0].hasOwnProperty(`${name}Result`) ) {
-	               console.log('about to return in aiqClient 6');
+	               //console.log('about to return in aiqClient 6');
                        return res.fail({error: errorCodes.RESULT_ERROR_TYPE_3});
 	             }
-                     //console.log('Got Result for ' + name + ':' + JSON.stringify(result));
+                     ////console.log('Got Result for ' + name + ':' + JSON.stringify(result));
 		     // check for invoice ID - need to add to the final result
 		     if ( typeof result[0]['invoiceID'] !== 'undefined' ) {
                        result[0][`${name}Result`]['invoiceID'] = result[0]['invoiceID'];
@@ -143,14 +143,14 @@ aiqClient.prototype.genericCall = function(name, returnType) {
                      }
 		     // Just return the result info ...
                      result = result[0][`${name}Result`];
-		     console.log('returning result ' + JSON.stringify(result));
+		     //console.log('returning result ' + JSON.stringify(result));
 	             return res.resolve(result);
-	             console.log('why am i here???');
+	             //console.log('why am i here???');
                      if( result.HasExpired ) {
 		     // If the token has expired, we need to log in again
                         return this.login(true).then(name.then(res.resolve).fail(res.reject)).fail(res.reject);
 		     }
-		     console.log('about to return in aiqClient 8');
+		     //console.log('about to return in aiqClient 8');
                      if( result.Status !== 'Success' && result.Status != 'Created' ) {
                         return res.reject({error: errorCodes.API_ERROR, status: result.Status, message: result.ErrorMessage, code: result.ErrorCode})
 	             }
@@ -162,7 +162,7 @@ aiqClient.prototype.genericCall = function(name, returnType) {
 	                // Malformed
                         return res.reject({error: errorCodes.UNKNOWN_ERROR});
 	             }
-	             console.log('about to return in aiqClient 9');
+	             //console.log('about to return in aiqClient 9');
                      return res.resolve(result.status);
                      //return res.resolve(result['Result'][returnType]);
                    })
@@ -173,8 +173,8 @@ aiqClient.prototype.genericCall = function(name, returnType) {
                    })
                 })
               .fail(() => {
-                console.log('FAILED LOGIN IN AIQCLIENT ' + this.soapClient.lastRequest); // to LOG the last client request SOAP
-                console.log('FAILED LOGIN IN AIQCLIENT ARGS ' + JSON.stringify(args)); // to LOG the last client request SOAP
+                //console.log('FAILED LOGIN IN AIQCLIENT ' + this.soapClient.lastRequest); // to LOG the last client request SOAP
+                //console.log('FAILED LOGIN IN AIQCLIENT ARGS ' + JSON.stringify(args)); // to LOG the last client request SOAP
 	            res.reject({error: errorCodes.UNKNOWN_ERROR});
               })
               return res.promise;

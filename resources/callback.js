@@ -16,18 +16,18 @@ var _ = require('lodash');
 
 module.exports = callback = function(v, opts) {
   var self = this;
-  console.log('in callback 1');
+  //console.log('in callback 1');
   return new Promise(function(resolve, reject) {
     if ( opts.callbackRules) {
       if ( opts.callbackRules.allowed == true ) {
-        console.log('calling callback function ' + opts.callbackRules.callbackFunction)
+        //console.log('calling callback function ' + opts.callbackRules.callbackFunction)
         var appDir = path.dirname(require.main.filename);
         var callbackScript = require(appDir + '/resources/' + opts.callbackRules.script);
         self.callbackScript = new callbackScript(self);
         //this.callback[opts.callbackRules.callbackFunction](opts, v, function(err, wroteBack) {
         Promise.all([self.callbackScript[opts.callbackRules.callbackFunction](opts, v)])
 	  .then((result) => {
-	    console.log('Result in callback ' + JSON.stringify(result));
+	    //console.log('Result in callback ' + JSON.stringify(result));
             if ( result[0].status === false ) {
               // error in writing back the data 
               updateStageStatus = { "stage" : "CallBack", "status": false, "serverStatus" : result, "error" : "N/A", "message" : 'Call Back Errors' };
@@ -45,15 +45,15 @@ module.exports = callback = function(v, opts) {
             v.updateStatus = {};
             v.updateStatus.status = updateStageStatus.status;
             v.updateStageStatus.push(updateStageStatus);
-            console.log('in callback v is ' + JSON.stringify(v));
+            //console.log('in callback v is ' + JSON.stringify(v));
             resolve(v);
           })
       } else {
-          console.log('No callback 1 - record nothing');
+          //console.log('No callback 1 - record nothing');
           resolve(v);
       }
     } else {
-        console.log('No callback 2 - record nothing');
+        //console.log('No callback 2 - record nothing');
         resolve(v);
     }
   });

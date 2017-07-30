@@ -60,7 +60,7 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
   envConnectionDetails.push({ "coID": opts.coID, "value": "default", "uKey": opts.connection.uKey, "pKey": opts.connection.pKey, "url": opts.connection.url});
   // Multiple Environments ... if we have additionalEnv - add the details (change of coID and uKey plus a new value) into the array ...
   if ( typeof opts.additionalEnvs !== 'undefined' ) {
-    console.log('We Have Multiple Environments in SaveItemInvoice');
+    //console.log('We Have Multiple Environments in SaveItemInvoice');
     // additional environments are stored in an array
     opts.additionalEnvs.forEach(function(additionalEnv) {
       // push the additional environment into the coID array
@@ -82,29 +82,29 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
   } else {
     var asyncLimit = opts.processRules.asyncLimit
   }
-  console.log('asyncLimit is ' + asyncLimit);
+  //console.log('asyncLimit is ' + asyncLimit);
   //opts.transactions.forEach(function(v) {
   async.forEachLimit(opts.transactions,asyncLimit, function(v,  next) {
     // counter to check the transactions complete
     // set (or reset if used a negative value) the transactionType and transactionTemplate to pass to SOAP calls
-    console.log('UPDATA DATA INVOICE IS ' + JSON.stringify(v));
+    //console.log('UPDATA DATA INVOICE IS ' + JSON.stringify(v));
     v.transactionType = opts.processRules.transactionType;
     v.uniqueExternalReferences = opts.processRules.uniqueExternalReferences;
     v.transactionTemplate = opts.processRules.transactionTemplate;
-    console.log(v.ExternalReference);
+    //console.log(v.ExternalReference);
     // ok - check if this is a negative transaction type ..
     if ( negativeTransactionCheck == true ) {
-      console.log('Check for negative transaction: is ' + negativeTransactionIdentifier + ' ' + v[negativeTransactionIdentifier] + ' negative??');
+      //console.log('Check for negative transaction: is ' + negativeTransactionIdentifier + ' ' + v[negativeTransactionIdentifier] + ' negative??');
       if ( v[negativeTransactionIdentifier] < 0 ) {
         // if the identifier value is a negative numver redefine the transactionType and transactionTemplate to use for this transaction (everything else needs to be the same ...)
-        console.log('We have a negative transaction ' + v.ExternalReference );
+        //console.log('We have a negative transaction ' + v.ExternalReference );
         v.transactionType = opts.processRules.negativeTransactionType.transactionType;
         v.transactionTemplate = opts.processRules.negativeTransactionType.transactionTemplate;
-        console.log( v[negativeTransactionIdentifier] );
+        //console.log( v[negativeTransactionIdentifier] );
         // reverse the amount 0 need to support other amounts! 
         v[negativeTransactionIdentifier] = v[negativeTransactionIdentifier] * -1 
-        console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionType);
-        console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
+        //console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionType);
+        //console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
         // flag for lines 
         v.negativeAmounts = true;
       }
@@ -119,7 +119,7 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
       isInValidCount =  isInValidCount + 1;
       // Call the callback for the async.forEachLimit
       next();
-      //console.log('Transaction ' + v.ExternalReference + ' is not a valid transaction so not created.');
+      ////console.log('Transaction ' + v.ExternalReference + ' is not a valid transaction so not created.');
     } else if ( _.has(v, 'updateStatus') && ( v.updateStatus.exclude == true) )  {
       process.send({ createdTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : false, message: 'Transaction marked by user to be excluded so not created ' + v.updateStatus.exclude } }});
       appLog.info('TransactionToBeRejected: ', v.ExternalReference, 'reason:', 'excluded by user');
@@ -137,24 +137,24 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
         appLog.info('TransactionToBeCreatedWithWarnings: ', v.ExternalReference + isWarn);
         isWarnCount =  isWarnCount + 1;
       }
-      console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionType);
-      console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
-      console.log(JSON.stringify(opts.connection));
+      //console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionType);
+      //console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
+      //console.log(JSON.stringify(opts.connection));
       // before we connect - set the connection details for this transaction ...
       if ( typeof opts.additionalEnvs !== 'undefined' ) {
         // check for the object in the transactiona array that defines which coID this transaction belongs to
         coIDIdentifier = opts.additionalEnvs[0].identifiedBy.name;
-        console.log('SaveItemInvoice Look for ' + JSON.stringify(coIDIdentifier));
-        console.log('in SaveItemInvoice ' + JSON.stringify(v));
+        //console.log('SaveItemInvoice Look for ' + JSON.stringify(coIDIdentifier));
+        //console.log('in SaveItemInvoice ' + JSON.stringify(v));
 	myEnvironmentIdentifierValue = v[coIDIdentifier];
 	this.myConnectionDetails = _.filter(envConnectionDetails, { value: myEnvironmentIdentifierValue });
-	console.log('myConnectionDetails has length SaveItemInvoice ' + this.myConnectionDetails.length)
+	//console.log('myConnectionDetails has length SaveItemInvoice ' + this.myConnectionDetails.length)
         // We should only have one match ...
 	if ( this.myConnectionDetails.length === 1 ) {
 	  this.myConnection = this.myConnectionDetails[0];
         } else if ( this.myConnectionDetails.length === 0 ) {
 	  // if no match default to the default coID
-	  console.log('Not Multi Database');
+	  //console.log('Not Multi Database');
           this.myConnection = envConnectionDetails[0];
 	} else {
 	  // if we got more than 1 then trouble
@@ -163,10 +163,10 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
         }
       } else {
         // the coIDs array will only have one coID - and that will be used for all objects
-	console.log('Not Multi Database');
+	//console.log('Not Multi Database');
         this.myConnection = envConnectionDetails[0];
       }
-      console.log('myConnection is ' + v.transactionType + ' ' + JSON.stringify(this.myConnection));
+      //console.log('myConnection is ' + v.transactionType + ' ' + JSON.stringify(this.myConnection));
       soap.createClient(this.myConnection.url, (err, client) => {
 	var myClient = client;
 	aiq = new aiqClient(myClient, this.myConnection.pKey, this.myConnection.uKey, this.myConnection.coID);
@@ -180,10 +180,10 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
         }
 	v.updateStageStatus = []; // will not have had an updateStageStatus object as is a valid transaction - add the object
         // Need to call GetCustomer so we can get the AccountID (not CustomerCode) as that is required for the query for GetTransactionsByExternalReference
-        console.log('call GetCustomer for ' + v.ExternalReference + ' with flag ' + v.uniqueExternalReferences);
+        //console.log('call GetCustomer for ' + v.ExternalReference + ' with flag ' + v.uniqueExternalReferences);
 	this.prepareUpdate(v)
           .then(function(v) {
-            console.log('call GetCustomer' + JSON.stringify(v));
+            //console.log('call GetCustomer' + JSON.stringify(v));
             if ( v.transactionTemplate == 'GetNewPurchasesInvoice' ) {
               v.GetTransactionsTransactionType = "PI";
               return this.GetSupplier(v)
@@ -193,33 +193,33 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
             }
           })
           .then(function(v) {
-            console.log('call GetCustomer' + JSON.stringify(v));
+            //console.log('call GetCustomer' + JSON.stringify(v));
             return this.CheckUniqueInvoiceByExternalReference(v)
           })
 	  .then(function(v) {
-            console.log('call GetNewInvoice' + JSON.stringify(v));
+            //console.log('call GetNewInvoice' + JSON.stringify(v));
             return this.GetNewInvoice(v)
           })
           .then(function(v) {
-            console.log('call SaveInvoiceGetBackInvoiceID' + JSON.stringify(v));
+            //console.log('call SaveInvoiceGetBackInvoiceID' + JSON.stringify(v));
             return this.SaveInvoiceGetBackInvoiceID(v)
           })
 	   .then(function(v) {
-            console.log('call PostInvoiceGetBackTransactionID' + JSON.stringify(v));
+            //console.log('call PostInvoiceGetBackTransactionID' + JSON.stringify(v));
             return this.PostInvoiceGetBackTransactionID(v) // pass both the inviuce and the result of saveInvoice
           })
 	   .then(function(v) {
-            console.log('call AttachDocument' + JSON.stringify(v));
+            //console.log('call AttachDocument' + JSON.stringify(v));
             return this.AttachDocument(v) 
           })
 	   .then(function(v) { // v.Status tells us what an invoice should end up as (v.Status tells us where it is so far - i.e. Created)
-	     console.log('call callback ?' + JSON.stringify(v));
+	     //console.log('call callback ?' + JSON.stringify(v));
              return this.callback(v,opts) // pass both the transaction and the "opts" 
           })
            .then(function(v) {
-             console.log('COMPLETED UPDATE 1' + JSON.stringify(v));
+             //console.log('COMPLETED UPDATE 1' + JSON.stringify(v));
              hasError = _.some(v.updateStageStatus, {status: false});
-             console.log('HADERROR ' + JSON.stringify(hasError));
+             //console.log('HADERROR ' + JSON.stringify(hasError));
              // At the moment callback does not reject the promise on a single error in callback to extrenal system - so it may have set "updateStatus" ... so check
              if ( hasError ) { // errors in the stages 
                if ( typeof v.updateStatus !== 'undefined' ) {
@@ -234,9 +234,9 @@ updateData.prototype.SaveItemInvoice = function(opts, cb) {
              next();
 	  })
            .catch(err => {
-             console.log('Error: ', JSON.stringify(err));
+             //console.log('Error: ', JSON.stringify(err));
              process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": false, "message": "Error in updating transaction" }, "updateStageStatus": v.updateStageStatus }});
-             console.log(err)
+             //console.log(err)
              next();
           });
           // end of then in promises
@@ -258,7 +258,7 @@ updateData.prototype.SaveJournal = function(opts, cb) {
   envConnectionDetails.push({ "coID": opts.coID, "value": "default", "uKey": opts.connection.uKey, "pKey": opts.connection.pKey, "url": opts.connection.url});
   // Multiple Environments ... if we have additionalEnv - add the details (change of coID and uKey plus a new value) into the array ...
   if ( typeof opts.additionalEnvs !== 'undefined' ) {
-    console.log('We Have Multiple Environments in SaveInvoiceGetBackInvoiceID');
+    //console.log('We Have Multiple Environments in SaveInvoiceGetBackInvoiceID');
     // additional environments are stored in an array
     opts.additionalEnvs.forEach(function(additionalEnv) {
       // push the additional environment into the coID array
@@ -275,14 +275,14 @@ updateData.prototype.SaveJournal = function(opts, cb) {
   } else {
     var asyncLimit = opts.processRules.asyncLimit
   }
-  console.log('asyncLimit is ' + asyncLimit);
+  //console.log('asyncLimit is ' + asyncLimit);
   //opts.transactions.forEach(function(v) {
   async.forEachLimit(opts.transactions,asyncLimit, function(v,  next) {
     // counter to check the transactions complete
     // set (or reset if used a negative value) the transactionType and transactionTemplate to pass to SOAP calls
-    console.log('UPDATA DATA ' + JSON.stringify(v));
+    //console.log('UPDATA DATA ' + JSON.stringify(v));
     transactionType = opts.processRules.transactionType;
-    console.log(v.ExternalReference);
+    //console.log(v.ExternalReference);
     // Excluding WARNINGS - but need to build into config file to allow processing of (likely) zero balance transactionms
     if ( _.has(v, 'updateStatus') && ( v.updateStatus.status == "danger" || v.updateStatus.status == "warning")) {
       process.send({ createdTransaction : {transactionRef : v.ExternalReference, updateStatus: { status : false, message: 'not a valid transaction so not created ' + v.updateStatus.error } }});
@@ -293,7 +293,7 @@ updateData.prototype.SaveJournal = function(opts, cb) {
       isInValidCount =  isInValidCount + 1;
       // Call the callback for the async.forEachLimit
       next();
-      //console.log('Transaction ' + v.ExternalReference + ' is not a valid transaction so not created.');
+      ////console.log('Transaction ' + v.ExternalReference + ' is not a valid transaction so not created.');
     } else {
       // VALID TRANSACTIONS - do the data update
       appLog.info('TransactionToBeCreated: ', v.ExternalReference )
@@ -310,19 +310,19 @@ updateData.prototype.SaveJournal = function(opts, cb) {
         v.Lines.push(myLine);
       })
       delete v.lines;
-      console.log(JSON.stringify(v));
+      //console.log(JSON.stringify(v));
       if ( typeof opts.additionalEnvs !== 'undefined' ) {
         // check for the object in the transactiona array that defines which coID this transaction belongs to
         coIDIdentifier = opts.additionalEnvs[0].identifiedBy.name;
 	myEnvironmentIdentifierValue = v[coIDIdentifier];
 	this.myConnectionDetails = _.filter(envConnectionDetails, { value: myEnvironmentIdentifierValue });
-	console.log('myConnectionDetails has length SaveInvoiceGetBackInvoiceID ' + this.myConnectionDetails.length)
+	//console.log('myConnectionDetails has length SaveInvoiceGetBackInvoiceID ' + this.myConnectionDetails.length)
         // We should only have one match ...
 	if ( this.myConnectionDetails.length === 1 ) {
 	  this.myConnection = this.myConnectionDetails[0];
         } else if ( this.myConnectionDetails.length === 0 ) {
 	  // if no match default to the default coID
-	  console.log('Not Multi Database');
+	  //console.log('Not Multi Database');
           this.myConnection = envConnectionDetails[0];
 	} else {
 	  // if we got more than 1 then trouble
@@ -331,10 +331,10 @@ updateData.prototype.SaveJournal = function(opts, cb) {
         }
       } else {
         // the coIDs array will only have one coID - and that will be used for all objects
-	console.log('Not Multi Database');
+	//console.log('Not Multi Database');
         this.myConnection = envConnectionDetails[0];
       }
-      console.log('myConnection is ' + v.transactionType + ' ' + JSON.stringify(this.myConnection));
+      //console.log('myConnection is ' + v.transactionType + ' ' + JSON.stringify(this.myConnection));
       //if (v.hasOwnProperty('transactionType')) delete v.transactionType ;
       //if (v.hasOwnProperty('transactionTemplate')) delete v.transactionTemplate ;
       if (v.hasOwnProperty('$$hashKey')) delete v.$$hashKey ;
@@ -347,9 +347,9 @@ updateData.prototype.SaveJournal = function(opts, cb) {
         v.updateStageStatus = []; // will not have had an updateStageStatus object as is a valid transaction - add the object
 	this.CreateGeneralJournal(v)
           .then(function(v) {
-             console.log('COMPLETED UPDATE 2' + JSON.stringify(v));
+             //console.log('COMPLETED UPDATE 2' + JSON.stringify(v));
              hasError = _.some(v.updateStageStatus, {status: false});
-             console.log('HADERROR ' + JSON.stringify(hasError));
+             //console.log('HADERROR ' + JSON.stringify(hasError));
              // At the moment callback does not reject the promise on a single error in callback to extrenal system - so it may have set "updateStatus" ... so check
              if ( hasError ) { // errors in the stages 
                if ( typeof v.updateStatus !== 'undefined' ) {
@@ -364,9 +364,9 @@ updateData.prototype.SaveJournal = function(opts, cb) {
              next();
 	  })
            .catch(err => {
-             console.log('Error: ', JSON.stringify(err));
+             //console.log('Error: ', JSON.stringify(err));
              process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": false, "message": "Error in updating transaction" }, "updateStageStatus": v.updateStageStatus }});
-             console.log(err)
+             //console.log(err)
              next();
           });
           // end of then in promises
@@ -391,7 +391,7 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
 
         // Multiple Environments ... if we have additionalEnv - add the details (change of coID and uKey plus a new value) into the array ...
         if ( typeof opts.additionalEnvs !== 'undefined' ) {
-          console.log('We Have Multiple Environments');
+          //console.log('We Have Multiple Environments');
           // additional environments are stored in an array
           opts.additionalEnvs.forEach(function(additionalEnv) {
             // push the additional environment into the coID array
@@ -399,13 +399,13 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
             envConnectionDetails.push({ "coID": additionalEnv.coID, "value": additionalEnv.identifiedBy.value, "uKey": additionalEnv.uKey, "pKey": opts.connection.pKey, "url": opts.connection.url });
           })
         }
-        console.log('envConnectionDetails array is ' + JSON.stringify(envConnectionDetails));
-        console.log('Update data for ' + opts.type)
-        console.log('Update data for ' + JSON.stringify(opts.clientSettings.headerValues));
-        console.log('Update data transactions ' + JSON.stringify(opts.transactions));
-        console.log('Transaction Type: ' + JSON.stringify(opts.processRules.transactionType));
-        console.log('Transaction Template: ' + JSON.stringify(opts.processRules.transactionTemplate));
-        console.log('Allow negative transactions: ' + JSON.stringify(opts.processRules.negativeTransactionType));
+        //console.log('envConnectionDetails array is ' + JSON.stringify(envConnectionDetails));
+        //console.log('Update data for ' + opts.type)
+        //console.log('Update data for ' + JSON.stringify(opts.clientSettings.headerValues));
+        //console.log('Update data transactions ' + JSON.stringify(opts.transactions));
+        //console.log('Transaction Type: ' + JSON.stringify(opts.processRules.transactionType));
+        //console.log('Transaction Template: ' + JSON.stringify(opts.processRules.transactionTemplate));
+        //console.log('Allow negative transactions: ' + JSON.stringify(opts.processRules.negativeTransactionType));
 	if ( opts.processRules.negativeTransactionType.allow == true ) {
 	// Then we are checking for neagtive values and trying to process 
 	  var negativeTransactionCheck = true;
@@ -417,23 +417,23 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
 	var isInValidCount = 0;
 	opts.transactions.forEach(function(v) {
           // set (or reset if used a negative value) the transactionType and transactionTemplate to pass to SOAP calls
-	  console.log('UPDATA DATA INVOICE IS ' + JSON.stringify(v));
+	  //console.log('UPDATA DATA INVOICE IS ' + JSON.stringify(v));
 	  v.transactionType = opts.processRules.transactionType;
 	  v.transactionTemplate = opts.processRules.transactionTemplate;
-	  console.log(v.ExternalReference);
+	  //console.log(v.ExternalReference);
 	  // ok - check if this is a negative transaction type ..
 	  if ( negativeTransactionCheck == true ) {
-	    console.log('Check for negative transaction: is ' + negativeTransactionIdentifier + ' ' + v[negativeTransactionIdentifier] + ' negative??');
+	    //console.log('Check for negative transaction: is ' + negativeTransactionIdentifier + ' ' + v[negativeTransactionIdentifier] + ' negative??');
 	    if ( v[negativeTransactionIdentifier] < 0 ) {
 	      // if the identifier value is a negative numver redefine the transactionType and transactionTemplate to use for this transaction (everything else needs to be the same ...)
-	      console.log('We have a negative transaction ' + v.ExternalReference );
+	      //console.log('We have a negative transaction ' + v.ExternalReference );
 	      v.transactionType = opts.processRules.negativeTransactionType.transactionType;
 	      v.transactionTemplate = opts.processRules.negativeTransactionType.transactionTemplate;
-	      console.log( v[negativeTransactionIdentifier] );
+	      //console.log( v[negativeTransactionIdentifier] );
 	      // reverse the amount 0 need to support other amounts! 
 	      v[negativeTransactionIdentifier] = v[negativeTransactionIdentifier] * -1 
-	      console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionType);
-	      console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
+	      //console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionType);
+	      //console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
 	      // flag for lines 
 	      v.negativeAmounts = true;
 	    }
@@ -445,7 +445,7 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
 	      appLog.info('TransactionRejected: ', v.ExternalReference, 'LineNo:',  i, 'reason:',  JSON.stringify(v.lines[i].updateStatus));
             }
 	    isInValidCount =  isInValidCount + 1;
-            //console.log('Transaction ' + v.ExternalReference + ' is not a valid transaction so not created.');
+            ////console.log('Transaction ' + v.ExternalReference + ' is not a valid transaction so not created.');
           } else {
 	    appLog.info('TransactionToBeCreated: ', v.ExternalReference )
 	    isValidCount =  isValidCount + 1;
@@ -453,23 +453,23 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
 	      appLog.info('TransactionToBeCreatedWithWarnings: ', v.ExternalReference + isWarn);
 	      isWarnCount =  isWarnCount + 1;
             }
-	    console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionType);
-	    console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
+	    //console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionType);
+	    //console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
             // before we connect - set the connection details for this transaction ...
             if ( typeof opts.additionalEnvs !== 'undefined' ) {
               // check for the object in the transactiona array that defines which coID this transaction belongs to
               coIDIdentifier = opts.additionalEnvs[0].identifiedBy.name;
-              console.log('Look for ' + JSON.stringify(coIDIdentifier));
-              console.log('in ' + JSON.stringify(v));
+              //console.log('Look for ' + JSON.stringify(coIDIdentifier));
+              //console.log('in ' + JSON.stringify(v));
 	      myEnvironmentIdentifierValue = v[coIDIdentifier];
 	      this.myConnectionDetails = _.filter(envConnectionDetails, { value: myEnvironmentIdentifierValue });
-	      console.log('myConnectionDetails has length ' + this.myConnectionDetails.length)
+	      //console.log('myConnectionDetails has length ' + this.myConnectionDetails.length)
               // We should only have one match ...
 	      if ( this.myConnectionDetails.length === 1 ) {
 	        this.myConnection = this.myConnectionDetails[0];
               } else if ( this.myConnectionDetails.length === 0 ) {
 	        // if no match default to the default coID
-	        console.log('Not Multi Database');
+	        //console.log('Not Multi Database');
                 this.myConnection = envConnectionDetails[0];
 	      } else {
 	      // if we got more than 1 then trouble
@@ -478,20 +478,20 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
               }
             } else {
 	      // the coIDs array will only have one coID - and that will be used for all objects
-	      console.log('Not Multi Database');
+	      //console.log('Not Multi Database');
               this.myConnection = envConnectionDetails[0];
             }
-	    console.log('myConnection is ' + JSON.stringify(this.myConnection));
+	    //console.log('myConnection is ' + JSON.stringify(this.myConnection));
             soap.createClient(this.myConnection.url, (err, client) => {
 	      var myClient = client;
               aiq = new aiqClient(myClient, this.myConnection.pKey, this.myConnection.uKey, this.myConnection.coID);
-	      console.log( 'ABOUT TO TEMPLATE ' + v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
+	      //console.log( 'ABOUT TO TEMPLATE ' + v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
 	      transactionTemplate = v.transactionTemplate;
               Promise.all([aiq[transactionTemplate]({customerCode: v.CustomerCode })])
                 .then((r1) => {
 	          // though we only want the result part of the return from GetNewSalesInvoice
 	           r1 = r1.Result;
-	           console.log('RAW R1 is ' + JSON.stringify(r1));
+	           //console.log('RAW R1 is ' + JSON.stringify(r1));
 	           // r is now a template - but not a complete template! It is missing a few required fields ... so we add them 
 	           delete v.AccountID_getFromApiValue;
 	           delete v.$$hashKey;
@@ -507,7 +507,7 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
 		       v.lines[i].NetAmount =  v.lines[i].NetAmount * -1
 		     }
 	           };
-	           console.log('Lines are ' + JSON.stringify(v.lines));
+	           //console.log('Lines are ' + JSON.stringify(v.lines));
 	           // lines must become lines.invoiceLine(its the way the SOAP API expects it ... also needs to be "Lines"  on "r1"
 	           var tempLines = { "BatchSalesInvoiceLine" : v.lines };
                    delete v.lines;
@@ -520,7 +520,7 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
 		         if ( name != "transactionTemplate" ) {
 		           //if ( name != "EnvironmentIdentifier" ) {
 		             if ( name != "CustomerCode" ) {
-		               console.log(name + ' has value ' + v[name]);
+		               //console.log(name + ' has value ' + v[name]);
 		               // and apply to result the corresponding value in feed transactions (referenced as v)
 		               r1[name] = v[name];
 		             }
@@ -529,22 +529,22 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
 		       }
 		     }
 		   };
-		   console.log('AIQ Invoice is transposed to r1 complete' + JSON.stringify(r1));
-		   console.log('AIQ Invoice is ' + JSON.stringify(v));
-	           console.log( 'AFTER TEMPLATE ABOUT TO CREATE ' + v.ExternalReference  + ' ' + v.transactionType);
-	           console.log( v.ExternalReference  + ' ' + v.transactionType);
+		   //console.log('AIQ Invoice is transposed to r1 complete' + JSON.stringify(r1));
+		   //console.log('AIQ Invoice is ' + JSON.stringify(v));
+	           //console.log( 'AFTER TEMPLATE ABOUT TO CREATE ' + v.ExternalReference  + ' ' + v.transactionType);
+	           //console.log( v.ExternalReference  + ' ' + v.transactionType);
 	           transactionType = v.transactionType;
-		   console.log('call aiq genericCall for SaveInvoiceGetBackInvoiceID');
+		   //console.log('call aiq genericCall for SaveInvoiceGetBackInvoiceID');
 		  
 		   // CreateBatch requires "inv" to wrap the object (Item invoices need "invoice"
 	           Promise.all([aiq[transactionType]({inv: r1, create: true})])
 		    .then((r2) => {
-		      console.log('2got back from ' + v.transactionType + ' in updateData for ' + JSON.stringify(r1.ExternalReference) + ' result ' + JSON.stringify(r2));
+		      //console.log('2got back from ' + v.transactionType + ' in updateData for ' + JSON.stringify(r1.ExternalReference) + ' result ' + JSON.stringify(r2));
 		      // r2 - the return from the SavInvoiceGetBackInvoiceID
                       // we get r2.Status = "Created" on success
 		      // or Unknown - failed. Error is in r2.ErrorCode and r2.ErrorMessage
 		      if ( r2.Status == "Created" ||  r2.Status == "Success" ) {
-			console.log('updateData got ' + r2.Status + '...');
+			//console.log('updateData got ' + r2.Status + '...');
                         process.send({ createdTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : true, message: 'transaction created', transactionId: r2.invoiceID  } }}); 
 		      } else if ( r2.Status == "Unknown" ) {
                         process.send({ createdTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : false, errorCode : r2.ErrorCode, message: r2.ErrorMessage } }}); 
@@ -553,16 +553,16 @@ updateData.prototype.CreateBatchSalesInvoiceGetBackTransactionID = function(opts
 		      }
 	            })
 		    .catch(err => {
-		      console.log('Error: in updateData SaveInvoiceGetBackInvoiceID:', errors[err.error])
+		      //console.log('Error: in updateData SaveInvoiceGetBackInvoiceID:', errors[err.error])
 		      // No r2 comes back 
                       process.send({ createdTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : false, errorCode : 'SoapError' , message: err } }}); 
-                      console.log(err);
+                      //console.log(err);
                     })
                   })
               .catch(err => {
-                  console.log('Error:', JSON.stringify(err));
+                  //console.log('Error:', JSON.stringify(err));
                   process.send({ createdTransaction: {transactionRef : v.ExternalReference, updateStatus: { status : false, errorCode : 'SoapError' , message: err } }}); 
-                  console.log(err)
+                  //console.log(err)
               })
               .done();
           })
@@ -580,7 +580,7 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
   envConnectionDetails.push({ "coID": opts.coID, "value": "default", "uKey": opts.connection.uKey, "pKey": opts.connection.pKey, "url": opts.connection.url});
   // Multiple Environments ... if we have additionalEnv - add the details (change of coID and uKey plus a new value) into the array ...
   if ( typeof opts.additionalEnvs !== 'undefined' ) {
-    console.log('We Have Multiple Environments in SaveSalesReceiptAlloctaeByExternalReference');
+    //console.log('We Have Multiple Environments in SaveSalesReceiptAlloctaeByExternalReference');
     // additional environments are stored in an array
     opts.additionalEnvs.forEach(function(additionalEnv) {
       // push the additional environment into the coID array
@@ -605,27 +605,27 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
   } else {
     var asyncLimit = opts.processRules.asyncLimit
   }
-  console.log('asyncLimit is ' + asyncLimit);
+  //console.log('asyncLimit is ' + asyncLimit);
   //opts.transactions.forEach(function(v) {
   async.forEachLimit(opts.transactions,asyncLimit, function(v,  next) {
-    console.log('UPDATA DATA IS ' + JSON.stringify(v));
+    //console.log('UPDATA DATA IS ' + JSON.stringify(v));
     v.transactionType = opts.processRules.transactionType;
     v.uniqueExternalReferences = opts.processRules.uniqueExternalReferences;
     v.transactionTemplate = opts.processRules.transactionTemplate;
-    console.log(v.ExternalReference);
+    //console.log(v.ExternalReference);
     // ok - check if this is a negative transaction type ..
     if ( negativeTransactionCheck == true ) {
-      console.log('Check for negative transaction: is ' + negativeTransactionIdentifier + ' ' + v[negativeTransactionIdentifier] + ' negative??');
+      //console.log('Check for negative transaction: is ' + negativeTransactionIdentifier + ' ' + v[negativeTransactionIdentifier] + ' negative??');
       if ( v[negativeTransactionIdentifier] < 0 ) {
         // if the identifier value is a negative numver redefine the transactionType and transactionTemplate to use for this transaction (everything else needs to be the same ...)
-        console.log('We have a negative transaction ' + v.ExternalReference );
+        //console.log('We have a negative transaction ' + v.ExternalReference );
         v.transactionType = opts.processRules.negativeTransactionType.transactionType;
         v.transactionTemplate = opts.processRules.negativeTransactionType.transactionTemplate;
-        console.log( v[negativeTransactionIdentifier] );
+        //console.log( v[negativeTransactionIdentifier] );
         // reverse the amount 0 need to support other amounts! 
         v[negativeTransactionIdentifier] = v[negativeTransactionIdentifier] * -1 
-        console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionType);
-        console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
+        //console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionType);
+        //console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
         // flag for lines 
         v.negativeAmounts = true;
       }
@@ -641,7 +641,7 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
       isInValidCount =  isInValidCount + 1;
       // Call the callback for the async.forEachLimit
       next();
-      //console.log('Transaction ' + v.ExternalReference + ' is not a valid transaction so not created.');
+      ////console.log('Transaction ' + v.ExternalReference + ' is not a valid transaction so not created.');
     } else {
       // VALID TRANSACTIONS - do the data update
       appLog.info('TransactionToBeCreated: ', v.ExternalReference )
@@ -650,23 +650,23 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
         appLog.info('TransactionToBeCreatedWithWarnings: ', v.ExternalReference + isWarn);
         isWarnCount =  isWarnCount + 1;
       }
-      console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionType);
-      console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
-      console.log(JSON.stringify(opts.connection));
+      //console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionType);
+      //console.log( v[negativeTransactionIdentifier]  + ' ' + v.transactionTemplate);
+      //console.log(JSON.stringify(opts.connection));
       // before we connect - set the connection details for this transaction ...
       if ( typeof opts.additionalEnvs !== 'undefined' ) {
         // check for the object in the transactiona array that defines which coID this transaction belongs to
         coIDIdentifier = opts.additionalEnvs[0].identifiedBy.name;
         myEnvironmentIdentifierValue = v[coIDIdentifier];
-        console.log('We Have Multiple Environments in SaveSalesReceiptAlloctaeByExternalReference' + JSON.stringify(envConnectionDetails));
-        console.log('myEnvironmentIdentifierValue ' + JSON.stringify(myEnvironmentIdentifierValue));
+        //console.log('We Have Multiple Environments in SaveSalesReceiptAlloctaeByExternalReference' + JSON.stringify(envConnectionDetails));
+        //console.log('myEnvironmentIdentifierValue ' + JSON.stringify(myEnvironmentIdentifierValue));
         this.myConnectionDetails = _.filter(envConnectionDetails, { value: myEnvironmentIdentifierValue });
         // We should only have one match ...
         if ( this.myConnectionDetails.length === 1 ) {
           this.myConnection = this.myConnectionDetails[0];
         } else if ( this.myConnectionDetails.length === 0 ) {
           // if no match default to the default coID
-          console.log('Not Multi Database');
+          //console.log('Not Multi Database');
           this.myConnection = envConnectionDetails[0];
         } else {
           // if we got more than 1 then trouble
@@ -675,10 +675,10 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
         }
       } else {
         // the coIDs array will only have one coID - and that will be used for all objects
-        console.log('Not Multi Database');
+        //console.log('Not Multi Database');
         this.myConnection = envConnectionDetails[0];
       }
-      console.log('myConnection is ' + v.transactionType + ' ' + JSON.stringify(this.myConnection));
+      //console.log('myConnection is ' + v.transactionType + ' ' + JSON.stringify(this.myConnection));
       soap.createClient(this.myConnection.url, (err, client) => {
         var myClient = client;
         aiq = new aiqClient(myClient, this.myConnection.pKey, this.myConnection.uKey, this.myConnection.coID);
@@ -687,15 +687,15 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
         if (v.hasOwnProperty('$$hashKey')) delete v.$$hashKey ;
         if (v.hasOwnProperty('EnvironmentalIdentifier')) delete v.EnvironmentalIdentifier;
 	v.updateStageStatus = []; // will not have had an updateStageStatus object as is a valid transaction - add the object
-        console.log('Create SaveSalesReceiptGetBackTransactionID ' + JSON.stringify(v));
+        //console.log('Create SaveSalesReceiptGetBackTransactionID ' + JSON.stringify(v));
         this.SaveSalesReceiptGetBackTransactionID(v)
           .then(function(v) {
-            console.log('call GetCustomer' + JSON.stringify(v));
+            //console.log('call GetCustomer' + JSON.stringify(v));
             // Need to call GetCustomer so we can get the AccountID (not CustomerCode) as that is required for the query for GetTransactionsByExternalReference
             return this.GetCustomer(v)
           })
           .then(function(v) {
-            console.log('call GetTransactionsByExternalReference' + JSON.stringify(v));
+            //console.log('call GetTransactionsByExternalReference' + JSON.stringify(v));
             // Limit the get transactions to SI (sales invoices)
             v.GetTransactionsTransactionType = "SI";
             return this.GetTransactionsByExternalReference(v)
@@ -704,20 +704,20 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
 	    // GetTransactionsByExternalReference returns two things 
             // the original object and an array of invoices
 	    // but promises only return/accept 1 argument so as { v, "fetchedTransactions": [invoiceArray]}
-            console.log('call AllocateTransactions' + JSON.stringify(v));
+            //console.log('call AllocateTransactions' + JSON.stringify(v));
             return this.AllocateTransactions(v)
           })
           .then(function(v) {
-            console.log('call AttachDocument' + JSON.stringify(v));
+            //console.log('call AttachDocument' + JSON.stringify(v));
             return this.AttachDocument(v) // pass both the inviuce and the result of saveInvoice
           })
            .then(function(v) { // v.Status tells us what an invoice should end up as (v.Status tells us where it is so far - i.e. Created)
-               console.log('call callback ?' + JSON.stringify(v));
+               //console.log('call callback ?' + JSON.stringify(v));
           })
            .then(function() {
-             console.log('COMPLETED UPDATE 3' + JSON.stringify(v));
+             //console.log('COMPLETED UPDATE 3' + JSON.stringify(v));
              hasError = _.some(v.updateStageStatus, {status: false});
-             console.log('HADERROR ' + JSON.stringify(hasError));
+             //console.log('HADERROR ' + JSON.stringify(hasError));
              // At the moment callback does not reject the promise on a single error in callback to extrenal system - so it may have set "updateStatus" ... so check
              if ( hasError ) { // errors in the stages 
                if ( typeof v.updateStatus !== 'undefined' ) {
@@ -732,9 +732,9 @@ updateData.prototype.SaveSalesReceiptAlloctaeByExternalReference = function(opts
              next();
           })
            .catch(err => {
-             console.log('Error: ', JSON.stringify(err));
+             //console.log('Error: ', JSON.stringify(err));
              process.send({ createdTransaction: {"transactionRef" : v.ExternalReference, "EnvironmentIdentifier": v.EnvironmentIdentifier, "updateStatus": {"status": false, "message": "Error in updating transaction" }, "updateStageStatus": v.updateStageStatus }});
-             console.log(err)
+             //console.log(err)
              next();
           });
           // end of the Q.all transaction template (no closing character)

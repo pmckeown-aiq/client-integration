@@ -3,6 +3,7 @@ var _ = require('lodash');
 var fs = require("fs-extra");
 
 module.exports = calculateTax = function(opts, feedTransactionArray, cb) {
+  console.log('in calculate tax 1');
   // Needed to read rules for getting tax codes from accountID
   var appDir = path.dirname(require.main.filename);
   var config = require(appDir + '/conf/config.js');
@@ -27,18 +28,19 @@ module.exports = calculateTax = function(opts, feedTransactionArray, cb) {
 
   var isTaxCodeSupplied = [];
   isTaxCodeSupplied = _.filter(opts.clientSettings.lineValues, { name: "TaxCode", supplied: false })
+  console.log('in calculate tax 2');
   if ( isTaxCodeSupplied.length >= 1 ) {
     isUseAccountTaxCode = _.filter(opts.clientSettings.headerValues, { name: "UseAccountTaxCode", supplied: false, default:true })
     if ( isUseAccountTaxCode.length >= 1 ) {
       // Ok this is a bit messy! Need to try to shift this into validateObjects as that loops through lines ... but for now 
       process.send({ "loadDataStatus": { message: "Setting tax codes ... please wait ..." }}); 
-      console.log('USING ACCOUNT TAX CODE');
+      console.log('USING ACCOUNT TAX CODE - do forEach');
       feedTransactionArray.forEach(function(transaction) {
         if ( typeof opts.additionalEnvs !== 'undefined' ) {
           // check for the object in the transactiona array that defines which coID this transaction belongs to
           coIDIdentifier = opts.additionalEnvs[0].identifiedBy.name;
           myEnvironmentIdentifierValue = transaction[coIDIdentifier];
-	  console.log('I AM FOR ENVIRONMENT ' + myEnvironmentIdentifierValue);
+	  ////console.log('I AM FOR ENVIRONMENT ' + myEnvironmentIdentifierValue);
 	  myCoIDObject = _.filter(coIDs, { value: myEnvironmentIdentifierValue });
 	  // We should only have one match ...
 	  if ( myCoIDObject.length === 1 ) {
@@ -80,20 +82,20 @@ module.exports = calculateTax = function(opts, feedTransactionArray, cb) {
 	}
         var validate = require(appDir + '/resources/' + validateWith + '.js');
 	// ValidateWhat should be CustomerCode or SupplierCode
-	console.log('SET LINE TAX CODE FROM ACCOUNT ' + myCoID + ' ' + coID);
+	//console.log('SET LINE TAX CODE FROM ACCOUNT ' + myCoID + ' ' + coID);
         validate.doValidation(validateWith,transaction[validateWhat], clientName, coID, validateWhat, function(err, result){
 	  if (typeof result.data != 'undefined' ) {
-            console.log('SET TAX CODE FOR LINES ' + JSON.stringify(result.data));
+            ////console.log('SET TAX CODE FOR LINES ' + JSON.stringify(result.data));
 	    myTaxCodeForLines = result.data.DefaultTaxCode;
           } else {
-	console.log('NO TAX CODE FROM ACCOUNT ' + coID + ' ' + err);
-	console.log('NO TAX CODE FROM ACCOUNT ' + coID + ' ' + JSON.stringify(result));
-	console.log('NO TAX CODE FROM ACCOUNT ' + coID + ' ' + JSON.stringify(transaction));
+	////console.log('NO TAX CODE FROM ACCOUNT ' + coID + ' ' + err);
+	////console.log('NO TAX CODE FROM ACCOUNT ' + coID + ' ' + JSON.stringify(result));
+	////console.log('NO TAX CODE FROM ACCOUNT ' + coID + ' ' + JSON.stringify(transaction));
 	    myTaxCodeForLines = 'notFound-setby-' + validateWhat;
 	  }
           transaction.lines.forEach(function(line) {
             line.TaxCode = myTaxCodeForLines;
-            console.log('LINE TAX CODE ' + JSON.stringify(line.TaxCode));
+            ////console.log('LINE TAX CODE ' + JSON.stringify(line.TaxCode));
           });
         })
       });
@@ -112,7 +114,7 @@ module.exports = calculateTax = function(opts, feedTransactionArray, cb) {
             // check for the object in the transactiona array that defines which coID this transaction belongs to
             coIDIdentifier = opts.additionalEnvs[0].identifiedBy.name;
             myEnvironmentIdentifierValue = transaction[coIDIdentifier];
-	    console.log('I AM FOR ENVIRONMENT ' + myEnvironmentIdentifierValue);
+	    ////console.log('I AM FOR ENVIRONMENT ' + myEnvironmentIdentifierValue);
 	    myCoIDObject = _.filter(coIDs, { value: myEnvironmentIdentifierValue });
 	    // We should only have one match ...
 	    if ( myCoIDObject.length === 1 ) {
@@ -148,12 +150,12 @@ module.exports = calculateTax = function(opts, feedTransactionArray, cb) {
                 }
               })
 	    }
-	    console.log('TAX CODE CHECK FOR ' + JSON.stringify(line))
+	    ////console.log('TAX CODE CHECK FOR ' + JSON.stringify(line))
             var validate = require(appDir + '/resources/' + validateWith + '.js');
 	    // ValidateWhat should be CustomerCode or SupplierCode
             validate.doValidation(validateWith,line[validateWhat], clientName, coID, validateWhat, function(err,result){
-              console.log(JSON.stringify(err));
-              console.log(JSON.stringify(result));
+              ////console.log(JSON.stringify(err));
+              ////console.log(JSON.stringify(result));
 	      if ( typeof result.data != 'undefined' ) {
 	        myTaxCodeForLines = result.data.Rate;
                 line.TaxRate = myTaxCodeForLines;

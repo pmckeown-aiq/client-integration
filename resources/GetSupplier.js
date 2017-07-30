@@ -16,15 +16,15 @@ var _ = require('lodash');
 module.exports = GetSupplier = function(v) {
     // GetSupplier - based on a invoice with SupplierCode - get AccountID
     return new Promise(function(resolve, reject) {
-    console.log('in GetSupplier' + JSON.stringify(v));
+    //console.log('in GetSupplier' + JSON.stringify(v));
     Promise.all([aiq.GetSupplier({ supplierCode: v.SupplierCode })])
       .then((result) => {
-        console.log('Resolve GetSupplier' + JSON.stringify(result[0])); 
+        //console.log('Resolve GetSupplier' + JSON.stringify(result[0])); 
         if ( result[0].Status == "Success" ) {
           if (result[0].Result) {
-            console.log('Check Result - ' + JSON.stringify(result[0].Result));
+            //console.log('Check Result - ' + JSON.stringify(result[0].Result));
             if (result[0].Result.AccountID) {
-              console.log('GetSupplier returned:' + JSON.stringify(result[0].Result.AccountID));
+              //console.log('GetSupplier returned:' + JSON.stringify(result[0].Result.AccountID));
               // fetch out the transaction ID's
               v.AccountID = result[0].Result.AccountID ;
               updateStageStatus = { "stage" : "GetSupplier", "status": true, "serverStatus" : result[0].Status, "error" : result[0].ErrorMessage, "message" : "Fetched AccountID for Supplier Code " + v.SupplierCode};
@@ -43,7 +43,7 @@ module.exports = GetSupplier = function(v) {
         }
       })
       .catch(function(err) { // SOAP error on Save Invoice
-        console.log('SOAP Error' + JSON.stringify(err));
+        //console.log('SOAP Error' + JSON.stringify(err));
         updateStageStatus = { "stage" : "GetSupplier", "status": false, "serverStatus" : v.Status, "message" : "Failed to complete GetSupplier", "error": JSON.stringify(err)};
         v.updateStageStatus.push(updateStageStatus);
         reject(v);

@@ -3,11 +3,11 @@ var fs = require('fs-extra');
 
 module.exports = SaveSalesReceiptGetBackTransactionID = function(v) {
     return new Promise(function(resolve, reject) {
-    console.log('in SaveSalesReceiptGetBackTransactionID' + JSON.stringify(v));
+    //console.log('in SaveSalesReceiptGetBackTransactionID' + JSON.stringify(v));
     Promise.all([aiq.SaveSalesReceiptGetBackTransactionID({ 'salesReceipt': v })])
       .then((result) => {
-        console.log('Resolve SaveSalesReceiptGetBackTransactionID' + JSON.stringify(result[0])); 
-        console.log('Resolve SaveSalesReceiptGetBackTransactionID' + JSON.stringify(v)); 
+        //console.log('Resolve SaveSalesReceiptGetBackTransactionID' + JSON.stringify(result[0])); 
+        //console.log('Resolve SaveSalesReceiptGetBackTransactionID' + JSON.stringify(v)); 
         if ( result[0].status = "Created" ) {
           // FOR EPIC - Description on the receipt is the External Reference ,....
           v.ExternalReference = v.Description;
@@ -22,7 +22,7 @@ module.exports = SaveSalesReceiptGetBackTransactionID = function(v) {
         }
       })
       .catch(function(err) { // SOAP error on Save Invoice
-        console.log('SOAP Error' + JSON.stringify(err));
+        //console.log('SOAP Error' + JSON.stringify(err));
         updateStageStatus = { "stage" : "SaveSalesReceiptGetBackTransactionID", "status": false, "serverStatus" : v.Status, "message" : "Failed to complete SaveSalesReceiptGetBackTransactionID", "error": JSON.stringify(err)};
         v.updateStageStatus.push(updateStageStatus);
         reject(v);

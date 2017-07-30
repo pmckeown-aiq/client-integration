@@ -40,9 +40,9 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
   var config = require(appDir + '/conf/config.js');
   // Array to hold the validation results to be sent back to the client as an array ..
   var invalidData = [];
-  console.log('Objects to validate ' + JSON.stringify(validateObjects));
+  //console.log('Objects to validate ' + JSON.stringify(validateObjects));
   validateObjects.forEach(function(validateObject) {
-    console.log(JSON.stringify(validateObject));
+    //console.log(JSON.stringify(validateObject));
     var validateWhat = validateObject.name;
     process.send({ "loadDataStatus": { message: "validating " + validateWhat + " ... please wait ..." }}); 
     var validateFiles = {} 
@@ -172,7 +172,7 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
 		getObject =  setDefaultValue.defaultValue.getObjectName
 		// quick loop through lines ...
 	        transaction.lines.forEach(function(l) {
-                  console.log('SET LINE DEFAULT ' + l[setDefault] + ' to ' + result['data'][getObject] + ' get object ' + getObject)
+                  //console.log('SET LINE DEFAULT ' + l[setDefault] + ' to ' + result['data'][getObject] + ' get object ' + getObject)
 		  l[setDefault] = result['data'][getObject];
 		});
 	      });
@@ -249,6 +249,6 @@ module.exports = validateObject = function(validateObjects, feedTransactionArray
   // return the feedTransactionArray along with the invalidData array ...
   // first though make the invalidData array a unique array (no need to repeat the message!)
   invalidData = _.uniqBy(invalidData,'code');
-  //console.log('CALL BACK VALIDATE OBJECT ' + validateObject.name + ' ' + JSON.stringify(feedTransactionArray[0].lines[0].TaxCode));
+  ////console.log('CALL BACK VALIDATE OBJECT ' + validateObject.name + ' ' + JSON.stringify(feedTransactionArray[0].lines[0].TaxCode));
   return cb(null, feedTransactionArray, invalidData);
 }

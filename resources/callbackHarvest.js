@@ -20,7 +20,7 @@ module.exports = callbackHarvest = function(opts) {
 
 callbackHarvest.prototype.harvestExpensesApi = function(opts, transaction) {
   return new Promise(function(resolve, reject) { 
-    console.log('CallBack Transaction ' + JSON.stringify(transaction));
+    //console.log('CallBack Transaction ' + JSON.stringify(transaction));
     // Updaing or calling back to Harvest expenses requires ?of_user={userid} to be appended to the URL if updating another users expenses
     // Check to see if we have a field called callback_of_user and if so set it into a variable to use when updating ..
     // The actual updates happen at "line" level - so needs to be a var 
@@ -28,7 +28,7 @@ callbackHarvest.prototype.harvestExpensesApi = function(opts, transaction) {
     if ( typeof transaction.callback_of_user !== 'undefined' ) {
       var of_user = transaction.callback_of_user;
     } 
-    console.log(JSON.stringify(appDir));
+    //console.log(JSON.stringify(appDir));
     var config = require(appDir + '/conf/harvest.json');
     var Harvest = require(appDir + '/harvest.purchases/'),
       harvest = new Harvest({
@@ -36,9 +36,9 @@ callbackHarvest.prototype.harvestExpensesApi = function(opts, transaction) {
         email: config.harvest.email,
         password: config.harvest.password
       });
-    console.log('in callback ' + JSON.stringify(opts.callbackRules));
+    //console.log('in callback ' + JSON.stringify(opts.callbackRules));
     var fn = function updateHarvest(line){ // sample async action
-      console.log('line in fn is ' + JSON.stringify(line));
+      //console.log('line in fn is ' + JSON.stringify(line));
       return new Promise(function(resolve, reject) { 
         // first check to see if we have the "of_user" var needed to update other users expenses ...
         if ( typeof of_user === 'undefined' ) {
@@ -53,28 +53,28 @@ callbackHarvest.prototype.harvestExpensesApi = function(opts, transaction) {
         harvestOptions.of_user = of_user;
         // harvest removes the ID - so need to copy it 
         var myHarvestID = harvestOptions.id;
-        console.log('here 1');
+        //console.log('here 1');
         // Set the field in harvestOptions to be the value on the line
         harvestOptions['expense'][opts.callbackRules.apiFieldName] = safeEval(opts.callbackRules.options.object, {line : line});
         // then prefix this value with the "value" defined in the conf file ..
         harvestOptions['expense'][opts.callbackRules.apiFieldName] = opts.callbackRules.options.value + ":" +  harvestOptions['expense'][opts.callbackRules.apiFieldName];
-        console.log('here 2' +  harvestOptions['expense'][opts.callbackRules.apiFieldName] +  [opts.callbackRules.apiFieldName] );
-        console.log('in callback ' + JSON.stringify(harvestOptions));
+        //console.log('here 2' +  harvestOptions['expense'][opts.callbackRules.apiFieldName] +  [opts.callbackRules.apiFieldName] );
+        //console.log('in callback ' + JSON.stringify(harvestOptions));
         
         myRoutine = harvest[opts.callbackRules.apiFunction];
-        console.log('call harvest ' + opts.callbackRules.apiFunction + '.' + opts.callbackRules.method + ' options: ' + JSON.stringify( harvestOptions));
+        //console.log('call harvest ' + opts.callbackRules.apiFunction + '.' + opts.callbackRules.method + ' options: ' + JSON.stringify( harvestOptions));
         myRoutine[opts.callbackRules.method](harvestOptions, function(cb) {
           if ( cb != null ) { 
             if ( cb.status >= 400 && cb.status < 500 ) {
-              console.log('400 Error:' + JSON.stringify(cb));
+              //console.log('400 Error:' + JSON.stringify(cb));
             } else if ( cb.status >= 300 && cb.status < 400 ) {
-              console.log('300 Error:' + JSON.stringify(cb));
+              //console.log('300 Error:' + JSON.stringify(cb));
             } else {
-              console.log('Got Back :' + JSON.stringify(cb));
+              //console.log('Got Back :' + JSON.stringify(cb));
           }
             resolve({ "xTransactionRef": myHarvestID, "status": false, "errorCode": cb, "message": harvestOptions[opts.callbackRules.apiFieldName]});
           } else { 
-            console.log('Update complete - no error'+  myHarvestID);
+            //console.log('Update complete - no error'+  myHarvestID);
             resolve({ "xTransactionRef": myHarvestID, "status": true, "message": harvestOptions[opts.callbackRules.apiFieldName] });
           }
         })
@@ -85,9 +85,9 @@ callbackHarvest.prototype.harvestExpensesApi = function(opts, transaction) {
     var callbackPromise = Promise.all(actions); // pass array of promises
     callbackPromise
       .then((results) => {
-        console.log('ALL BACK IN callbackHarvest' + JSON.stringify(results));
+        //console.log('ALL BACK IN callbackHarvest' + JSON.stringify(results));
         if (results) {
-          console.log('Have results');
+          //console.log('Have results');
           var hasErrors = _.filter(results, { "status": false });
           if ( hasErrors.length === 0 ) {
             // No errors 

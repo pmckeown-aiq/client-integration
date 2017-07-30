@@ -26,7 +26,7 @@ env: function(opts ,cb) {
   for (var i = 0; i < config.envs.length; i++){
     if (config.envs[i].coID == opts.coID){
        opts.connection = {};
-       console.log('checking ' + JSON.stringify(config.envs));
+       //console.log('checking ' + JSON.stringify(config.envs));
        opts.connection.url = config.envs[i].conn.url;
        opts.connection.pKey = config.envs[i].conn.pKey;
        opts.connection.uKey = config.envs[i].conn.uKey;
@@ -34,7 +34,7 @@ env: function(opts ,cb) {
        opts.additionalEnvs = config.envs[i].additionalEnvs;
     }
   }
-  console.log('pKey is ' + opts.pKey);
+  //console.log('pKey is ' + opts.pKey);
   // Read the transaction type specific configuration
   // read environment variables for processing rules
   opts.coID.replace(/"/g,"");
@@ -92,7 +92,7 @@ env: function(opts ,cb) {
          }
        })
        // May not have lines ...
-       console.log(JSON.stringify('Has Lines' +  opts.clientSettings.hasLines));
+       //console.log(JSON.stringify('Has Lines' +  opts.clientSettings.hasLines));
        if ( opts.clientSettings.hasLines == true ) {
          opts.clientSettings.lineValues.forEach(function(object) {
            if ( object.hasOwnProperty('map') ) {

@@ -33,7 +33,7 @@ module.exports = {
    extract: function(opts, cb) {
      var config = require(appDir + '/conf/config.js');
      var clientName = opts.clientName;
-     //console.log('clientName is ' + clientName );
+     ////console.log('clientName is ' + clientName );
      // Read the "codeMaintenanceSettings" in the configuration file - this maps what to use when validating/creating objects (and gives them a name)
      var codeMaintenanceSettings = config.codeMaintenanceSettings;
      var objectsToValidate = [];
@@ -56,13 +56,13 @@ module.exports = {
        }
      })
      objectsToValidate.forEach(function(objectToValidate) {
-       console.log('objectToValidate ' + JSON.stringify(objectToValidate));
+       //console.log('objectToValidate ' + JSON.stringify(objectToValidate));
        var thisObject = codeMaintenanceSettings[objectToValidate];
        var validateWith = thisObject.validateWith;
        process.send({"extract": objectToValidate ,"success":false})
        soap.createClient(opts.connection.url, (err, client) => {
-       //console.log('Running load static data ' + validateWith );
-       //console.log('Running load static data ' + clientName );
+       ////console.log('Running load static data ' + validateWith );
+       ////console.log('Running load static data ' + clientName );
        var aiq = new aiqClient(client, opts.connection.pKey, opts.connection.uKey, opts.coID);
        //Q.all([aiq.genericCall(valueToValidate.via)])
        Q.all([aiq[validateWith] ()])
@@ -73,14 +73,14 @@ module.exports = {
                 delete result[p]
     
              var file = path.join(appDir , 'clients', clientName , '/data/', filename);
-	     //console.log('file is ' + file );
+	     ////console.log('file is ' + file );
              //fs.writeFileSync(file, util.inspect(r));
              fs.writeFileSync(file, JSON.stringify(result));
              var isSuccess = { 'extract' : objectToValidate , 'success' : true }; 
              return cb(isSuccess);
           })
           .fail(err => {
-             console.log(JSON.stringify(err));
+             //console.log(JSON.stringify(err));
              var isSuccess = { 'extract' : objectToValidate , 'success' : false }; 
              return cb(isSuccess);
           })

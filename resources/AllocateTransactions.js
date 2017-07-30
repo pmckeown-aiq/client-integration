@@ -19,8 +19,8 @@ module.exports = AllocateTransactions = function(v) {
     return new Promise(function(resolve, reject) {
       var invoices = v.fetchedTransactions;
       var payment = v.fetchedVia;
-      console.log('in AllocateTransactions invoices' + JSON.stringify(invoices));
-      console.log('in AllocateTransactions payment' + JSON.stringify(payment));
+      //console.log('in AllocateTransactions invoices' + JSON.stringify(invoices));
+      //console.log('in AllocateTransactions payment' + JSON.stringify(payment));
       if ( invoices.length > 0 ) { // have invoices and length of invoices is greater than 0 - we have invoices
         if ( invoices.length == 1 ) { // have invoices and length of invoices is greater than 0 - we have invoices
           myAllocation = {};
@@ -29,10 +29,10 @@ module.exports = AllocateTransactions = function(v) {
           myAllocation.allocationReference = payment.ExternalReference;
           myAllocation.allocationAmount = payment.PaymentAmount;
           myAllocation.allocationDate = payment.PaymentDate;
-          console.log('GOING TO ALLOCATE ' + JSON.stringify(myAllocation))
+          //console.log('GOING TO ALLOCATE ' + JSON.stringify(myAllocation))
           Promise.all([aiq.AllocateTransactions(myAllocation)])
             .then((result) => {
-              console.log('Check Result AllocateTransactionsResult ' + JSON.stringify(result[0]));
+              //console.log('Check Result AllocateTransactionsResult ' + JSON.stringify(result[0]));
               if (result[0] ) {
                 if (result[0].Status == 'Success' ) {
                     updateStageStatus = { "stage" : "AllocateTransactions", "status": true, "serverStatus" : result[0].Status, "error" : result[0].ErrorMessage, "message" : "Allocation Complete" };
@@ -46,7 +46,7 @@ module.exports = AllocateTransactions = function(v) {
               }
             })
             .catch(function(err) { // SOAP error on allocation
-              console.log('SOAP Error' + JSON.stringify(err));
+              //console.log('SOAP Error' + JSON.stringify(err));
               updateStageStatus = { "stage" : "AllocateTransactions", "status": false, "serverStatus" : payment.Status, "message" : "Failed to complete AllocateTransactions", "error": JSON.stringify(err)};
               payment.updateStageStatus.push(updateStageStatus);
               reject(payment);

@@ -1,6 +1,6 @@
 var path = require('path');
 var appDir = path.dirname(require.main.filename);
-console.log('App Dir is ' + appDir);
+//console.log('App Dir is ' + appDir);
 var _ = require('lodash');
 var clone = require('clone');
 var fs = require("fs-extra");
@@ -54,26 +54,55 @@ function isValidDate(inputDate) {
   return inputDate.match(regEx) != null;
 }
 
-function getTaxRate(taxCodeArray, opts, cb) {
+function getTaxRateByTaxCode(taxCodeArray, opts, cb) {
   var validateWith = 'GetTaxCodeList';
   var validate = require(appDir + '/resources/' + validateWith + '.js');
   var returnArray = [];
   // ValidateWhat should be CustomerCode or SupplierCode
-  console.log('SET LINE TAX CODE FROM ACCOUNT ' + opts.coID);
+  //console.log('SET LINE TAX CODE FROM ACCOUNT ' + opts.coID);
   taxCodeArray.forEach(function(validateWhat) {
-   console.log('SET LINE TAX CODE FROM ACCOUNT ' + opts.coID);
+   //console.log('SET LINE TAX CODE FROM ACCOUNT ' + opts.coID);
     validate.doValidation(validateWith,validateWhat, opts.clientName, opts.coID, validateWhat, function(err, result){
       if (typeof result.data != 'undefined' ) {
-        console.log('SET TAX CODE FOR LINES ' + JSON.stringify(result.data));
+        //console.log('SET TAX CODE FOR LINES ' + JSON.stringify(result.data));
         returnArray.push(result.data);
+      } else {
+        //console.log('NO TAX CODE FROM ACCOUNT ' + opts.coID + ' ' + err);
+        cb('NO TAX CODE FROM ACCOUNT ' + opts.coID + ' ' + JSON.stringify(result), null);
+      }
+    })
+    //console.log('Return ' + JSON.stringify(returnArray));
+    cb(null, returnArray);
+  })
+}
+
+function getTaxRateByCustomerCode(customerCodeArray, opts, cb) {
+  var validateWith = 'GetActiveCustomerList';
+  var validate = require(appDir + '/resources/' + validateWith + '.js');
+  var returnArray = [];
+  // ValidateWhat should be CustomerCode or SupplierCode
+  //console.log('SET LINE TAX CODE FROM ACCOUNT ' + opts.coID);
+  customerCodeArray.forEach(function(validateWhat) {
+  // ValidateWhat should be CustomerCode or SupplierCode
+    validate.doValidation(validateWith,validateWhat, opts.clientName, opts.coID, validateWhat, function(err, result){
+      if (typeof result.data != 'undefined' ) {
+        taxCodesArray = [];
+        taxCodesArray.push(result.data.DefaultTaxCode);
+        getTaxRateByTaxCode(taxCodesArray, opts, function(err, data) {
+          if (err) throw err;
+          console.log('1 TAX ARRAY ' + JSON.stringify(data));
+          data[0].CustomerCode = validateWhat;
+          //opts.taxRateArray = data;
+          returnArray.push(data[0]);
+        })
       } else {
         console.log('NO TAX CODE FROM ACCOUNT ' + opts.coID + ' ' + err);
         cb('NO TAX CODE FROM ACCOUNT ' + opts.coID + ' ' + JSON.stringify(result), null);
       }
     })
-    console.log('Return ' + JSON.stringify(returnArray));
-    cb(null, returnArray);
+    //console.log('Return ' + JSON.stringify(returnArray));
   })
+  cb(null, returnArray);
 }
 
 function writeAttachment(consolidatedInvoice, opts) {
@@ -84,14 +113,14 @@ function writeAttachment(consolidatedInvoice, opts) {
       var attachmentFileName = safeEval(opts.processRules.attachDocument.attachmentFileName, { consolidatedInvoice });
       var workbook = new Excel.Workbook();
       var templateFile = appDir + '/clients/' + opts.clientName + '/scripts/Type3Template.xlsx';
-      console.log('in promise - about to read file' + templateFile);
+      //console.log('in promise - about to read file' + templateFile);
       workbook.xlsx.readFile(templateFile)
         .then(function() {
-          console.log("Edit File");
+          //console.log("Edit File");
           // edit worksheet
           var worksheet = workbook.getWorksheet("Inv 1");
           consolidatedInvoice.lines.forEach(function(line) {
-            console.log('ADD LINE ' + consolidatedInvoice.SummarySubAccount + ' or ' + line.SummarySubAccount);
+            //console.log('ADD LINE ' + consolidatedInvoice.SummarySubAccount + ' or ' + line.SummarySubAccount);
             worksheet.addRow([line.ExternalReference, line.SummarySubAccount, line.StockItemDescriptionType3, line.WorkOrder, line.WorkOrderDate, line.InvoicedQuantity, line.StockItemPrice, line.NetAmount, line.TaxAmount, line.NetAmount + line.TaxAmount ]);
           });
           // Add totals 
@@ -102,23 +131,23 @@ function writeAttachment(consolidatedInvoice, opts) {
           worksheet.addRow(rowValues);
           var row = worksheet.lastRow;
           row.font = { name: 'Calibri', size: 10, bold: true };
-          console.log("DONE Edit File" + consolidatedInvoice.lines.length);
-          console.log("Write File - " + appDir + '/clients/' + opts.clientName + '/data/' + opts.coID + '/' + attachmentFileName  + '.' + opts.processRules.attachDocument.attachmentType);
+          //console.log("DONE Edit File" + consolidatedInvoice.lines.length);
+          //console.log("Write File - " + appDir + '/clients/' + opts.clientName + '/data/' + opts.coID + '/' + attachmentFileName  + '.' + opts.processRules.attachDocument.attachmentType);
         })
         .then(function() {
           workbook.xlsx.writeFile(appDir + '/clients/' + opts.clientName + '/data/' + opts.coID + '/' + attachmentFileName  + '.' + opts.processRules.attachDocument.attachmentType);
-          console.log('attach to invoice');
+          //console.log('attach to invoice');
           consolidatedInvoice.AttachDocument = appDir + '/clients/' + opts.clientName + '/data/' + opts.coID + '/' + attachmentFileName  + '.' + opts.processRules.attachDocument.attachmentType;
-          console.log("Done - resolve Promise");
+          //console.log("Done - resolve Promise");
           resolve(consolidatedInvoice);
         })
         .catch(function(err) {
-          console.log('Error ' + JSON.stringify(err));
-          console.log("Done - reject Promise");
+          //console.log('Error ' + JSON.stringify(err));
+          //console.log("Done - reject Promise");
           reject(err);
         })
      } else {
-          console.log("Nothing to attach - resolve Promise");
+          //console.log("Nothing to attach - resolve Promise");
           resolve(consolidatedInvoice);
      }
   })
@@ -126,10 +155,10 @@ function writeAttachment(consolidatedInvoice, opts) {
 
 function createConsolidatedInvoices(customer, invoiceLines, opts) {
   return new Promise(function(resolve, reject){
-    console.log('i am ' + customer);
-    console.log('i have ' + invoiceLines.length);
+    //console.log('i am ' + customer);
+    //console.log('i have ' + invoiceLines.length);
     myInvoices = _.filter(consolidatedHeaders, { 'CustomerCode': customer});
-    console.log('Invoices for ' + customer + ' ' + myInvoices.length);
+    //console.log('Invoices for ' + customer + ' ' + myInvoices.length);
     consolidatedInvoice = {};
     consolidatedInvoice.lines = [];
     consolidatedInvoice.CustomerCode = myInvoices[0].CustomerCode;
@@ -148,30 +177,30 @@ function createConsolidatedInvoices(customer, invoiceLines, opts) {
     // now need to loop through the non-consolidated invoices (myInvoices) for this customer
     myInvoices.forEach(function(invoice) {
       invoice.lines = [];
-      console.log('Inspect invoice ' + invoice.ExternalReference);
+      //console.log('Inspect invoice ' + invoice.ExternalReference);
       invoice.lines = _.filter(invoiceLines, { ExternalReference : invoice.ExternalReference });
       invoice.lines.forEach(function(line) {
 	line.SummarySubAccount = invoice.SummarySubAccount;
-        myTaxCode = _.filter(opts.taxRateArray, { Code: "S" });
-        console.log('myTaxCode ' + JSON.stringify(myTaxCode));
+        myTaxCode = _.filter(opts.taxRateArray, { Code: line.TaxCode });
         if (myTaxCode.length == 1 ) {
          line.TaxAmount = parseFloat(line.NetAmount) * parseFloat(myTaxCode[0].Rate);
-         console.log('Tax Amount ' + line.TaxAmount);
+         line.TaxRate = myTaxCode[0].Rate;
+         line.TaxCode = myTaxCode[0].Code;
         }
       })
       // Push the invoice lines into the consolidated invoice lines
-      //console.log('PUSH ' + JSON.stringify(invoice.lines.length));
+      ////console.log('PUSH ' + JSON.stringify(invoice.lines.length));
       // concatenate the lines to the array
       consolidatedInvoice.lines  = consolidatedInvoice.lines.concat(invoice.lines);
-      //console.log('PUSHED ' + JSON.stringify(consolidatedInvoice.lines.length));
+      ////console.log('PUSHED ' + JSON.stringify(consolidatedInvoice.lines.length));
     })
-    console.log('Consolidated Invoice Line Count:' + JSON.stringify(consolidatedInvoice.lines.length));
+    //console.log('Consolidated Invoice Line Count:' + JSON.stringify(consolidatedInvoice.lines.length));
     // Total up the lines ...
     consolidatedInvoice.NetAmount = _.sumBy(consolidatedInvoice.lines, 'NetAmount');
     consolidatedInvoice.NetAmount =  parseFloat(consolidatedInvoice.NetAmount).toFixed(2);
     consolidatedInvoice.TaxAmount = _.sumBy(consolidatedInvoice.lines, 'TaxAmount');
     consolidatedInvoice.TaxAmount =  parseFloat(consolidatedInvoice.TaxAmount).toFixed(2);
-    console.log('Resolve createConsolidatedInvoice Invoice Line Count:' + JSON.stringify(consolidatedInvoice.lines.length));
+    //console.log('Resolve createConsolidatedInvoice Invoice Line Count:' + JSON.stringify(consolidatedInvoice.lines.length));
     resolve(consolidatedInvoice);
   });
 };
@@ -180,14 +209,15 @@ function summariseConsolidatedInvoice(consolidatedInvoice, opts) {
   return new Promise(function(resolve, reject){
         // Ok - we have written the attachment - so we need to then summarise the lines ...
         //var props = ['SummarySubAccount', 'GLAccountCode', 'TaxCode' ,'StockItemID', 'StockItemDescriptionType3', 'ActualPrice', 'StockItemPrice', 'DepartmentID'];
-        var props = ['GLAccountCode', 'TaxCode' ,'StockItemID', 'StockItemDescriptionType3', 'ActualPrice', 'StockItemPrice', 'DepartmentID'];
+        var props = ['GLAccountCode', 'TaxRate', 'TaxCode' ,'StockItemID', 'StockItemDescriptionType3', 'ActualPrice', 'StockItemPrice', 'DepartmentID'];
         var myFilters = _.map(consolidatedInvoice.lines,_.partialRight(_.pick, props));
         var uniqueFilters = _.uniqWith(myFilters,  _.isEqual);
-        console.log('I have PROPS ' + JSON.stringify(props));
+        //console.log('I have PROPS ' + JSON.stringify(props));
         summaryLines = []; // empty array to store summary lines
         _.forEach(uniqueFilters, function(filter) {
           myLines = _.filter(consolidatedInvoice.lines, filter);
           filter.NetAmount = _.sumBy(myLines, 'NetAmount');
+          filter.TaxAmount = _.sumBy(myLines, 'TaxAmount');
           filter.InvoicedQuantity = _.sumBy(myLines, 'InvoicedQuantity');
           //filter.Notes = consolidatedInvoice.SummarySubAccount;
           // push the filtered object to the summaryLines array
@@ -213,12 +243,12 @@ function summariseConsolidatedInvoice(consolidatedInvoice, opts) {
           // mark the invoice - COMMENTED OUT AS FOR REDUCED LINES USED FOR TESTING THIS FAILS - AS WE HAVE CUT OUT SOME LINES AND THE TAX AMOUNT IS FROM THE HEADER (WHICH WOULD BE FOR ALL LINES - NOT THE REDUCED LINES!)
           //invoice.updateStatus = { 'status': "danger", 'error':'Summary Tax Total Did Not Match Original Tax Total' };
         }
-        console.log('resolve summariseConsolidated invoice ...');
-        console.log(JSON.stringify(consolidatedInvoice));
+        //console.log('resolve summariseConsolidated invoice ...');
+        //console.log(JSON.stringify(consolidatedInvoice));
         resolve(consolidatedInvoice);
       })
       .catch(function (err) {
-        console.log("Promise Rejected" + JSON.stringify(err));
+        //console.log("Promise Rejected" + JSON.stringify(err));
       });
 };
 
@@ -233,11 +263,22 @@ function processNonConsolidatedInvoice(invoice, invoiceLines, opts) {
     // Now go and grab the headers for the customer
     // Now filter out the lines for this reference number
     invoice.lines = _.filter(invoiceLines, { ExternalReference : invoice.ExternalReference });
+
     // Add the date range to the first line ...
     if ( invoice.lines.length > 0 ) {
       invoice.lines[0].Notes = 'Storage ' + invoice.LineDataRange;
       invoice.lines[0].SummarySubAccount = invoice.SummarySubAccount;
     }
+    invoice.lines.forEach(function(line){
+        myTaxCode = _.filter(opts.taxRateArray, { Code: line.TaxCode });
+        console.log('myTaxCode ' + JSON.stringify(myTaxCode));
+        if (myTaxCode.length == 1 ) {
+         line.TaxAmount = parseFloat(line.NetAmount) * parseFloat(myTaxCode[0].Rate);
+         line.TaxRate = myTaxCode[0].Rate;
+         line.TaxCode = myTaxCode[0].Code;
+         console.log('Tax Amount ' + line.TaxAmount);
+        }
+    })
     // Summarising of Invoices
     // Type 1 - No Summary
     // Type 2 - No Summary
@@ -249,13 +290,13 @@ function processNonConsolidatedInvoice(invoice, invoiceLines, opts) {
     invoice.NetAmount =  parseFloat(invoice.NetAmount).toFixed(2);
     invoice.GrossAmount = (invoice.NetAmount*1) + (invoice.TaxAmount*1);
     invoice.GrossAmount = invoice.GrossAmount.toFixed(2);
-    console.log('A single invoice: ' + JSON.stringify(invoice));
+    //console.log('A single invoice: ' + JSON.stringify(invoice));
     resolve(invoice);
     })
 };
 
 processData.prototype.RSSQLInvoices = async function(feedTransactions, opts, options, cb) {
-  console.log('Running Process Data for Kefron ' + JSON.stringify(options) );
+  //console.log('Running Process Data for Kefron ' + JSON.stringify(options) );
   // Array to return from processData
   processedTransactions = [];
   // Sanity Check Variables
@@ -310,20 +351,20 @@ processData.prototype.RSSQLInvoices = async function(feedTransactions, opts, opt
     }
   })
   // Parse one customer at a time ... needed to summarise across invoices 
-  console.log(JSON.stringify(feedTransactions[0]));
+  //console.log(JSON.stringify(feedTransactions[0]));
   consolidatedHeaders = _.filter(invoiceHeaders, { SummationType: "3" });
-  console.log('Consolidate ' + JSON.stringify(consolidatedHeaders.length));
+  //console.log('Consolidate ' + JSON.stringify(consolidatedHeaders.length));
   taxCodesArray = _.chain(invoiceLines).map(function(item) { return item.TaxCode }).uniq().value();
-  getTaxRate(taxCodesArray, opts, function(err, data) {
+  getTaxRateByTaxCode(taxCodesArray, opts, function(err, data) {
     if (err) throw err;
-    console.log('TAX ARRAY ' + JSON.stringify(data));
+    //console.log('TAX ARRAY ' + JSON.stringify(data));
     opts.taxRateArray = data;
     consolidatedCustomers = _.chain(consolidatedHeaders).map(function(item) { return item.CustomerCode }).uniq().value();
     type1Customers = _.filter(invoiceHeaders, { SummationType: "1" });
     type2Customers = _.filter(invoiceHeaders, { SummationType: "2" });
     nonConsolidatedHeaders = _.union(type1Customers,type2Customers);
-    console.log('CONSOLIDATE CUSTOMERS COUNT ' + consolidatedCustomers.length);
-    console.log('NON CONSOLIDATE INVOICES COUNT ' + invoiceHeaders.length);
+    //console.log('CONSOLIDATE CUSTOMERS COUNT ' + consolidatedCustomers.length);
+    //console.log('NON CONSOLIDATE INVOICES COUNT ' + invoiceHeaders.length);
     //await Promise.all(consolidatedCustomers.map(function (customer) {
   async.series([
       function(callback) {
@@ -331,22 +372,22 @@ processData.prototype.RSSQLInvoices = async function(feedTransactions, opts, opt
           return createConsolidatedInvoices(customer, invoiceLines, opts);
         }))
         .then(consolInvArray => { 
-          console.log('consolInvArray length ' + consolInvArray.consolInvArray);
+          //console.log('consolInvArray length ' + consolInvArray.consolInvArray);
           return Promise.all(consolInvArray.map(function (consolidatedInvoice) {
               return writeAttachment(consolidatedInvoice, opts)
            }))
         })
         .then(consolInvArray => { 
-          console.log('consolInvArray length ' + consolInvArray.length);
+          //console.log('consolInvArray length ' + consolInvArray.length);
           return Promise.all(consolInvArray.map(function (consolidatedInvoice) {
               return summariseConsolidatedInvoice(consolidatedInvoice, opts)
            }))
         })
         .then(consolInvArray => { 
-          console.log('process 1 complete - callback time');
+          //console.log('process 1 complete - callback time');
           callback(null, consolInvArray);
         }).catch(function(e) {
-          console.log(e); // "oh, no!"
+          //console.log(e); // "oh, no!"
         });
       },
       function(callback) {
@@ -354,26 +395,26 @@ processData.prototype.RSSQLInvoices = async function(feedTransactions, opts, opt
           return processNonConsolidatedInvoice(invoice, invoiceLines, opts);
         }))
         .then(nonConsolInvArray => { 
-          console.log('process 2 complete - callback time');
+          //console.log('process 2 complete - callback time');
           callback(null, nonConsolInvArray);
         }).catch(function(e) {
-          console.log(e); // "oh, no!"
+          //console.log(e); // "oh, no!"
         });
       }
     ],
     // callback to integration.js
     function(err, processedTransactions) {
       // results is now equal to ['one', 'two']
-      console.log('process  complete - callback time');
+      //console.log('process  complete - callback time');
       processedTransactions = processedTransactions.reduce((a, b) => a.concat(b), []);
-          console.log('CALLBACK Transactions Count ' + processedTransactions.length);
+         console.log('CALLBACK Transactions Count ' + JSON.stringify(processedTransactions));
       cb(null, processedTransactions)
     });
   })
 }
 
 processData.prototype.ScanningInvoices = function(feedTransactions, opts, options, cb ) {
-  console.log('Running Process Data for Kefron ' + JSON.stringify(opts) );
+  //console.log('Running Process Data for Kefron ' + JSON.stringify(opts) );
   // Array to return from processData
   processedTransactions = [];
   // Sanity Check Variables
@@ -384,47 +425,60 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
   mySuppliedLines = _.filter(opts.clientSettings.lineValues, { "supplied": true });
   // 
   myUniqueReferences = _.chain(feedTransactions).map(function(item) { return item['Reference'] }).uniq().value();
-  myUniqueReferences.forEach(function(ref) {
-    myLines = _.filter(feedTransactions, { "Reference": ref});
-    invoice = {};
-    invoice.NetAmount = 0;
-    invoice.GrossAmount = 0;
-    invoice.TaxAmount = 0;
-    mySuppliedHeaders.forEach(function(headerVal) {
-      invoice[headerVal.name] = safeEval( 'head[\'' + headerVal.value + '\']', {head : myLines[0] });
-    }) ;
-    // External Ref is just a period number
-    invoice.ExternalReference = invoice.CustomerCode + ':' + invoice.ExternalReference;
-    invoice.lines = [];
-    myLines.forEach(function(myLine) {
-      newLine = {};
-      mySuppliedLines.forEach(function(lineVal) { 
-        newLine[lineVal.name] = safeEval( 'line[\'' + lineVal.value + '\']', {line : myLine });
+  customerCodeArray = _.chain(feedTransactions).map(function(item) { return item['Account Code'] }).uniq().value();
+console.log('customerCodeArray ' + JSON.stringify(customerCodeArray));
+  getTaxRateByCustomerCode(customerCodeArray, opts, function(err, data) {
+    //if (err) throw err;
+    console.log('TAX ARRAY ' + JSON.stringify(data));
+    console.log('taxCodesArray ' + JSON.stringify(taxCodesArray));
+    opts.taxRateArray = data;
+    myUniqueReferences.forEach(function(ref) {
+console.log('Process ref ' + ref);
+      invoice = {};
+      invoice.lines = _.filter(feedTransactions, { "Reference": ref});
+      invoice.NetAmount = 0;
+      invoice.GrossAmount = 0;
+      invoice.TaxAmount = 0;
+      mySuppliedHeaders.forEach(function(headerVal) {
+        invoice[headerVal.name] = safeEval( 'head[\'' + headerVal.value + '\']', {head : invoice.lines[0] });
+      }) ;
+      // External Ref is just a period number
+      invoice.ExternalReference = invoice.CustomerCode + ':' + invoice.ExternalReference;
+      invoice.lines.forEach(function(line) {
+console.log('Process ref ' + ref + ' line ');
+        mySuppliedLines.forEach(function(lineVal) { 
+          line[lineVal.name] = safeEval( 'line[\'' + lineVal.value + '\']', {"line" : line });
+        });
+        myTaxCode = _.filter(opts.taxRateArray, { "CustomerCode": invoice.CustomerCode });
+        // Net Amount not supplied
+        line.NetAmount = parseFloat(line.InvoicedQuantity) * parseFloat(line.StockItemPrice);
+        if (myTaxCode.length == 1 ) {
+         line.TaxAmount = parseFloat(line.NetAmount) * parseFloat(myTaxCode[0].Rate);
+         line.TaxRate = myTaxCode[0].Rate;
+         line.TaxCode = myTaxCode[0].Code;
+         line.GrossAmount = parseFloat(line.NetAmount) + parseFloat(line.TaxAmount);
+        }
+        //invoice.lines.push(newLine);
       });
-      // Net Amount not supplied
-      newLine.NetAmount = newLine.InvoicedQuantity * newLine.StockItemPrice;
-      newLine.NetAmount = (newLine.NetAmount.toFixed(2)/1);
-      invoice.lines.push(newLine);
-    });
-    console.log('A single invoice: ' + JSON.stringify(invoice));
-    invoice.InvoiceDate = formatDate(invoice.InvoiceDate);
-    if ( !isValidDate(invoice.InvoiceDate) )  {
-      invoice.updateStatus = { 'status': 'warning', 'error': invoice.ExternalReference + ' INVOICE DATE IS NOT A VALID DATE' };
-    } // all other dates come from the same place so no need to validate
-    invoice.CreationDate = formatDate(invoice.CreationDate);
-    invoice.DeliveryDate = formatDate(invoice.DeliveryDate);
-    invoice.OrderDate = formatDate(invoice.OrderDate);
-    invoice.NetAmount = _.sumBy(invoice.lines, 'NetAmount');
-    processedTransactions.push(invoice);
+      //console.log('A single invoice: ' + JSON.stringify(invoice));
+      invoice.InvoiceDate = formatDate(invoice.InvoiceDate);
+      if ( !isValidDate(invoice.InvoiceDate) )  {
+        invoice.updateStatus = { 'status': 'warning', 'error': invoice.ExternalReference + ' INVOICE DATE IS NOT A VALID DATE' };
+      } // all other dates come from the same place so no need to validate
+      invoice.CreationDate = formatDate(invoice.CreationDate);
+      invoice.DeliveryDate = formatDate(invoice.DeliveryDate);
+      invoice.OrderDate = formatDate(invoice.OrderDate);
+      invoice.NetAmount = _.sumBy(invoice.lines, 'NetAmount');
+      processedTransactions.push(invoice);
+    })
+    // And at the end return the transactions
+    cb(null, processedTransactions);
   })
-  // And at the end return the transactions
-  cb(null, processedTransactions);
-  //return processedTransactions;
 }
 
 processData.prototype.PayrollImport = function(feedTransactions, opts, options , cb) {
-  console.log('Running Process Data for Kefron ' + JSON.stringify(opts) );
-  console.log('Running Process Data for Kefron ' + JSON.stringify(options) );
+  //console.log('Running Process Data for Kefron ' + JSON.stringify(opts) );
+  //console.log('Running Process Data for Kefron ' + JSON.stringify(options) );
   // Array to return from processData
   processedTransactions = [];
 
@@ -434,12 +488,14 @@ processData.prototype.PayrollImport = function(feedTransactions, opts, options ,
       DepartmentID: obj.field16.substr(0,3) + '-' + obj.field16.substr(3,3),
       GLAccountCode: obj.field18,
       Description: obj.field20,
-      Amount: obj.field22 - obj.field23
+      Amount: obj.field22 - obj.field23,
+      ExternalReference: obj.field5
     }
   })
   // The file will load as one single journal - so there is not really a header
   myJournal = {};
-  myJournal.ExternalReference = options.data.type + ':' + options.data.file.substr(0,4) + '-' + options.data.file.substr(4,2) + '-' + options.data.file.substr(6,2)
+  myJournal.ExternalReference = transactions[0].ExternalReference.replace('Unposted Accounts : ','');
+  //myJournal.ExternalReference = options.data.type + ':' + options.data.file.substr(0,4) + '-' + options.data.file.substr(4,2) + '-' + options.data.file.substr(6,2)
       // The journal date comes from the file name! 
   myJournal.TransactionDate = options.data.file.substr(0,4) + '-' + options.data.file.substr(4,2) + '-' + options.data.file.substr(6,2)
   myJournal.InternalReference = myJournal.ExternalReference;
@@ -453,7 +509,7 @@ processData.prototype.PayrollImport = function(feedTransactions, opts, options ,
     delete v.$$hashKey;
     myJournal.lines.push(v); 
   });	  
-  console.log(JSON.stringify(myJournal));
+  //console.log(JSON.stringify(myJournal));
   processedTransactions.push(myJournal);
   cb(null, processedTransactions);
   //return processedTransactions;

@@ -30,20 +30,20 @@ module.exports = setDefaultValue = function(validateObjects,feedTransactionArray
   // Multiple Environments ... if we have additionalEnv defined we need to validate data against one or other (possibly more in time) coID fields ... all we need to know is:
   // If we have the multiple environments what is the identifier field for the environments. The identifier should tell us what the coID is ... 
   if ( typeof validateObjects.additionalEnvs !== 'undefined' ) {
-    console.log('We Have Multiple Environments');
+    //console.log('We Have Multiple Environments');
     // additional environments are stored in an array
     validateObjects.additionalEnvs.forEach(function(additionalEnv) {
       // push the additional environment into the coID array
       // and the value of the field that identifies the coID is 
       coIDs.push({ "coID": additionalEnv.coID, "value": additionalEnv.identifiedBy.value });
     })
-      console.log('coID array is ' + JSON.stringify(coIDs));
+      //console.log('coID array is ' + JSON.stringify(coIDs));
   }
   var config = require(appDir + '/conf/config.js');
   // Array to hold the validation results to be sent back to the client as an array ..
   var invalidData = [];
   headerSetByValidationValues.forEach(function(setByValidation) {
-    console.log('set values for ' + JSON.stringify(setByValidation));
+    //console.log('set values for ' + JSON.stringify(setByValidation));
     /* Currently supports two types of "defaultValues"
      * set: true - set to a static string
      * getFromValidation: true - go and grab the value based on another object in the transaction ... the object must be a "validateValue" object (so that we have an output file from extractStaticData. The output file will be used to find values matching the "pointer" property for the transaction
@@ -54,28 +54,28 @@ module.exports = setDefaultValue = function(validateObjects,feedTransactionArray
 
     // Firstly - the more complex variant - getting from the other properties extracStaticData
     if ( setByValidation.defaultValue.getFromValidation == true ) {
-      console.log(JSON.stringify(validateObjects));
-      console.log(JSON.stringify(setByValidation.defaultValue.getFromObject));
+      //console.log(JSON.stringify(validateObjects));
+      //console.log(JSON.stringify(setByValidation.defaultValue.getFromObject));
 
       var validateWhat = _.filter(validateObjects, { name: setByValidation.defaultValue.getFromObject })
-      console.log('We are going to use ' + JSON.stringify(validateWhat));
+      //console.log('We are going to use ' + JSON.stringify(validateWhat));
       if ( validateWhat.length != 1 ) { // should only get one match!
         throw('setDefaultValues had an error - more than one match for possible routines to set default values from!');
       }
       var validateVia = validateWhat[0].name;
       var validateFiles = {} 
-      console.log('validateVia ' + JSON.stringify(validateVia));
+      //console.log('validateVia ' + JSON.stringify(validateVia));
       // From the config file get the name of the SOAP call that extracts data for this object. The data extracted earlier will be in a file named the same as the soap call 
       var codeMaintenanceSettings = config.codeMaintenanceSettings;
       var thisObject = codeMaintenanceSettings[validateVia];
       var validateWith = thisObject.validateWith;
-      console.log('validateWith ' + JSON.stringify(validateWith));
+      //console.log('validateWith ' + JSON.stringify(validateWith));
       var invalidMessage = thisObject.invalidMessage;
       // See if we have a "createWith" property for this object - if we do we can create the object on the fly. If not it has to be created in AccountsIQ
-      //console.log('called to run the validation data' + validateWith);
+      ////console.log('called to run the validation data' + validateWith);
       // ToDo - this is in the conf file so should be passed as an argument! 
       if (fs.existsSync(appDir + '/resources/' + validateWith + '.js')) {
-        //console.log('GOT ' + validateWith + ' resources file');	  
+        ////console.log('GOT ' + validateWith + ' resources file');	  
         // set an empty object up which will be validateFiles.whatIsTheProcedureToExtractCalled - such as "validateFiles.GetActiveCustomerList"
         // we will append coID to this - so it needs to exist ...
         validateFiles[validateWith] = {} 
@@ -115,17 +115,17 @@ module.exports = setDefaultValue = function(validateObjects,feedTransactionArray
         mylineSetByValidationValues.forEach(function(setDefaultValue) {
 	  setDefault =  setDefaultValue.name
 	  getObject =  setDefaultValue.defaultValue.getObjectName
-	        console.log('SET DEFAULT FROM RESULT FOR ' + setDefaultValue.name + ' to ' + JSON.stringify(result['data']));
+	        //console.log('SET DEFAULT FROM RESULT FOR ' + setDefaultValue.name + ' to ' + JSON.stringify(result['data']));
 		// quick loop through lines ...
 	        transaction.lines.forEach(function(l) {
 		  l[setDefault] = result['data'][getObject];
-		  console.log('SSET DEFAULT FOR ' + setDefault + ' ' + result['data'][getObject] );
+		  //console.log('SSET DEFAULT FOR ' + setDefault + ' ' + result['data'][getObject] );
 		});
 	      });
 	    if ( validateObject.name == "CurrencyCode" ) {
               if ( result.data.IsBaseCurrency !== true ) {
 	        // Net to set the currency exchange rate 
-	        console.log('SET THE EXCHANGE RATE ' +  JSON.stringify(result.data.ExchangeRate)) 
+	        //console.log('SET THE EXCHANGE RATE ' +  JSON.stringify(result.data.ExchangeRate)) 
 	        transaction.ExchangeRate = result.data.ExchangeRate;
 	      }
 	    }
@@ -136,7 +136,7 @@ module.exports = setDefaultValue = function(validateObjects,feedTransactionArray
         transaction.lines.forEach(function(line) {
 	  // header set static values ... headerSetStaticDefault
           lineSetStaticDefault.forEach(function(v) {
-            console.log(JSON.stringify(v));
+            //console.log(JSON.stringify(v));
             staticObjectName = v.name;
 	    // special case for setDateToToday
 	    if (v.name == 'setDateToToday' ) { 
