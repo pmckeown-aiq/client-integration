@@ -167,8 +167,8 @@ aiqClient.prototype.genericCall = function(name, returnType) {
                      //return res.resolve(result['Result'][returnType]);
                    })
                    .fail((error) => {
-                     console.log('FAIL TO CALL THEN AFTER API CALL ' + this.soapClient.lastRequest); // to LOG the last client request SOAP
-                     console.log(' not a success ' + JSON.stringify(error));
+                     //console.log('FAIL TO CALL THEN AFTER API CALL ' + this.soapClient.lastRequest); // to LOG the last client request SOAP
+                     //console.log(' not a success ' + JSON.stringify(error));
                      res.reject({error: errorCodes.API_ERROR});
                    })
                 })

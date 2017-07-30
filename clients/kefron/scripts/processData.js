@@ -59,7 +59,7 @@ function getTaxRateByTaxCode(taxCodeArray, opts, cb) {
   var validate = require(appDir + '/resources/' + validateWith + '.js');
   var returnArray = [];
   // ValidateWhat should be CustomerCode or SupplierCode
-  //console.log('SET LINE TAX CODE FROM ACCOUNT ' + opts.coID);
+  console.log('SET LINE TAX CODE FROM ACCOUNT ' + JSON.stringify(taxCodeArray));
   taxCodeArray.forEach(function(validateWhat) {
    //console.log('SET LINE TAX CODE FROM ACCOUNT ' + opts.coID);
     validate.doValidation(validateWith,validateWhat, opts.clientName, opts.coID, validateWhat, function(err, result){
@@ -71,38 +71,42 @@ function getTaxRateByTaxCode(taxCodeArray, opts, cb) {
         cb('NO TAX CODE FROM ACCOUNT ' + opts.coID + ' ' + JSON.stringify(result), null);
       }
     })
-    //console.log('Return ' + JSON.stringify(returnArray));
+    console.log('Return ' + JSON.stringify(returnArray));
     cb(null, returnArray);
   })
 }
 
-function getTaxRateByCustomerCode(customerCodeArray, opts, cb) {
-  var validateWith = 'GetActiveCustomerList';
-  var validate = require(appDir + '/resources/' + validateWith + '.js');
-  var returnArray = [];
-  // ValidateWhat should be CustomerCode or SupplierCode
-  //console.log('SET LINE TAX CODE FROM ACCOUNT ' + opts.coID);
-  customerCodeArray.forEach(function(validateWhat) {
-  // ValidateWhat should be CustomerCode or SupplierCode
-    validate.doValidation(validateWith,validateWhat, opts.clientName, opts.coID, validateWhat, function(err, result){
-      if (typeof result.data != 'undefined' ) {
-        taxCodesArray = [];
-        taxCodesArray.push(result.data.DefaultTaxCode);
-        getTaxRateByTaxCode(taxCodesArray, opts, function(err, data) {
-          if (err) throw err;
-          console.log('1 TAX ARRAY ' + JSON.stringify(data));
-          data[0].CustomerCode = validateWhat;
-          //opts.taxRateArray = data;
-          returnArray.push(data[0]);
-        })
-      } else {
-        console.log('NO TAX CODE FROM ACCOUNT ' + opts.coID + ' ' + err);
-        cb('NO TAX CODE FROM ACCOUNT ' + opts.coID + ' ' + JSON.stringify(result), null);
-      }
+function getTaxRateByCustomerCode(customerCodeArray, opts) {
+  return new Promise(function(resolve, reject){
+    var validateWith = 'GetActiveCustomerList';
+    var validate = require(appDir + '/resources/' + validateWith + '.js');
+    var returnArray = [];
+    // ValidateWhat should be CustomerCode or SupplierCode
+    //console.log('SET LINE TAX CODE FROM ACCOUNT ' + opts.coID);
+    customerCodeArray.forEach(function(validateWhat) {
+    // ValidateWhat should be CustomerCode or SupplierCode
+      validate.doValidation(validateWith,validateWhat, opts.clientName, opts.coID, validateWhat, function(err, result){
+        if (typeof result.data != 'undefined' ) {
+          taxCodesArray = [];
+          taxCodesArray.push(result.data.DefaultTaxCode);
+          getTaxRateByTaxCode(taxCodesArray, opts, function(err, data) {
+            if (err) throw err;
+            console.log('1 TAX ARRAY ' + JSON.stringify(data));
+            data[0].CustomerCode = validateWhat;
+            //opts.taxRateArray = data;
+            returnArray.push(data[0]);
+          })
+        } else {
+          console.log('NO TAX CODE FROM ACCOUNT ' + validateWhat + ' ' + err);
+          //reject('NO TAX CODE FROM ACCOUNT ' + opts.coID + ' ' + JSON.stringify(result));
+        }
+      })
     })
-    //console.log('Return ' + JSON.stringify(returnArray));
+  console.log('Return ' + JSON.stringify(returnArray));
+  console.log('Resolve getTaxRateByCustomerCode');
+  resolve(returnArray);
+  //cb(null, returnArray);
   })
-  cb(null, returnArray);
 }
 
 function writeAttachment(consolidatedInvoice, opts) {
@@ -426,54 +430,54 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
   // 
   myUniqueReferences = _.chain(feedTransactions).map(function(item) { return item['Reference'] }).uniq().value();
   customerCodeArray = _.chain(feedTransactions).map(function(item) { return item['Account Code'] }).uniq().value();
-console.log('customerCodeArray ' + JSON.stringify(customerCodeArray));
-  getTaxRateByCustomerCode(customerCodeArray, opts, function(err, data) {
-    //if (err) throw err;
-    console.log('TAX ARRAY ' + JSON.stringify(data));
-    console.log('taxCodesArray ' + JSON.stringify(taxCodesArray));
-    opts.taxRateArray = data;
-    myUniqueReferences.forEach(function(ref) {
-console.log('Process ref ' + ref);
-      invoice = {};
-      invoice.lines = _.filter(feedTransactions, { "Reference": ref});
-      invoice.NetAmount = 0;
-      invoice.GrossAmount = 0;
-      invoice.TaxAmount = 0;
-      mySuppliedHeaders.forEach(function(headerVal) {
-        invoice[headerVal.name] = safeEval( 'head[\'' + headerVal.value + '\']', {head : invoice.lines[0] });
-      }) ;
-      // External Ref is just a period number
-      invoice.ExternalReference = invoice.CustomerCode + ':' + invoice.ExternalReference;
-      invoice.lines.forEach(function(line) {
-console.log('Process ref ' + ref + ' line ');
-        mySuppliedLines.forEach(function(lineVal) { 
-          line[lineVal.name] = safeEval( 'line[\'' + lineVal.value + '\']', {"line" : line });
+  console.log('customerCodeArray ' + JSON.stringify(customerCodeArray));
+  getTaxRateByCustomerCode(customerCodeArray, opts) 
+    .then(taxCodeArray => { 
+      console.log('resolved getTaxRateByCustomerCode ' + JSON.stringify(taxCodeArray));
+      console.log('myUniqueReferences ' + myUniqueReferences.length);
+      myUniqueReferences.forEach(function(ref) {
+        console.log('Process ref ' + ref);
+        invoice = {};
+        invoice.lines = _.filter(feedTransactions, { "Reference": ref});
+        invoice.NetAmount = 0;
+        invoice.GrossAmount = 0;
+        invoice.TaxAmount = 0;
+        mySuppliedHeaders.forEach(function(headerVal) {
+          invoice[headerVal.name] = safeEval( 'head[\'' + headerVal.value + '\']', {head : invoice.lines[0] });
+        }) ;
+        // External Ref is just a period number
+        invoice.ExternalReference = invoice.CustomerCode + ':' + invoice.ExternalReference;
+        invoice.lines.forEach(function(line) {
+          console.log('Process ref ' + ref + ' line ');
+          mySuppliedLines.forEach(function(lineVal) { 
+            line[lineVal.name] = safeEval( 'line[\'' + lineVal.value + '\']', {"line" : line });
+          });
+          myTaxCode = _.filter(taxCodeArray, { "CustomerCode": invoice.CustomerCode });
+          // Net Amount not supplied
+          line.NetAmount = parseFloat(line.InvoicedQuantity) * parseFloat(line.StockItemPrice);
+          if (myTaxCode.length == 1 ) {
+           line.TaxAmount = parseFloat(line.NetAmount) * parseFloat(myTaxCode[0].Rate);
+           line.TaxRate = myTaxCode[0].Rate;
+           line.TaxCode = myTaxCode[0].Code;
+           line.GrossAmount = parseFloat(line.NetAmount) + parseFloat(line.TaxAmount);
+          }
+          //invoice.lines.push(newLine);
         });
-        myTaxCode = _.filter(opts.taxRateArray, { "CustomerCode": invoice.CustomerCode });
-        // Net Amount not supplied
-        line.NetAmount = parseFloat(line.InvoicedQuantity) * parseFloat(line.StockItemPrice);
-        if (myTaxCode.length == 1 ) {
-         line.TaxAmount = parseFloat(line.NetAmount) * parseFloat(myTaxCode[0].Rate);
-         line.TaxRate = myTaxCode[0].Rate;
-         line.TaxCode = myTaxCode[0].Code;
-         line.GrossAmount = parseFloat(line.NetAmount) + parseFloat(line.TaxAmount);
-        }
-        //invoice.lines.push(newLine);
-      });
-      //console.log('A single invoice: ' + JSON.stringify(invoice));
-      invoice.InvoiceDate = formatDate(invoice.InvoiceDate);
-      if ( !isValidDate(invoice.InvoiceDate) )  {
-        invoice.updateStatus = { 'status': 'warning', 'error': invoice.ExternalReference + ' INVOICE DATE IS NOT A VALID DATE' };
-      } // all other dates come from the same place so no need to validate
-      invoice.CreationDate = formatDate(invoice.CreationDate);
-      invoice.DeliveryDate = formatDate(invoice.DeliveryDate);
-      invoice.OrderDate = formatDate(invoice.OrderDate);
-      invoice.NetAmount = _.sumBy(invoice.lines, 'NetAmount');
-      processedTransactions.push(invoice);
-    })
-    // And at the end return the transactions
-    cb(null, processedTransactions);
+        //console.log('A single invoice: ' + JSON.stringify(invoice));
+        invoice.InvoiceDate = formatDate(invoice.InvoiceDate);
+        if ( !isValidDate(invoice.InvoiceDate) )  {
+          invoice.updateStatus = { 'status': 'warning', 'error': invoice.ExternalReference + ' INVOICE DATE IS NOT A VALID DATE' };
+        } // all other dates come from the same place so no need to validate
+        invoice.CreationDate = formatDate(invoice.CreationDate);
+        invoice.DeliveryDate = formatDate(invoice.DeliveryDate);
+        invoice.OrderDate = formatDate(invoice.OrderDate);
+        invoice.NetAmount = _.sumBy(invoice.lines, 'NetAmount');
+        processedTransactions.push(invoice);
+      })
   })
+  // And at the end return the transactions
+  console.log('Call back ' + processedTransactions.length);
+  cb(null, processedTransactions);
 }
 
 processData.prototype.PayrollImport = function(feedTransactions, opts, options , cb) {

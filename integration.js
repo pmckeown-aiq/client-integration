@@ -256,7 +256,9 @@ process.on('message', function (options) {
             var processData = require(opts.processRules.processScript);
             this.processData = new processData(this);
             var feedTransactionArray = [];
+	    console.log('1 in loaddata - processData ' + JSON.stringify(opts.type));
             this.processData[opts.type](feedTransactions, opts, options, function (err, feedTransactionArray) {
+	      console.log('2 in loaddata - processData' + feedTransactionArray.length);
               if (err) return console.error(err);
               // NEVER NEVER SEND THE FULL OPTIONS !!!!!
               process.send({ "loadDataStatus": { message: " Completed processing transactions ... now validating the data and applying data maps please wait ..." }}); 
