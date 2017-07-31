@@ -436,32 +436,40 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
       console.log('resolved getTaxRateByCustomerCode ' + JSON.stringify(taxCodeArray));
       console.log('myUniqueReferences ' + myUniqueReferences.length);
       myUniqueReferences.forEach(function(ref) {
-        console.log('Process ref ' + ref);
+        myLines = _.filter(feedTransactions, { "Reference": ref});
+        console.log('1 Process ref ' + ref);
         invoice = {};
-        invoice.lines = _.filter(feedTransactions, { "Reference": ref});
+        invoice.lines = [];
         invoice.NetAmount = 0;
         invoice.GrossAmount = 0;
         invoice.TaxAmount = 0;
+        console.log('2 Process ref ' + ref);
         mySuppliedHeaders.forEach(function(headerVal) {
-          invoice[headerVal.name] = safeEval( 'head[\'' + headerVal.value + '\']', {head : invoice.lines[0] });
+          console.log('Evaluate Header ' + JSON.stringify(headerVal));
+          invoice[headerVal.name] = safeEval( 'head[\'' + headerVal.value + '\']', {head : myLines[0] });
         }) ;
+        console.log('3 Process ref ' + ref);
         // External Ref is just a period number
         invoice.ExternalReference = invoice.CustomerCode + ':' + invoice.ExternalReference;
-        invoice.lines.forEach(function(line) {
-          console.log('Process ref ' + ref + ' line ');
+        myLines.forEach(function(myLine) {
+          console.log('Evaluate ' + JSON.stringify(myLine));
+          newLine = {};
           mySuppliedLines.forEach(function(lineVal) { 
-            line[lineVal.name] = safeEval( 'line[\'' + lineVal.value + '\']', {"line" : line });
+            newLine[lineVal.name] = safeEval( 'line[\'' + lineVal.value + '\']', {line : myLine });
           });
           myTaxCode = _.filter(taxCodeArray, { "CustomerCode": invoice.CustomerCode });
           // Net Amount not supplied
-          line.NetAmount = parseFloat(line.InvoicedQuantity) * parseFloat(line.StockItemPrice);
+          newLine.NetAmount = parseFloat(newLine.InvoicedQuantity) * parseFloat(newLine.StockItemPrice);
           if (myTaxCode.length == 1 ) {
-           line.TaxAmount = parseFloat(line.NetAmount) * parseFloat(myTaxCode[0].Rate);
-           line.TaxRate = myTaxCode[0].Rate;
-           line.TaxCode = myTaxCode[0].Code;
-           line.GrossAmount = parseFloat(line.NetAmount) + parseFloat(line.TaxAmount);
+           newLine.TaxAmount = parseFloat(newLine.NetAmount) * parseFloat(myTaxCode[0].Rate);
+           newLine.TaxRate = myTaxCode[0].Rate;
+           newLine.TaxCode = myTaxCode[0].Code;
+           newLine.GrossAmount = parseFloat(newLine.NetAmount) + parseFloat(newLine.TaxAmount);
           }
-          //invoice.lines.push(newLine);
+          newLine.TaxAmount = parseFloat((newLine.TaxAmount).toFixed(2));
+          newLine.NetAmount = parseFloat((newLine.NetAmount).toFixed(2));
+          newLine.GrossAmount = parseFloat((newLine.GrossAmount).toFixed(2));
+          invoice.lines.push(newLine);
         });
         //console.log('A single invoice: ' + JSON.stringify(invoice));
         invoice.InvoiceDate = formatDate(invoice.InvoiceDate);
@@ -472,6 +480,12 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
         invoice.DeliveryDate = formatDate(invoice.DeliveryDate);
         invoice.OrderDate = formatDate(invoice.OrderDate);
         invoice.NetAmount = _.sumBy(invoice.lines, 'NetAmount');
+        invoice.TaxAmount = _.sumBy(invoice.lines, 'TaxAmount');
+        invoice.GrossAmount = _.sumBy(invoice.lines, 'GrossAmount');
+        invoice.TaxAmount = parseFloat((invoice.TaxAmount).toFixed(2));
+        invoice.NetAmount = parseFloat((invoice.NetAmount).toFixed(2));
+        invoice.GrossAmount = parseFloat((invoice.GrossAmount).toFixed(2));	
+	delete invoice.feedLines;
         processedTransactions.push(invoice);
       })
   })

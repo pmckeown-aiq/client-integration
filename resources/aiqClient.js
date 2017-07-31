@@ -167,15 +167,15 @@ aiqClient.prototype.genericCall = function(name, returnType) {
                      //return res.resolve(result['Result'][returnType]);
                    })
                    .fail((error) => {
-                     //console.log('FAIL TO CALL THEN AFTER API CALL ' + this.soapClient.lastRequest); // to LOG the last client request SOAP
-                     //console.log(' not a success ' + JSON.stringify(error));
+                     console.log(' not a success ' + JSON.stringify(error));
+                     console.log('FAIL TO CALL THEN AFTER API CALL ' + this.soapClient.lastRequest); // to LOG the last client request SOAP
                      res.reject({error: errorCodes.API_ERROR});
                    })
                 })
               .fail(() => {
                 //console.log('FAILED LOGIN IN AIQCLIENT ' + this.soapClient.lastRequest); // to LOG the last client request SOAP
                 //console.log('FAILED LOGIN IN AIQCLIENT ARGS ' + JSON.stringify(args)); // to LOG the last client request SOAP
-	            res.reject({error: errorCodes.UNKNOWN_ERROR});
+	        res.reject({error: errorCodes.UNKNOWN_ERROR});
               })
               return res.promise;
       }
