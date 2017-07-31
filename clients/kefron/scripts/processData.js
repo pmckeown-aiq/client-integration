@@ -433,11 +433,11 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
   console.log('customerCodeArray ' + JSON.stringify(customerCodeArray));
   getTaxRateByCustomerCode(customerCodeArray, opts) 
     .then(taxCodeArray => { 
-      console.log('resolved getTaxRateByCustomerCode ' + JSON.stringify(taxCodeArray));
+      //console.log('resolved getTaxRateByCustomerCode ' + JSON.stringify(taxCodeArray));
       console.log('myUniqueReferences ' + myUniqueReferences.length);
       myUniqueReferences.forEach(function(ref) {
-        myLines = _.filter(feedTransactions, { "Reference": ref});
         console.log('1 Process ref ' + ref);
+        myLines = _.filter(feedTransactions, { "Reference": ref});
         invoice = {};
         invoice.lines = [];
         invoice.NetAmount = 0;
@@ -445,14 +445,13 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
         invoice.TaxAmount = 0;
         console.log('2 Process ref ' + ref);
         mySuppliedHeaders.forEach(function(headerVal) {
-          console.log('Evaluate Header ' + JSON.stringify(headerVal));
           invoice[headerVal.name] = safeEval( 'head[\'' + headerVal.value + '\']', {head : myLines[0] });
         }) ;
         console.log('3 Process ref ' + ref);
         // External Ref is just a period number
         invoice.ExternalReference = invoice.CustomerCode + ':' + invoice.ExternalReference;
         myLines.forEach(function(myLine) {
-          console.log('Evaluate ' + JSON.stringify(myLine));
+          console.log('1 line Process ref ' + ref);
           newLine = {};
           mySuppliedLines.forEach(function(lineVal) { 
             newLine[lineVal.name] = safeEval( 'line[\'' + lineVal.value + '\']', {line : myLine });
@@ -460,16 +459,23 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
           myTaxCode = _.filter(taxCodeArray, { "CustomerCode": invoice.CustomerCode });
           // Net Amount not supplied
           newLine.NetAmount = parseFloat(newLine.InvoicedQuantity) * parseFloat(newLine.StockItemPrice);
+          console.log('2 line Process ref ' + ref);
           if (myTaxCode.length == 1 ) {
+           console.log('3a line Process ref ' + ref);
            newLine.TaxAmount = parseFloat(newLine.NetAmount) * parseFloat(myTaxCode[0].Rate);
            newLine.TaxRate = myTaxCode[0].Rate;
            newLine.TaxCode = myTaxCode[0].Code;
            newLine.GrossAmount = parseFloat(newLine.NetAmount) + parseFloat(newLine.TaxAmount);
+          } else {
+           console.log('3b line Process ref ' + ref);
+           newLine.TaxAmount = 0;
+           newLine.GrossAmount = 0;
           }
           newLine.TaxAmount = parseFloat((newLine.TaxAmount).toFixed(2));
           newLine.NetAmount = parseFloat((newLine.NetAmount).toFixed(2));
           newLine.GrossAmount = parseFloat((newLine.GrossAmount).toFixed(2));
           invoice.lines.push(newLine);
+          console.log('Complete Process ref ' + ref);
         });
         //console.log('A single invoice: ' + JSON.stringify(invoice));
         invoice.InvoiceDate = formatDate(invoice.InvoiceDate);
@@ -488,7 +494,10 @@ processData.prototype.ScanningInvoices = function(feedTransactions, opts, option
 	delete invoice.feedLines;
         processedTransactions.push(invoice);
       })
-  })
+    })
+    .catch((err) => { 
+      console.log('Caught Error ' + JSON.stringify(err));  
+    })
   // And at the end return the transactions
   console.log('Call back ' + processedTransactions.length);
   cb(null, processedTransactions);
