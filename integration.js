@@ -313,7 +313,6 @@ process.on('message', function (options) {
                     callback(null, feedTransactionArray)
                   })
                 },
-                /*
                 function(feedTransactionArray, callback) {
                   opts.clientName = options.data.clientName.replace(/"/g,"");
                   console.log('Call Calculate Tax');
@@ -333,7 +332,6 @@ process.on('message', function (options) {
                     callback(null, feedTransactionArray)
                   })
                 },
-               */
                 function(feedTransactionArray, callback) {
                   validateObject(validateObjects, feedTransactionArray, headerSetByValidationValues, lineSetByValidationValues, headerSetStaticDefault, lineSetStaticDefault, function(err, feedTransactionArray, invalidData) {
                     if (err) { 

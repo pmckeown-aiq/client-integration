@@ -323,7 +323,7 @@ loadData.prototype.harvestExpensesApi = function(opts, filters, cb) {
     harvestOptions[filter.name] = filter.value; 
   })
 
-  //console.log("we have harvestOptions"  +  JSON.stringify(harvestOptions) )
+  console.log("we have harvestOptions"  +  JSON.stringify(harvestOptions) )
   // then if we have looping filters loop through ..
   //console.log('loopFilters.length is ' + loopFilters.length);
   if ( loopFilters.length !== 0 ) {
@@ -411,6 +411,7 @@ loadData.prototype.harvestExpensesApi = function(opts, filters, cb) {
     	    //console.log('Get Expenses for ' +  person.id);
             // use the harvestOptions.to date as the invoice date
 	    person.invoice_date = harvestOptions.to;
+	    person.is_closed = harvestOptions.is_closed;
     	    //console.log('Set Expenses Invoice Date for ' +  person.id + ' as ' + person.invoice_date);
             // expensesByUser needs the user_id added to the options (they should be date ranges ...) 
             harvestOptions.user_id = person.id;
@@ -424,7 +425,7 @@ loadData.prototype.harvestExpensesApi = function(opts, filters, cb) {
                 return line.expense;
               });
               person.lines = expenses
-              //console.log('Person with expenses ' + JSON.stringify(expenses));
+              console.log('Person with expenses ' + JSON.stringify(expenses));
               //console.log('Person with expenses ' + JSON.stringify(person));
               // done with the client - issue the cb callback signal!
               cb();

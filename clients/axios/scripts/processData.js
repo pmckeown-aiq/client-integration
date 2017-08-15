@@ -9,7 +9,7 @@ var safeEval = require('safe-eval')
 module.exports = processData = function (feedTransactions, opts, options) {
 };
 
-processData.prototype.AxiosHarvestInvoices = function(feedTransactions, opts, options ) {
+processData.prototype.AxiosHarvestInvoices = function(feedTransactions, opts, options , cb) {
   //console.log('Running Process Data for Axios ' + JSON.stringify(opts) );
   // Array to return from processData
   processedTransactions = [];
@@ -69,10 +69,10 @@ processData.prototype.AxiosHarvestInvoices = function(feedTransactions, opts, op
   })
   console.log('END PROCESS DATA ' + JSON.stringify(processedTransactions));
   // And at the end return the transactions
-  return processedTransactions;
+  cb(null, processedTransactions);
 }
 
-processData.prototype.AxiosHarvestExpenses = function(feedTransactions, opts, options ) {
+processData.prototype.AxiosHarvestExpenses = function(feedTransactions, opts, options, cb ) {
   //console.log('Running Process Data for Axios ' + JSON.stringify(opts) );
   // Array to return from processData
   processedTransactions = [];
@@ -131,9 +131,11 @@ processData.prototype.AxiosHarvestExpenses = function(feedTransactions, opts, op
       console.log('Original Line is ' + JSON.stringify(line));
       myInvoice.lines.push(myLine);     
     })
+    myInvoice.NetAmount = _.sumBy(myInvoice.lines, 'NetAmount');
+    myInvoice.NetAmount =  parseFloat(myInvoice.NetAmount).toFixed(2);
     processedTransactions.push(myInvoice)
   })
   console.log('END PROCESS DATA ' + JSON.stringify(processedTransactions));
   // And at the end return the transactions
-  return processedTransactions;
+  cb(null, processedTransactions);
 }

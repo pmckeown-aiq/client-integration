@@ -101,7 +101,7 @@ Reports.prototype.expensesByUser = function(options, cb) {
       for both the from date and the to date'));
   }
 
-  var url = '/people/' + options.user_id + '/expenses?from=' + options.from + '&to=' + options.to;
+  var url = '/people/' + options.user_id + '/expenses?from=' + options.from + '&to=' + options.to + '&is_closed=' + options.is_closed;
   this.client.get(url, {}, cb);
 };
 

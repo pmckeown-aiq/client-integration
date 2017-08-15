@@ -28,9 +28,16 @@ module.exports = createObject = function(opts) {
 };
 
 createObject.prototype.CustomerCode = function(opts, object, cb) {
-  ////console.log('createObject opts ' + JSON.stringify(opts));
-  ////console.log('objectType is ' + JSON.stringify(objectType));
-  ////console.log('object is ' + JSON.stringify(object));
+  console.log('createObject opts ' + JSON.stringify(opts));
+  console.log('objectType is ' + JSON.stringify(objectType));
+  console.log('object is ' + JSON.stringify(object));
+  if ( typeof object.data.Code == 'undefined' ) {
+    if ( typeof object.data.code != 'undefined' ) {
+      object.data.Code = object.data.code;
+    } else {
+      object.data.Code = object.code;
+    }
+  }
   soap.createClient(opts.connection.url, (err, client) => {
     var aiq = new aiqClient(client, opts.connection.pKey, opts.connection.uKey, opts.coID);
     Q.all([aiq.GetNewCustomerFromDefaults()])
@@ -56,7 +63,7 @@ createObject.prototype.CustomerCode = function(opts, object, cb) {
              r[p] = data[p];
            } 
          }
-         //console.log('OK - customer to create is ' + JSON.stringify(r));
+         console.log('OK - customer to create is ' + JSON.stringify(r));
          // Create the account
          Q.all([aiq.UpdateCustomer({customer: r, create: true})])
            .then(([r2]) => {
